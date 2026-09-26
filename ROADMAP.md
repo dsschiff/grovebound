@@ -22,4 +22,4 @@ Run `npm test` and the production build; stage the Pages build into `docs/`; com
 
 ## Next unfinished increment
 
-Milestone 3 systems are implemented, including all regions, a phased boss, victory, and exact local resume. Validate ordinary full-length runs and tune enemy density, objective health, pickups, and boss difficulty until real runs land near 10–12 minutes. Then complete milestone 5 with a real Android Chrome performance check and the public games hub.
+Milestone 3 systems are implemented, including all regions, a phased boss, victory, and exact local resume. Validate ordinary full-length runs and tune enemy density, objective health, pickups, and boss difficulty until real runs land near 10–12 minutes. The public games hub is live; milestone 5 still needs a real Android Chrome performance and accessibility check.

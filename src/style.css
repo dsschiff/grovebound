@@ -31,6 +31,7 @@
 .gold-skin{filter:sepia(.45) saturate(1.6) drop-shadow(0 9px 7px #0a2d2888)!important}
 .setting-row{display:flex;align-items:center;justify-content:center;gap:7px;color:#d6dfcb;font-size:11px;margin:9px 0 0;pointer-events:auto}.setting-row input{accent-color:#e9c67d}
 .setting-pair{display:flex;justify-content:center;gap:18px}
+.hub-link{display:inline-block;align-self:center;color:#ddc989;font-size:10px;font-weight:800;letter-spacing:.16em;margin-top:12px;pointer-events:auto}.hub-link:hover{text-decoration:underline}
 .secondary-button{width:100%;min-height:44px;border:1px solid #d9ca93;border-radius:10px;background:#255c49;color:#f8e8bd;font-size:12px;font-weight:800;letter-spacing:.09em;margin-top:12px}
 .secondary-button span{margin-left:10px}
 .stats-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}

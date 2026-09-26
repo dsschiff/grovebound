@@ -2,6 +2,8 @@
 
 A portrait-first wilderness roguelite for short phone sessions. [Play the current build](https://dsschiff.github.io/grovebound/).
 
+[All games](https://dsschiff.github.io/games/) provides a public landing page for Grovebound and future projects.
+
 Drag on the field to move, or use WASD/arrow keys. Basic weapons attack automatically. Tap the large special button, or press Space, to use a hero ability. Pause at any time; the browser saves the run and offers Resume after a reload. Progress stays on this browser and does not sync between devices.
 
 ## The run

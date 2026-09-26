@@ -147,6 +147,7 @@ texCoord = mod(texCoord, 1.0) * outFrame.zw + outFrame.xy;`},disable:!!t}};p.exp
         <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span>➜</span></button>
         <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL</p>
         <div class="best-line" id="best-line"></div>
+        <a class="hub-link" href="https://dsschiff.github.io/games/">ALL GAMES ↗</a>
       </div>
     </div>
 
