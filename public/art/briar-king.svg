@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 170">
+  <defs><linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#997559"/><stop offset=".5" stop-color="#5a463c"/><stop offset="1" stop-color="#382f32"/></linearGradient><linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a4c776"/><stop offset="1" stop-color="#476745"/></linearGradient></defs>
+  <ellipse cx="86" cy="153" rx="57" ry="10" fill="#0d231b" opacity=".3"/>
+  <path d="M55 104 33 148 64 149 80 117M98 116 114 150 141 145 120 100" fill="#4e4939" stroke="#312f2d" stroke-width="5"/>
+  <path d="M45 73 14 83 8 114 22 128 50 112M124 71 158 82 164 109 145 126 117 107" fill="url(#wood)" stroke="#392e2f" stroke-width="6"/>
+  <path d="M47 55 Q85 40 123 56 L135 92 116 133 83 143 49 129 35 91Z" fill="url(#wood)" stroke="#312c2c" stroke-width="6"/>
+  <path d="M48 64 29 31 15 11 39 28 48 13 54 42 68 30 83 44 101 27 121 40 136 14 139 40 162 24 141 65" fill="none" stroke="#3e302c" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M35 43 20 27 35 31 39 20 46 48M127 47 140 29 146 45 156 37 145 55" fill="url(#leaf)" stroke="#3c603f" stroke-width="3"/>
+  <path d="M45 82 72 76 69 92 49 96ZM98 76 126 82 120 96 100 92Z" fill="#261e27"/>
+  <path d="M49 80 70 76M101 76 123 81" stroke="#edbd6b" stroke-width="5"/>
+  <circle cx="60" cy="85" r="4" fill="#f8d897"/><circle cx="111" cy="85" r="4" fill="#f8d897"/>
+  <path d="M60 113 Q82 125 109 110" fill="none" stroke="#2a2528" stroke-width="7" stroke-linecap="round"/>
+  <path d="M60 61 70 46 84 55 102 43 114 63" fill="none" stroke="#85a363" stroke-width="5"/>
+</svg>
