@@ -51,3 +51,9 @@
 - In a fresh browser origin at 390 × 844, a rank-0 Warden with the starter axe completed a normal-timer run in 10:42. Region splits were Verge 3:03, Quarry 3:32, Moonfen 4:06; six wards and the Briar King fell. The result recorded 466 kills, 23,423 foe damage, 2,340 object damage, 71 damage taken, four stat caches, 17 blessings, and +8 seeds. Browser error logs were empty.
 - This validates a complete progression path and its intended duration for one automated play style. The low damage taken suggests Warden kiting may be easy. Human-play balance, other heroes, and real Android Chrome performance remain open.
 - Twelve Vitest cases and the production Pages build passed; staged site size was 1,667,571 bytes. Source and build landed at `8bfcb7c124fe8e06b21d7fb4ce3481bf8c29dbd6`. Pages reported `built` for that commit, and the live URL served `/grovebound/assets/index-DJz-vKq-.js` with an enabled start button and no browser errors.
+
+## 2026-09-26 — Phone-size accessibility pass
+
+- Removed the viewport zoom restriction, enlarged the pause target to 44 × 44 CSS pixels, and made the games hub link a 44-pixel-high target. The camp now states keyboard controls alongside touch controls.
+- The upgrade, pause, and result panels now expose named dialogs. Opening one focuses its heading; Tab stays within its controls; leaving it returns focus to the labeled game canvas or the camp start button. Rebuilding hero and weapon buttons keeps keyboard focus on the selected option. The objective live region changes only when its text changes.
+- At a 320 × 568 browser viewport, the camp scrolled to an enabled start button and the in-run HUD remained visible. Keyboard focus was verified through hero selection, game entry, pause, both Tab directions, resume, an upgrade choice, a loss result, and return to camp. A stationary Ranger lost at 0:21 with no browser errors. This is a desktop browser viewport check, not Android device or assistive-technology validation.

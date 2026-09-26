@@ -23,4 +23,4 @@ Run `npm test` and the production build; stage the Pages build into `docs/`; com
 
 ## Next unfinished increment
 
-Milestone 3 systems are implemented, including all regions, a phased boss, victory, and exact local resume. A localhost playtest pilot completed a fresh Warden run under normal timers in 10:42; human-play difficulty and other heroes still need validation before calling it balanced. The public games hub is live; milestone 5 still needs a real Android Chrome performance and accessibility check.
+Milestone 3 systems are implemented, including all regions, a phased boss, victory, and exact local resume. A localhost playtest pilot completed a fresh Warden run under normal timers in 10:42; human-play difficulty and other heroes still need validation before calling it balanced. The public games hub is live; keyboard navigation and dialog semantics have been checked in a desktop browser at phone size, but milestone 5 still needs a real Android Chrome performance and assistive-technology check.

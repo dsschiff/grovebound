@@ -54,3 +54,7 @@
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2b4;outline-offset:3px}
 .upgrade-card.maxHealth .upgrade-icon{background:#ffb6a5}.upgrade-card.reach .upgrade-icon{background:#b8e6b7}.upgrade-card.weapon .upgrade-icon,.upgrade-card.splash .upgrade-icon,.upgrade-card.pet .upgrade-icon,.upgrade-card.wildArsenal .upgrade-icon{background:#f5d58d}
 @media(max-height:760px){.hero-stage{height:135px}.stage-hero{height:125px}.stage-tree{height:130px}.stage-enemy{height:58px}.stage-axe{height:67px}.menu-content h1{font-size:44px}.subtitle{font-size:12px;margin-top:4px}.ability-panel{padding:8px}.hero-option{min-height:70px}.hero-option img{height:34px}.instruction{margin-top:10px}}
+
+.icon-button{width:44px;height:44px}
+.instruction{font-size:10px;line-height:1.65}
+.hub-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px}

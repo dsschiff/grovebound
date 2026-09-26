@@ -29,7 +29,7 @@ root.innerHTML = `
     <div id="hud" class="hud hidden">
       <div class="top-line">
         <div class="crest"><span class="crest-leaf">❧</span><span>GROVEBOUND</span></div>
-        <div class="clock-wrap"><span id="timer">0:00</span><small id="objective">VERDANT VERGE</small></div>
+        <div class="clock-wrap"><span id="timer">0:00</span><small id="objective" aria-live="polite">VERDANT VERGE</small></div>
         <button id="pause-button" class="icon-button" aria-label="Pause game">Ⅱ</button>
       </div>
       <div class="vitals">
@@ -71,28 +71,28 @@ root.innerHTML = `
         <div class="setting-pair"><label class="setting-row"><input id="reduced-effects" type="checkbox" /> Reduced effects</label><label class="setting-row"><input id="muted" type="checkbox" /> Mute sound</label><label id="auto-special-row" class="setting-row hidden"><input id="auto-special" type="checkbox" /> Auto special</label></div>
         <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span>➜</span></button>
         <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span>➜</span></button>
-        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL</p>
+        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />KEYBOARD: WASD OR ARROWS TO MOVE <span>✧</span> SPACE FOR SPECIAL</p>
         <div class="best-line" id="best-line"></div>
         <a class="hub-link" href="https://dsschiff.github.io/games/">ALL GAMES ↗</a>
       </div>
     </div>
 
-    <div id="upgrade" class="screen modal-screen hidden"><div class="modal-content">
+    <div id="upgrade" class="screen modal-screen hidden" role="dialog" aria-modal="true" aria-labelledby="upgrade-title"><div class="modal-content">
       <div class="modal-icon">✺</div><div class="overline">THE GROVE ANSWERS</div>
-      <h2>Choose your growth</h2><p>Time pauses while you choose one blessing.</p>
+      <h2 id="upgrade-title" tabindex="-1">Choose your growth</h2><p>Time pauses while you choose one blessing.</p>
       <div id="upgrade-cards" class="upgrade-cards"></div>
     </div></div>
 
-    <div id="pause" class="screen modal-screen hidden"><div class="modal-content narrow">
-      <div class="modal-icon">❧</div><div class="overline">A MOMENT'S REST</div><h2>Paused</h2>
+    <div id="pause" class="screen modal-screen hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title"><div class="modal-content narrow">
+      <div class="modal-icon">❧</div><div class="overline">A MOMENT'S REST</div><h2 id="pause-title" tabindex="-1">Paused</h2>
       <p>Your run is saved on this device.</p>
       <button id="resume-button" class="primary-button">RETURN TO THE WILD <span>➜</span></button>
       <button id="quit-button" class="text-button">End this run</button>
     </div></div>
 
-    <div id="result" class="screen modal-screen hidden"><div class="modal-content narrow">
+    <div id="result" class="screen modal-screen hidden" role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="modal-content narrow">
       <div class="modal-icon" id="result-icon">✦</div><div class="overline" id="result-eyebrow">THE GROVE REMEMBERS</div>
-      <h2 id="result-title">The wild endures</h2><p id="result-copy"></p><div id="result-build" class="result-build"></div>
+      <h2 id="result-title" tabindex="-1">The wild endures</h2><p id="result-copy"></p><div id="result-build" class="result-build"></div>
       <div class="result-grid"><div><strong id="result-kills">0</strong><span>VANQUISHED</span></div><div><strong id="result-time">0:00</strong><span>SURVIVED</span></div><div><strong id="result-level">1</strong><span>LEVEL</span></div></div>
       <div class="run-breakdown"><div class="breakdown-title">YOUR JOURNEY</div>
         <div class="breakdown-row"><span>FOE DAMAGE</span><strong id="result-damage">0</strong><span>DAMAGE TAKEN</span><strong id="result-taken">0</strong></div>
@@ -139,6 +139,7 @@ function refreshMenu(): void {
     selectedHero = button.dataset.hero as Hero;
     selectedWeapon = HERO_INFO[selectedHero].weapon;
     selectedSkin = false; refreshMenu();
+    el<HTMLButtonElement>(`#hero-options [data-hero="${selectedHero}"]`).focus({ preventScroll: true });
   }));
   el('#hero-hint').textContent = `${HERO_INFO[selectedHero].special.toUpperCase()} · ${HERO_INFO[selectedHero].specialDescription.toUpperCase()}`;
   el('#weapon-options').innerHTML = (Object.keys(WEAPON_INFO) as Weapon[]).map(weapon => {
@@ -148,6 +149,7 @@ function refreshMenu(): void {
   }).join('');
   el('#weapon-options').querySelectorAll<HTMLButtonElement>('[data-weapon]').forEach(button => button.addEventListener('click', () => {
     selectedWeapon = button.dataset.weapon as Weapon; refreshMenu();
+    el<HTMLButtonElement>(`#weapon-options [data-weapon="${selectedWeapon}"]`).focus({ preventScroll: true });
   }));
   el('#weapon-hint').textContent = WEAPON_INFO[selectedWeapon].description.toUpperCase();
   show('#unlock-button', !progress.thornsUnlocked && progress.seeds >= THORNS_COST && progress.bestRegion < 1);
@@ -168,6 +170,21 @@ function setModal(modal: typeof activeModal): void {
   activeModal = modal;
   for (const name of ['menu', 'upgrade', 'pause', 'result']) show(`#${name}`, name === modal);
   show('#hud', modal !== 'menu' && modal !== 'result');
+  el('#game').inert = modal !== null;
+  el('#hud').inert = modal !== null;
+  if (modal === null) {
+    const canvas = document.querySelector<HTMLCanvasElement>('#game canvas');
+    if (canvas) {
+      canvas.tabIndex = 0;
+      canvas.setAttribute('aria-label', 'Game field. Drag to move, or use W A S D or arrow keys. Press Space for your special ability.');
+      canvas.focus({ preventScroll: true });
+    }
+    return;
+  }
+  const focusTarget = modal === 'menu' ? '#resume-run-button:not(.hidden), #start-button'
+    : modal === 'upgrade' ? '#upgrade-title'
+      : modal === 'pause' ? '#pause-title' : '#result-title';
+  document.querySelector<HTMLElement>(focusTarget)?.focus({ preventScroll: true });
 }
 
 const minimap = el<HTMLCanvasElement>('#minimap');
@@ -221,7 +238,8 @@ function updateHud(hud: HudState): void {
   el('#ability-name').textContent = hud.weapons.map(weapon => WEAPON_INFO[weapon.id].name.toUpperCase()).join(' + ');
   el('#timer').textContent = formatTime(hud.seconds);
   const region = REGIONS[hud.region];
-  el('#objective').textContent = hud.wardsLeft > 0 ? `${region.short} · ${hud.wardsLeft} ${hud.wardsLeft === 1 ? 'WARD' : 'WARDS'}` : hud.gateOpen ? `${region.short} · ENTER GATE` : `${region.short} · HOLD GATE`;
+  const objective = hud.wardsLeft > 0 ? `${region.short} · ${hud.wardsLeft} ${hud.wardsLeft === 1 ? 'WARD' : 'WARDS'}` : hud.gateOpen ? `${region.short} · ENTER GATE` : `${region.short} · HOLD GATE`;
+  if (el('#objective').textContent !== objective) el('#objective').textContent = objective;
   show('#boss-bar', hud.bossHp !== null);
   el('#boss-name').textContent = hud.region === 2 ? 'THE BRIAR KING' : 'GATE SENTINEL';
   if (hud.bossHp !== null && hud.bossMaxHp) el<HTMLElement>('#boss-fill').style.width = `${Math.max(0, hud.bossHp / hud.bossMaxHp * 100)}%`;
@@ -336,6 +354,15 @@ document.addEventListener('visibilitychange', () => {
   if (activeModal === null) { scene.setPaused(true); setModal('pause'); }
 });
 window.addEventListener('keydown', event => {
+  if (event.key === 'Tab' && activeModal !== null && activeModal !== 'menu') {
+    const dialog = el(`#${activeModal}`);
+    const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+    if (focusable.length > 0) {
+      const index = focusable.indexOf(document.activeElement as HTMLElement);
+      if (event.shiftKey && index <= 0) { event.preventDefault(); focusable[focusable.length - 1].focus(); }
+      else if (!event.shiftKey && index === focusable.length - 1) { event.preventDefault(); focusable[0].focus(); }
+    }
+  }
   if (event.key === 'Escape' && scene.isRunning()) {
     if (activeModal === null) { scene.setPaused(true); setModal('pause'); }
     else if (activeModal === 'pause') { scene.setPaused(false); setModal(null); }
