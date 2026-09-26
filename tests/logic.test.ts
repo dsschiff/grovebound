@@ -96,6 +96,12 @@ describe('run progression', () => {
     const burning = { ...snapshot, enemies: [{ ...snapshot.enemies[0], burnRemaining: 2.5, burnTickClock: 0.4, burnDamage: 6 }] };
     expect(parseRunSnapshot(burning)?.enemies[0].burnRemaining).toBe(2.5);
     expect(parseRunSnapshot({ ...burning, enemies: [{ ...burning.enemies[0], burnDamage: -4 }] })).toBeNull();
+    const { hazards: _oldHazards, ...oldMetrics } = snapshot.metrics;
+    expect(parseRunSnapshot({ ...snapshot, metrics: oldMetrics })?.metrics.hazards).toBe(0);
+    const withHazards = { ...snapshot, objects: [{ kind: 'vent', x: 850, y: 780, hp: 20, maxHp: 180, active: true }],
+      metrics: { ...snapshot.metrics, hazards: 2 } };
+    expect(parseRunSnapshot(withHazards)?.metrics.hazards).toBe(2);
+    expect(parseRunSnapshot({ ...withHazards, metrics: { ...withHazards.metrics, hazards: -1 } })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, metrics: { ...snapshot.metrics, foeDamage: -1 } })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, health: 1000 })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, version: 2 })).toBeNull();

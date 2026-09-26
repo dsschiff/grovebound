@@ -7,16 +7,16 @@ export interface EnemySave {
   burnRemaining?: number; burnTickClock?: number; burnDamage?: number;
 }
 export interface ObjectSave {
-  kind: 'ward' | 'shrine' | 'relic' | 'gate';
+  kind: 'ward' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom';
   x: number; y: number; hp: number; maxHp: number; active: boolean;
 }
 export interface RunMetrics {
   foeDamage: number; objectDamage: number; damageTaken: number;
-  caches: number; blessings: number; wards: number;
+  caches: number; blessings: number; wards: number; hazards: number;
   regionSeconds: [number | null, number | null, number | null];
 }
 export function emptyRunMetrics(): RunMetrics {
-  return { foeDamage: 0, objectDamage: 0, damageTaken: 0, caches: 0, blessings: 0, wards: 0,
+  return { foeDamage: 0, objectDamage: 0, damageTaken: 0, caches: 0, blessings: 0, wards: 0, hazards: 0,
     regionSeconds: [null, null, null] };
 }
 export interface RunSnapshot {
@@ -72,7 +72,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
       && (enemy.burnTickClock === undefined || finite(enemy.burnTickClock, 0, 2))
       && (enemy.burnDamage === undefined || finite(enemy.burnDamage, 0, 200)))
     || !Array.isArray(run.objects) || run.objects.length > 10 || !run.objects.every(object =>
-      ['ward', 'shrine', 'relic', 'gate'].includes(object.kind) && finite(object.x, 0, 1800)
+      ['ward', 'shrine', 'relic', 'gate', 'vent', 'bloom'].includes(object.kind) && finite(object.x, 0, 1800)
       && finite(object.y, 0, 1800) && finite(object.hp, 0, 10000) && finite(object.maxHp, 0, 10000)
       && typeof object.active === 'boolean')
     || !Array.isArray(run.orbs) || run.orbs.length > 100 || !run.orbs.every(orb =>
@@ -83,10 +83,12 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
   if (metrics !== undefined && (typeof metrics !== 'object' || metrics === null
     || !finite(metrics.foeDamage) || !finite(metrics.objectDamage)
     || !finite(metrics.damageTaken) || !finite(metrics.caches) || !finite(metrics.blessings)
-    || !finite(metrics.wards, 0, 6) || !Array.isArray(metrics.regionSeconds)
+    || !finite(metrics.wards, 0, 6)
+    || (metrics.hazards !== undefined && !finite(metrics.hazards, 0, 4))
+    || !Array.isArray(metrics.regionSeconds)
     || metrics.regionSeconds.length !== 3
     || !metrics.regionSeconds.every(seconds => seconds === null || finite(seconds)))) return null;
-  return { ...run, metrics: metrics ?? emptyRunMetrics() } as RunSnapshot;
+  return { ...run, metrics: metrics ? { ...metrics, hazards: metrics.hazards ?? 0 } : emptyRunMetrics() } as RunSnapshot;
 }
 
 export function readRunSnapshot(): RunSnapshot | null {

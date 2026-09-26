@@ -98,6 +98,7 @@ root.innerHTML = `
         <div class="breakdown-row"><span>FOE DAMAGE</span><strong id="result-damage">0</strong><span>DAMAGE TAKEN</span><strong id="result-taken">0</strong></div>
         <div class="breakdown-row"><span>OBJECT DAMAGE</span><strong id="result-object-damage">0</strong><span>WARDS BROKEN</span><strong id="result-wards">0</strong></div>
         <div class="breakdown-row"><span>STAT CACHES</span><strong id="result-caches">0</strong><span>BLESSINGS</span><strong id="result-blessings">0</strong></div>
+        <div class="hazard-tally"><span>HAZARDS CLEARED</span><strong id="result-hazards">0</strong></div>
         <div id="result-regions" class="region-times"></div>
       </div>
       <div class="reward-line"><span>SEEDS EARNED</span><strong id="result-seeds">+2 ✦</strong></div>
@@ -209,7 +210,9 @@ function drawMinimap(hud: HudState): void {
     if (!object.active && object.kind !== 'gate') continue;
     const p = point(object.x, object.y);
     ctx.beginPath(); ctx.arc(p.x, p.y, object.kind === 'gate' ? 6 : 4.5, 0, Math.PI * 2);
-    ctx.fillStyle = object.kind === 'ward' ? '#ffe2a3' : object.kind === 'shrine' ? '#dca5f1' : object.kind === 'relic' ? '#ffca83' : object.active ? '#a5e8dc' : '#6b8782';
+    ctx.fillStyle = object.kind === 'ward' ? '#ffe2a3' : object.kind === 'shrine' ? '#dca5f1'
+      : object.kind === 'relic' ? '#ffca83' : object.kind === 'vent' ? '#ff965d'
+        : object.kind === 'bloom' ? '#a8d9ef' : object.active ? '#a5e8dc' : '#6b8782';
     ctx.fill();
     ctx.strokeStyle = '#173a35'; ctx.lineWidth = 1.5; ctx.stroke();
   }
@@ -294,6 +297,7 @@ function onEnd(result: RunResult): void {
   el('#result-wards').textContent = String(result.metrics.wards);
   el('#result-caches').textContent = String(result.metrics.caches);
   el('#result-blessings').textContent = String(result.metrics.blessings);
+  el('#result-hazards').textContent = String(result.metrics.hazards);
   el('#result-regions').innerHTML = REGIONS.map((region, index) => `<div><span>${region.short}</span><strong>${result.metrics.regionSeconds[index] === null ? '—' : formatTime(result.metrics.regionSeconds[index]!)}</strong></div>`).join('');
   el('#result-seeds').textContent = `+${earned} ✦`;
   window.setTimeout(() => setModal('result'), 430);
@@ -374,7 +378,7 @@ if (new URLSearchParams(location.search).has('debug')) {
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const controls = document.createElement('div');
     controls.className = 'debug-controls';
-    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="heal">HEAL</button>';
+    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="heal">HEAL</button>';
     el('#ui').append(controls);
     controls.querySelectorAll<HTMLButtonElement>('button').forEach(button => button.addEventListener('click', () => {
       if (button.dataset.debug === 'pilot') {
@@ -383,6 +387,8 @@ if (new URLSearchParams(location.search).has('debug')) {
         button.textContent = debugPilot ? 'PILOT ON' : 'PILOT OFF';
       }
       if (button.dataset.debug === 'approach') scene.debugApproachObjective();
+      if (button.dataset.debug === 'hazard') scene.debugApproachHazard();
+      if (button.dataset.debug === 'shatter') scene.debugShatterHazard();
       if (button.dataset.debug === 'advance') scene.debugAdvanceRegion();
       if (button.dataset.debug === 'heal') scene.debugHeal();
     }));

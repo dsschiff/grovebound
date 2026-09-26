@@ -58,3 +58,5 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .icon-button{width:44px;height:44px}
 .instruction{font-size:10px;line-height:1.65}
 .hub-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px}
+.hazard-tally{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #91ac8750;padding:7px 0 4px;color:#cbd9bf;font-size:8px;font-weight:800;letter-spacing:.05em}
+.hazard-tally strong{color:#fff0c7;font-size:11px}

@@ -8,6 +8,7 @@ import { clearRunSnapshot, emptyRunMetrics, saveRunSnapshot, type EnemySave, typ
 import { soundFx } from './audio';
 import { bossPhaseFor, chooseAutoTarget, pickUpgradeChoices, pierceTarget, shouldSpawnGuardian, weaponDamage, weaponSplash } from './combat';
 import { pilotDirection } from './pilot';
+import { hazardSites, ventPhase, type VentPhase } from './hazards';
 
 const WORLD = 1800;
 type EnemyKind = EnemySave['kind'];
@@ -17,7 +18,7 @@ interface Enemy {
   speed: number; damage: number; radius: number; phase: number; pendingDamage: number; damageClock: number;
   burnRemaining: number; burnTickClock: number; burnDamage: number;
 }
-interface WorldObject { view: Phaser.GameObjects.Container; kind: ObjectKind; x: number; y: number; hp: number; maxHp: number; active: boolean }
+interface WorldObject { view: Phaser.GameObjects.Container; kind: ObjectKind; x: number; y: number; hp: number; maxHp: number; active: boolean; ring?: Phaser.GameObjects.Arc; hazardPhase?: VentPhase }
 interface Orb { view: Phaser.GameObjects.Container; x: number; y: number; value: number }
 interface Cache { view: Phaser.GameObjects.Container; x: number; y: number; stat: Stat }
 interface EquippedWeapon { id: Weapon; rank: number; cooldown: number }
@@ -93,6 +94,7 @@ export class GroveScene extends Phaser.Scene {
   private joyOrigin = new Phaser.Math.Vector2();
   private joyVector = new Phaser.Math.Vector2();
   private pilotEnabled = false;
+  private slowed = false;
 
   constructor(callbacks: GameCallbacks) { super('Grove'); this.callbacks = callbacks; }
 
@@ -138,7 +140,7 @@ export class GroveScene extends Phaser.Scene {
     this.metrics = emptyRunMetrics();
     this.health = this.stats.maxHealth;
     this.xp = 0; this.level = 1; this.kills = 0; this.seconds = 0; this.region = 0;
-    this.attackPose = 0;
+    this.attackPose = 0; this.slowed = false;
     this.choosing = false; this.pausedByUser = false; this.upgradeOptions = [];
     this.hero.setTexture(hero).setTint(skin ? 0xf3d28a : 0xffffff).setPosition(900, 900).setAlpha(1).setDisplaySize(70, 78);
     this.heldWeapon.setVisible(startingWeapon === 'axe').setTint(skin ? 0xffd47d : 0xffffff);
@@ -164,7 +166,7 @@ export class GroveScene extends Phaser.Scene {
     this.region = snapshot.region; this.stageSeconds = snapshot.stageSeconds;
     this.spawnClock = snapshot.spawnClock; this.cacheClock = snapshot.cacheClock;
     this.invulnerability = snapshot.invulnerability;
-    this.attackPose = 0;
+    this.attackPose = 0; this.slowed = false;
     this.gatekeeperSpawned = snapshot.gatekeeperSpawned; this.bossSpawned = snapshot.bossSpawned;
     this.choosing = snapshot.choosing; this.upgradeOptions = [...snapshot.upgradeOptions];
     this.hero.setTexture(this.heroId).setTint(this.skin ? 0xf3d28a : 0xffffff)
@@ -238,6 +240,21 @@ export class GroveScene extends Phaser.Scene {
       ?? this.objects.find(object => object.kind === 'gate')!;
     this.hero.setPosition(Phaser.Math.Clamp(target.x + 70, 42, WORLD - 42), target.y);
     this.saveSnapshot();
+  }
+
+  debugApproachHazard(): void {
+    if (!this.running || this.choosing) return;
+    for (const enemy of this.enemies) enemy.sprite.destroy();
+    this.enemies = [];
+    const target = this.objects.find(object => (object.kind === 'vent' || object.kind === 'bloom') && object.active);
+    if (!target) return;
+    this.hero.setPosition(Phaser.Math.Clamp(target.x + 95, 42, WORLD - 42), target.y);
+    this.publishHud(); this.saveSnapshot();
+  }
+  debugShatterHazard(): void {
+    if (!this.running || this.choosing) return;
+    const target = this.objects.find(object => (object.kind === 'vent' || object.kind === 'bloom') && object.active);
+    if (target) this.hitObject(target, target.hp);
   }
 
   debugAdvanceRegion(): void {
@@ -339,6 +356,8 @@ export class GroveScene extends Phaser.Scene {
     if (this.pilotEnabled) this.updateDebugPilot();
     if (!this.running) return;
     this.moveHero(dt);
+    this.updateHazards();
+    if (!this.running) return;
     this.updateEnemies(dt);
     if (!this.running) return;
     this.updateOrbs(dt);
@@ -363,6 +382,7 @@ export class GroveScene extends Phaser.Scene {
     this.clearRunObjects();
     this.stageSeconds = 0; this.spawnClock = 0; this.cacheClock = 0;
     this.gatekeeperSpawned = false; this.bossSpawned = false;
+    this.slowed = false;
     this.hero.setPosition(900, 900);
     this.drawRegion();
     const layout = generateRegionLayout(this.seed, this.region);
@@ -373,6 +393,10 @@ export class GroveScene extends Phaser.Scene {
         this.spawnObject('relic', clearing.x + 65, clearing.y + 15, 105 + this.region * 40, 105 + this.region * 40, false);
       }
       if (clearing.kind === 'gate') this.spawnObject('gate', clearing.x, clearing.y, 0, 0, false);
+    }
+    for (const site of hazardSites(this.seed, this.region)) {
+      const hp = site.kind === 'vent' ? 180 : 210;
+      this.spawnObject(site.kind, site.x, site.y, hp, hp, true);
     }
     this.petView.setVisible(this.pet);
     this.callbacks.onEvent(`REGION ${this.region + 1}: ${REGIONS[this.region].name.toUpperCase()}`);
@@ -439,8 +463,9 @@ export class GroveScene extends Phaser.Scene {
     const length = Math.hypot(dx, dy);
     const attackKick = this.attackPose > 0 ? Math.sin(this.attackPose / 0.16 * Math.PI) : 0;
     if (length > 0.03) {
-      this.hero.x = Phaser.Math.Clamp(this.hero.x + dx / Math.max(1, length) * this.stats.speed * dt, 42, WORLD - 42);
-      this.hero.y = Phaser.Math.Clamp(this.hero.y + dy / Math.max(1, length) * this.stats.speed * dt, 42, WORLD - 42);
+      const speed = this.stats.speed * (this.slowed ? 0.68 : 1);
+      this.hero.x = Phaser.Math.Clamp(this.hero.x + dx / Math.max(1, length) * speed * dt, 42, WORLD - 42);
+      this.hero.y = Phaser.Math.Clamp(this.hero.y + dy / Math.max(1, length) * speed * dt, 42, WORLD - 42);
       if (dx !== 0) this.hero.setFlipX(dx < 0);
       this.hero.setRotation(Math.sin(this.seconds * 12) * 0.045 + attackKick * (this.hero.flipX ? -0.12 : 0.12))
         .setScale(0.35 * (1 + Math.sin(this.seconds * 12) * 0.025 + attackKick * 0.09), 78 / 220 * (1 - Math.sin(this.seconds * 12) * 0.025 - attackKick * 0.06));
@@ -449,6 +474,33 @@ export class GroveScene extends Phaser.Scene {
     this.heldWeapon.setPosition(this.hero.x + (this.hero.flipX ? -24 : 24), this.hero.y + 11).setFlipX(this.hero.flipX);
     this.hero.setAlpha(this.invulnerability > 0 && Math.floor(this.seconds * 18) % 2 === 0 ? 0.57 : 1);
     this.nav.setPosition(this.hero.x, this.hero.y - 86);
+  }
+
+  private updateHazards(): void {
+    let slowed = false;
+    for (const object of this.objects) {
+      if (!object.active || !object.ring) continue;
+      const distance = this.distance(this.hero.x, this.hero.y, object.x, object.y);
+      if (object.kind === 'bloom') {
+        if (distance < 116) slowed = true;
+      } else if (object.kind === 'vent') {
+        const phase = ventPhase(this.stageSeconds, object.x, object.y);
+        if (phase !== object.hazardPhase) {
+          object.hazardPhase = phase;
+          const fill = phase === 'eruption' ? 0.38 : phase === 'warning' ? 0.19 : 0.035;
+          const outline = phase === 'idle' ? 0.28 : 0.95;
+          object.ring.setFillStyle(0xff9a55, fill).setStrokeStyle(phase === 'eruption' ? 6 : 3, 0xffd289, outline);
+          object.ring.setScale(this.reducedEffects ? 1 : phase === 'eruption' ? 1.07 : 1);
+        }
+        if (phase === 'eruption' && distance < 120 && this.invulnerability <= 0) {
+          this.callbacks.onEvent('EMBER VENT ERUPTS');
+          this.takeDamage(16);
+          if (!this.running) return;
+        }
+      }
+    }
+    if (slowed && !this.slowed) this.floatText('SLOWED', this.hero.x, this.hero.y - 70, '#b7e7ef');
+    this.slowed = slowed;
   }
 
   private updateSpawns(dt: number): void {
@@ -674,17 +726,24 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private spawnObject(kind: ObjectKind, x: number, y: number, hp: number, maxHp: number, active: boolean): void {
-    const tint = kind === 'ward' ? REGIONS[this.region].accent : kind === 'shrine' ? 0xd5a0eb : kind === 'relic' ? 0xffd486 : 0x9fd3df;
+    const tint = kind === 'ward' ? REGIONS[this.region].accent : kind === 'shrine' ? 0xd5a0eb
+      : kind === 'relic' ? 0xffd486 : kind === 'vent' ? 0xff9d65 : kind === 'bloom' ? 0xa7d9db : 0x9fd3df;
+    const ring = kind === 'vent' || kind === 'bloom'
+      ? this.add.circle(0, 0, kind === 'vent' ? 120 : 116, kind === 'vent' ? 0xff9a55 : 0x8dc9d1, kind === 'vent' ? 0.035 : 0.075)
+        .setStrokeStyle(3, kind === 'vent' ? 0xffd289 : 0xb7e7ef, kind === 'vent' ? 0.28 : 0.62).setVisible(active)
+      : undefined;
     const base = this.add.ellipse(0, 21, kind === 'gate' ? 125 : 70, 27, 0x132f2c, 0.55);
     const outer = kind === 'gate'
       ? this.add.star(0, -6, 6, 45, 57, tint, 0.88).setStrokeStyle(5, 0x243c3b, 0.9)
       : this.add.star(0, -7, kind === 'ward' ? 5 : 6, 24, 42, tint, 0.9).setStrokeStyle(4, 0x263e3a, 0.95);
     const core = this.add.circle(0, -7, kind === 'gate' ? 18 : 12, 0xffeed1, 0.9);
-    const label = this.add.text(0, kind === 'gate' ? 54 : 43, kind === 'ward' ? 'WARDSTONE' : kind === 'shrine' ? 'SHRINE' : kind === 'relic' ? 'RELIC' : 'GATE', {
+    const label = this.add.text(0, kind === 'gate' ? 54 : 43, kind === 'ward' ? 'WARDSTONE' : kind === 'shrine' ? 'SHRINE'
+      : kind === 'relic' ? 'RELIC' : kind === 'vent' ? 'EMBER VENT' : kind === 'bloom' ? 'MIST BLOOM' : 'GATE', {
       fontFamily: 'Arial, sans-serif', fontSize: '12px', fontStyle: 'bold', color: '#fff0cb', stroke: '#1b3c32', strokeThickness: 4,
     }).setOrigin(0.5);
-    const view = this.add.container(x, y, [base, outer, core, label]).setDepth(2).setAlpha(active ? 1 : 0.35);
-    this.objects.push({ view, kind, x, y, hp, maxHp, active });
+    const view = this.add.container(x, y, ring ? [ring, base, outer, core, label] : [base, outer, core, label])
+      .setDepth(2).setAlpha(active ? 1 : 0.35);
+    this.objects.push({ view, kind, x, y, hp, maxHp, active, ring });
   }
 
   private hitObject(object: WorldObject, damage: number): void {
@@ -696,7 +755,7 @@ export class GroveScene extends Phaser.Scene {
     object.view.setScale(1.08);
     this.tweens.add({ targets: object.view, scale: 1, duration: 100 });
     if (object.hp > 0) return;
-    object.active = false; object.view.setAlpha(0.15);
+    object.active = false; object.view.setAlpha(0.15); object.ring?.setVisible(false);
     this.burst(object.x, object.y, object.kind === 'ward' ? '#c7e2a7' : '#f6d597', 16);
     if (object.kind === 'ward') {
       this.metrics.wards++;
@@ -708,6 +767,11 @@ export class GroveScene extends Phaser.Scene {
     } else if (object.kind === 'relic') {
       if (!this.pet) { this.pet = true; this.petView.setVisible(true); this.callbacks.onEvent('GLOWFOX JOINS YOU'); }
       else { this.weaponSlots = Math.min(3, this.weaponSlots + 1); this.callbacks.onEvent('AN EXTRA WEAPON SLOT OPENS'); }
+    } else if (object.kind === 'vent' || object.kind === 'bloom') {
+      this.metrics.hazards++;
+      this.spawnOrb(object.x - 14, object.y, 2);
+      this.spawnOrb(object.x + 14, object.y, 2);
+      this.callbacks.onEvent(object.kind === 'vent' ? 'EMBER VENT SEALED' : 'MIST BLOOM CLEARED');
     }
     this.publishHud(); this.saveSnapshot();
   }
