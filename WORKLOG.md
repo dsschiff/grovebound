@@ -42,4 +42,5 @@
 - Warden starts with extra health and defense. Whirlwind knocks foes back and heals when it connects; Ranger's volley draws long-range trails and Ember's nova ignites survivors. Camp descriptions now explain the distinct play styles. Weapon rank III is labeled correctly when offered.
 - Burn timers and damage are included in exact run snapshots; older snapshots without burn fields still load. Thorn geometry and malformed burn-save validation have automated coverage.
 - Local browser checks at 390 × 844 showed the new camp descriptions, ranged combat, Solar Nova and Whirlwind cooldowns, and no browser errors. A 375 × 667 menu kept the start button visible. A stationary Warden still lost after 1:09; this does not establish active-play balance.
+- Eleven Vitest cases and the Pages production build passed; staged site size was 1,665,219 bytes. Source and Pages build landed at `f9f6dc70c02d0475a7efc81ec2dd561892e3f95f`. GitHub Pages reported `built`, and the live game served `/grovebound/assets/index-V5sRr1JX.js` with an enabled start button.
 - Still open: ordinary full-length win and midrange Android Chrome performance/accessibility check.
