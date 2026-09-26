@@ -59,8 +59,10 @@ root.innerHTML = `
         <div class="ability-panel">
           <div class="panel-heading"><span>CHOOSE YOUR HERO</span><span id="seed-count" class="seed-count">✦ 0 SEEDS</span></div>
           <div id="hero-options" class="hero-options"></div>
+          <div id="hero-hint" class="hero-hint"></div>
           <div class="panel-heading sub-heading"><span>STARTING WEAPON</span><span id="mastery-label">MASTERY 0</span></div>
           <div id="weapon-options" class="weapon-options"></div>
+          <div id="weapon-hint" class="weapon-hint"></div>
           <div id="mastery-next" class="mastery-next"></div>
           <button id="unlock-button" class="unlock-button hidden">UNLOCK THORN DART · 6 SEEDS</button>
           <button id="skin-button" class="skin-button hidden">USE GOLDEN SKIN</button>
@@ -137,6 +139,7 @@ function refreshMenu(): void {
     selectedWeapon = HERO_INFO[selectedHero].weapon;
     selectedSkin = false; refreshMenu();
   }));
+  el('#hero-hint').textContent = `${HERO_INFO[selectedHero].special.toUpperCase()} · ${HERO_INFO[selectedHero].specialDescription.toUpperCase()}`;
   el('#weapon-options').innerHTML = (Object.keys(WEAPON_INFO) as Weapon[]).map(weapon => {
     const unlocked = availableWeapon(progress, weapon);
     const info = WEAPON_INFO[weapon];
@@ -145,6 +148,7 @@ function refreshMenu(): void {
   el('#weapon-options').querySelectorAll<HTMLButtonElement>('[data-weapon]').forEach(button => button.addEventListener('click', () => {
     selectedWeapon = button.dataset.weapon as Weapon; refreshMenu();
   }));
+  el('#weapon-hint').textContent = WEAPON_INFO[selectedWeapon].description.toUpperCase();
   show('#unlock-button', !progress.thornsUnlocked && progress.seeds >= THORNS_COST && progress.bestRegion < 1);
   show('#skin-button', rank >= 3);
   el('#skin-button').textContent = selectedSkin ? 'USE CLASSIC HERO + WEAPON' : 'USE GOLDEN HERO + WEAPON';

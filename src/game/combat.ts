@@ -23,6 +23,25 @@ export function weaponDamage(attack: number, weapon: Weapon, rank: number): numb
 export function weaponSplash(weapon: Weapon, bonus: number): number {
   return WEAPON_INFO[weapon].splash > 0 ? WEAPON_INFO[weapon].splash + bonus : 0;
 }
+export function pierceTarget(origin: Point, first: Point, range: number, candidates: Point[]): number | null {
+  const firstDistance = Math.hypot(first.x - origin.x, first.y - origin.y);
+  if (firstDistance <= 0) return null;
+  const ux = (first.x - origin.x) / firstDistance;
+  const uy = (first.y - origin.y) / firstDistance;
+  let picked: number | null = null;
+  let nearest = range;
+  for (let i = 0; i < candidates.length; i++) {
+    const dx = candidates[i].x - origin.x;
+    const dy = candidates[i].y - origin.y;
+    const along = dx * ux + dy * uy;
+    const sideways = Math.abs(dx * uy - dy * ux);
+    if (along > firstDistance + 5 && along <= nearest && sideways <= 24) {
+      nearest = along;
+      picked = i;
+    }
+  }
+  return picked;
+}
 export function bossPhaseFor(hp: number, maxHp: number): number {
   const ratio = hp / maxHp;
   return ratio <= 0.25 ? 3 : ratio <= 0.5 ? 2 : ratio <= 0.75 ? 1 : 0;

@@ -13,6 +13,7 @@ Check off a milestone only after its live build is verified. The next unchecked 
 - Main input is thumb drag and automatic basic attacks. A large optional special button can become automatic at mastery rank 5.
 - Each region has two required wardstones, a gate encounter, and a two-part optional shrine chain. Auto attacks hit nearby enemies before objects; splash attacks and specials can damage both. Ambient waves stop when the gatekeeper appears, leaving its phase reinforcements as the encounter pressure.
 - The Warden starts with an axe, Ranger with thorns, and Ember with a staff. A Sunbow is the fourth weapon. Mastery rank 4 gives a second permanent weapon slot; a rare run relic grants a third.
+- The axe cleaves clusters, thorns pierce one aligned foe, the Sunbow can land critical hits, and the staff leaves a short burn. Warden starts tougher and uses Whirlwind for knockback and healing; Ranger's volley reaches distant foes; Ember's nova ignites survivors. Burn state survives run resume.
 - Browser storage remains local. Migrate `grovebound-progress-v1` to `grovebound-progress-v2` without consuming old seeds or removing the Thorn Dart unlock.
 - Keep Grovebound and Planetfall separate. Build `dsschiff/games` as a later public Pages hub; do not link a private Planetfall URL from it.
 

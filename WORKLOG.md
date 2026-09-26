@@ -35,3 +35,11 @@
 - Ten Vitest cases passed, including legacy snapshot normalization and malformed metric rejection. TypeScript and the GitHub Pages production build passed. Initial staged site size remains below the 5 MB target.
 - Still open: a complete ordinary win around 10–12 minutes and performance/accessibility testing on an actual Android Chrome phone.
 - Published source and Pages build at `ff5523ddf9e431ae240d68bda57c9911b04b48b7`; Pages reported `built`, and the live game served `/grovebound/assets/index-CmTGr7Hr.js` with an enabled start button.
+
+## 2026-09-26 — Weapon and hero identity pass
+
+- Thorn darts now pierce one aligned enemy, Sunbow shots can crit, and staff bursts apply short burn damage. Projectiles and synthesized attack cues differ by weapon; reduced effects suppresses extra trails and flares.
+- Warden starts with extra health and defense. Whirlwind knocks foes back and heals when it connects; Ranger's volley draws long-range trails and Ember's nova ignites survivors. Camp descriptions now explain the distinct play styles. Weapon rank III is labeled correctly when offered.
+- Burn timers and damage are included in exact run snapshots; older snapshots without burn fields still load. Thorn geometry and malformed burn-save validation have automated coverage.
+- Local browser checks at 390 × 844 showed the new camp descriptions, ranged combat, Solar Nova and Whirlwind cooldowns, and no browser errors. A 375 × 667 menu kept the start button visible. A stationary Warden still lost after 1:09; this does not establish active-play balance.
+- Still open: ordinary full-length win and midrange Android Chrome performance/accessibility check.

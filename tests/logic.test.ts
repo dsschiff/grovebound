@@ -1,12 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-  BASE_STATS, EMPTY_PROGRESS, LEGACY_SAVE_KEY, SAVE_KEY, Rng, addRunToProgress, availableHero, damageAfterDefense,
+  BASE_STATS, EMPTY_PROGRESS, LEGACY_SAVE_KEY, SAVE_KEY, Rng, addRunToProgress, availableHero, baseStatsFor, damageAfterDefense,
   generateRegionLayout, masteryRank, parseProgress, readProgress, seedsForRun, unlockThorns, upgradeStat, xpToNextLevel,
 } from '../src/game/logic';
 import { emptyRunMetrics, parseRunSnapshot, type RunSnapshot } from '../src/game/runSave';
 
 describe('run progression', () => {
   it('makes each stat pickup meaningful and caps damage reduction', () => {
+    expect(baseStatsFor('warden').defense).toBeGreaterThan(baseStatsFor('ranger').defense);
+    expect(baseStatsFor('warden').maxHealth).toBeGreaterThan(baseStatsFor('ember').maxHealth);
+    expect(baseStatsFor('ranger').speed).toBeGreaterThan(baseStatsFor('warden').speed);
+    expect(baseStatsFor('ember').attack).toBeGreaterThan(baseStatsFor('warden').attack);
     expect(upgradeStat(BASE_STATS, 'speed').speed).toBeGreaterThan(BASE_STATS.speed);
     expect(upgradeStat(BASE_STATS, 'regen').regen).toBeGreaterThan(BASE_STATS.regen);
     expect(upgradeStat(BASE_STATS, 'attack').attack).toBeGreaterThan(BASE_STATS.attack);
@@ -89,6 +93,9 @@ describe('run progression', () => {
     expect(parseRunSnapshot(JSON.parse(JSON.stringify(snapshot)))).toEqual(snapshot);
     const { metrics: _legacyMetrics, ...legacy } = snapshot;
     expect(parseRunSnapshot(legacy)?.metrics).toEqual(emptyRunMetrics());
+    const burning = { ...snapshot, enemies: [{ ...snapshot.enemies[0], burnRemaining: 2.5, burnTickClock: 0.4, burnDamage: 6 }] };
+    expect(parseRunSnapshot(burning)?.enemies[0].burnRemaining).toBe(2.5);
+    expect(parseRunSnapshot({ ...burning, enemies: [{ ...burning.enemies[0], burnDamage: -4 }] })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, metrics: { ...snapshot.metrics, foeDamage: -1 } })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, health: 1000 })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, version: 2 })).toBeNull();

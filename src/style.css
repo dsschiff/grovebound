@@ -25,6 +25,7 @@
 .weapon-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .weapon-option{min-width:0;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#173b32;border:1px solid #79947788;border-radius:9px;color:#f7edd0;padding:3px}
 .weapon-option span{font-size:19px;color:#f5d58d}.weapon-option small{font-size:8px;line-height:1.1}
+.weapon-hint,.hero-hint{text-align:center;color:#f1dfae;font-size:9px;font-weight:800;letter-spacing:.08em;margin-top:7px}
 .mastery-next{text-align:center;color:#d8d8b3;font-size:9px;letter-spacing:.08em;font-weight:800;margin-top:8px}
 .debug-controls{position:absolute;z-index:30;top:125px;right:8px;display:grid;gap:3px}.debug-controls button{pointer-events:auto;background:#102f29df;color:#f8e0a6;border:1px solid #d8ba7b;border-radius:5px;font-size:8px;padding:5px}
 .skin-button{width:100%;margin-top:8px;background:#796747;color:#fff1ca;border:1px solid #e2c984;border-radius:8px;padding:7px;font-size:10px;font-weight:800;letter-spacing:.08em}

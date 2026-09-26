@@ -27,17 +27,17 @@ export const STAT_INFO: Record<Stat, { name: string; icon: string; color: string
   reach: { name: 'Far Reach', icon: '◎', color: '#b8e6b7', description: 'Attack 12% farther' },
 };
 
-export const HERO_INFO: Record<Hero, { name: string; title: string; weapon: Weapon; special: string; tint: number }> = {
-  warden: { name: 'Warden', title: 'The stalwart guardian', weapon: 'axe', special: 'Whirlwind', tint: 0xffffff },
-  ranger: { name: 'Ranger', title: 'The swift pathfinder', weapon: 'thorns', special: 'Thorn Volley', tint: 0xc8e7d3 },
-  ember: { name: 'Ember', title: 'The flame keeper', weapon: 'staff', special: 'Solar Nova', tint: 0xffd7ae },
+export const HERO_INFO: Record<Hero, { name: string; title: string; weapon: Weapon; special: string; specialDescription: string; tint: number }> = {
+  warden: { name: 'Warden', title: 'The stalwart guardian', weapon: 'axe', special: 'Whirlwind', specialDescription: 'Knockback and healing', tint: 0xffffff },
+  ranger: { name: 'Ranger', title: 'The swift pathfinder', weapon: 'thorns', special: 'Thorn Volley', specialDescription: 'Five distant strikes', tint: 0xc8e7d3 },
+  ember: { name: 'Ember', title: 'The flame keeper', weapon: 'staff', special: 'Solar Nova', specialDescription: 'A burning shockwave', tint: 0xffd7ae },
 };
 export const HERO_KEYS: Hero[] = ['warden', 'ranger', 'ember'];
-export const WEAPON_INFO: Record<Weapon, { name: string; icon: string; range: number; cooldown: number; splash: number; multiplier: number; color: string }> = {
-  axe: { name: 'Axe Cleave', icon: '⚔', range: 115, cooldown: 0.77, splash: 42, multiplier: 1, color: '#ffe0a0' },
-  thorns: { name: 'Thorn Dart', icon: '✺', range: 230, cooldown: 1.1, splash: 0, multiplier: 1.4, color: '#b7ec9c' },
-  bow: { name: 'Sunbow', icon: '➶', range: 295, cooldown: 1.25, splash: 0, multiplier: 1.75, color: '#ffe3a3' },
-  staff: { name: 'Ember Staff', icon: '✹', range: 205, cooldown: 1.35, splash: 57, multiplier: 1.15, color: '#ffb37b' },
+export const WEAPON_INFO: Record<Weapon, { name: string; icon: string; description: string; range: number; cooldown: number; splash: number; multiplier: number; color: string }> = {
+  axe: { name: 'Axe Cleave', icon: '⚔', description: 'Close cleave · hits a cluster', range: 115, cooldown: 0.77, splash: 42, multiplier: 1, color: '#ffe0a0' },
+  thorns: { name: 'Thorn Dart', icon: '✺', description: 'Long dart · pierces aligned foes', range: 230, cooldown: 1.1, splash: 0, multiplier: 1.4, color: '#b7ec9c' },
+  bow: { name: 'Sunbow', icon: '➶', description: 'Longest reach · critical hits', range: 295, cooldown: 1.25, splash: 0, multiplier: 1.75, color: '#ffe3a3' },
+  staff: { name: 'Ember Staff', icon: '✹', description: 'Fireburst · burns survivors', range: 205, cooldown: 1.35, splash: 57, multiplier: 1.15, color: '#ffb37b' },
 };
 
 export const REGIONS = [
@@ -48,6 +48,7 @@ export const REGIONS = [
 
 export function baseStatsFor(hero: Hero, masteryRank = 0): Stats {
   const stats = { ...BASE_STATS };
+  if (hero === 'warden') { stats.maxHealth = 110; stats.defense = 0.08; }
   if (hero === 'ranger') { stats.speed = 215; stats.maxHealth = 85; }
   if (hero === 'ember') { stats.speed = 177; stats.attack = 19; stats.maxHealth = 95; }
   if (masteryRank >= 2) stats.maxHealth += 5;

@@ -1,4 +1,4 @@
-type Cue = 'swing' | 'hit' | 'pickup' | 'ward' | 'special' | 'victory' | 'hurt';
+type Cue = 'swing' | 'dart' | 'bow' | 'staff' | 'hit' | 'pickup' | 'ward' | 'special' | 'victory' | 'hurt';
 
 class SoundFx {
   enabled = true;
@@ -17,7 +17,9 @@ class SoundFx {
       const tone = context.createOscillator();
       const gain = context.createGain();
       const voices: Record<Cue, [number, number, number, OscillatorType]> = {
-        swing: [250, 170, 0.075, 'triangle'], hit: [135, 83, 0.09, 'sawtooth'],
+        swing: [250, 170, 0.075, 'triangle'], dart: [520, 260, 0.09, 'triangle'],
+        bow: [280, 510, 0.13, 'sine'], staff: [165, 540, 0.19, 'sawtooth'],
+        hit: [135, 83, 0.09, 'sawtooth'],
         pickup: [570, 850, 0.17, 'sine'], ward: [410, 170, 0.27, 'triangle'],
         special: [210, 690, 0.36, 'sawtooth'], victory: [440, 880, 0.65, 'sine'],
         hurt: [130, 74, 0.19, 'triangle'],
