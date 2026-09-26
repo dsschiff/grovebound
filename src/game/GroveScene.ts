@@ -26,6 +26,7 @@ export interface HudState {
   stats: Stats; bossHp: number | null; bossMaxHp: number | null;
   weapons: EquippedWeapon[]; special: string; specialCooldown: number;
   wardsLeft: number; gateOpen: boolean; hero: Hero;
+  map: { x: number; y: number; objects: { x: number; y: number; kind: ObjectKind; active: boolean }[]; enemies: { x: number; y: number; kind: EnemyKind }[] };
 }
 export interface RunResult { won: boolean; kills: number; seconds: number; level: number; hero: Hero; region: number }
 export interface GameCallbacks {
@@ -260,10 +261,8 @@ export class GroveScene extends Phaser.Scene {
     const targets = this.enemies.filter(enemy => this.distance(this.hero.x, this.hero.y, enemy.sprite.x, enemy.sprite.y) <= radius)
       .sort((a, b) => this.distance(this.hero.x, this.hero.y, a.sprite.x, a.sprite.y) - this.distance(this.hero.x, this.hero.y, b.sprite.x, b.sprite.y));
     for (const enemy of this.heroId === 'ranger' ? targets.slice(0, 5) : targets) this.hitEnemy(enemy, Math.round(this.stats.attack * (this.heroId === 'ember' ? 3 : 2.3)));
-    if (targets.length === 0) {
-      for (const object of this.objects.filter(item => item.active && item.hp > 0 && this.distance(this.hero.x, this.hero.y, item.x, item.y) < radius)) {
-        this.hitObject(object, Math.round(this.stats.attack * 2.3));
-      }
+    for (const object of this.objects.filter(item => item.active && item.hp > 0 && this.distance(this.hero.x, this.hero.y, item.x, item.y) < radius)) {
+      this.hitObject(object, Math.round(this.stats.attack * 2.3));
     }
     this.callbacks.onEvent(`${HERO_INFO[this.heroId].special.toUpperCase()}!`);
     this.saveSnapshot();
@@ -394,7 +393,7 @@ export class GroveScene extends Phaser.Scene {
     this.spawnClock += dt;
     const wavePause = this.stageSeconds % 45 > 38;
     const interval = Math.max(0.55, 1.75 - this.region * 0.19 - this.stageSeconds / 850);
-    if (!wavePause && this.spawnClock >= interval && this.enemies.length < 70) {
+    if (!this.gatekeeperSpawned && !wavePause && this.spawnClock >= interval && this.enemies.length < 70) {
       this.spawnClock = 0;
       this.spawnEnemy(this.chooseEnemyKind());
       if (this.region > 0 && this.random.next() < 0.25) this.spawnEnemy(this.chooseEnemyKind());
@@ -505,6 +504,11 @@ export class GroveScene extends Phaser.Scene {
       const splash = weaponSplash(weapon.id, this.splashBonus);
       const victims = splash > 0 ? this.enemies.filter(enemy => this.distance(enemy.sprite.x, enemy.sprite.y, x, y) < splash) : [target];
       for (const enemy of victims) this.hitEnemy(enemy, damage);
+      if (splash > 0) {
+        for (const nearby of this.objects.filter(item => item.active && item.hp > 0 && this.distance(item.x, item.y, x, y) < splash)) {
+          this.hitObject(nearby, damage);
+        }
+      }
     } else if (object) this.hitObject(object, damage);
     if (!this.reducedEffects) this.burst(x, y, info.color, 3);
   }
@@ -737,6 +741,11 @@ export class GroveScene extends Phaser.Scene {
       weapons: this.weapons.map(weapon => ({ ...weapon })), special: HERO_INFO[this.heroId].special,
       specialCooldown: this.specialCooldown, wardsLeft: this.wardsLeft(),
       gateOpen: this.objects.some(object => object.kind === 'gate' && object.active), hero: this.heroId,
+      map: {
+        x: this.hero.x, y: this.hero.y,
+        objects: this.objects.map(object => ({ x: object.x, y: object.y, kind: object.kind, active: object.active })),
+        enemies: this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y, kind: enemy.kind })),
+      },
     });
   }
 

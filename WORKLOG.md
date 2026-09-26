@@ -19,3 +19,10 @@
 - https://dsschiff.github.io/games/ launched from the separate public `dsschiff/games` repository at commit `44230a596499d1d3237feb82c92122b3fe2ac77b`.
 - Pages reported `built`, and the live page showed the Grovebound play/source links and a Planetfall in-development card without a private repository link.
 - The hub was visually checked at 390 × 844 and desktop widths. Grovebound now links back to it from the camp menu.
+
+## 2026-09-26 — Objective pressure and navigation pass
+
+- Area weapon attacks and hero specials now damage nearby attackable objects while fighting enemies. Ambient waves end when a gatekeeper appears, so the fight can resolve rather than accumulating endless minor enemies.
+- Added a circular region minimap with the hero, live enemies, wards, shrine/relic, and gate. It is drawn with the existing HUD update, without extra image downloads or save data.
+- Local browser QA at 390 × 844 showed the minimap and a ward shattering during an active fight; the HUD changed from two wards to one. A stationary Warden lost naturally at 1:19 with 35 kills, then received three seeds and returned to camp with the run save cleared. Survival and full-run balance still need active play testing.
+- Ten Vitest cases and the Pages production build passed. A real Android Chrome performance check remains open.

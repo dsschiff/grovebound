@@ -39,6 +39,8 @@
 .stat-pill.maxHealth>span{color:#ffb6a5}.stat-pill.reach>span{color:#b8e6b7}
 .special-button{position:absolute;right:16px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 109px);pointer-events:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;width:74px;height:74px;border:2px solid #ffe1a0;border-radius:50%;background:radial-gradient(circle at 40% 30%,#edc774,#9b5f3e);box-shadow:0 5px 0 #603f34,0 10px 22px #0b2a2388;color:#183c30;text-align:center}
 .special-button:disabled{filter:grayscale(.7);opacity:.72}.special-button .special-icon{font-size:25px;line-height:1}.special-button strong{font-size:8px;line-height:1.1}.special-button small{font-size:9px;font-weight:800}
+.minimap-frame{position:absolute;top:calc(max(13px,env(safe-area-inset-top)) + 118px);right:12px;width:112px;height:112px;border-radius:50%;background:#173d36;box-shadow:0 5px 18px #102d2bb3}
+.minimap-frame canvas{display:block;width:100%;height:100%}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2b4;outline-offset:3px}
 .upgrade-card.maxHealth .upgrade-icon{background:#ffb6a5}.upgrade-card.reach .upgrade-icon{background:#b8e6b7}.upgrade-card.weapon .upgrade-icon,.upgrade-card.splash .upgrade-icon,.upgrade-card.pet .upgrade-icon,.upgrade-card.wildArsenal .upgrade-icon{background:#f5d58d}
 @media(max-height:760px){.hero-stage{height:135px}.stage-hero{height:125px}.stage-tree{height:130px}.stage-enemy{height:58px}.stage-axe{height:67px}.menu-content h1{font-size:44px}.subtitle{font-size:12px;margin-top:4px}.ability-panel{padding:8px}.hero-option{min-height:70px}.hero-option img{height:34px}.instruction{margin-top:10px}}

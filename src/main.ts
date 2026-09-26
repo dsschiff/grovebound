@@ -36,6 +36,7 @@ root.innerHTML = `
         <div class="bar health-bar"><div id="health-fill"></div></div>
         <div class="bar xp-bar"><div id="xp-fill"></div></div>
       </div>
+      <div class="minimap-frame" aria-hidden="true"><canvas id="minimap" width="120" height="120"></canvas></div>
       <div id="boss-bar" class="boss-bar hidden"><span id="boss-name">GATE SENTINEL</span><div class="bar"><div id="boss-fill"></div></div></div>
       <button id="special-button" class="special-button" aria-label="Use special ability"><span class="special-icon">✹</span><strong id="special-label">WHIRLWIND</strong><small id="special-cooldown">READY</small></button>
       <div class="hud-bottom"><div id="stats" class="stats-strip"></div><div class="bottom-line"><span id="kills">0 VANQUISHED</span><span id="ability-name">AXE CLEAVE</span></div></div>
@@ -158,8 +159,48 @@ function setModal(modal: typeof activeModal): void {
   show('#hud', modal !== 'menu' && modal !== 'result');
 }
 
+const minimap = el<HTMLCanvasElement>('#minimap');
+const minimapContext = minimap.getContext('2d');
+function drawMinimap(hud: HudState): void {
+  if (!minimapContext) return;
+  const ctx = minimapContext;
+  const center = 60;
+  const radius = 54;
+  const point = (x: number, y: number) => ({ x: 7 + x * 106 / 1800, y: 7 + y * 106 / 1800 });
+  ctx.clearRect(0, 0, 120, 120);
+  ctx.save();
+  ctx.beginPath(); ctx.arc(center, center, radius, 0, Math.PI * 2); ctx.clip();
+  ctx.fillStyle = ['#315f4e', '#705747', '#315663'][hud.region];
+  ctx.fillRect(0, 0, 120, 120);
+  ctx.strokeStyle = 'rgba(242, 227, 175, .12)'; ctx.lineWidth = 1;
+  for (const line of [30, 60, 90]) {
+    ctx.beginPath(); ctx.moveTo(line, 0); ctx.lineTo(line, 120); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, line); ctx.lineTo(120, line); ctx.stroke();
+  }
+  for (const object of hud.map.objects) {
+    if (!object.active && object.kind !== 'gate') continue;
+    const p = point(object.x, object.y);
+    ctx.beginPath(); ctx.arc(p.x, p.y, object.kind === 'gate' ? 6 : 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = object.kind === 'ward' ? '#ffe2a3' : object.kind === 'shrine' ? '#dca5f1' : object.kind === 'relic' ? '#ffca83' : object.active ? '#a5e8dc' : '#6b8782';
+    ctx.fill();
+    ctx.strokeStyle = '#173a35'; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+  for (const enemy of hud.map.enemies) {
+    const p = point(enemy.x, enemy.y);
+    ctx.beginPath(); ctx.arc(p.x, p.y, enemy.kind === 'boss' || enemy.kind === 'gatekeeper' ? 3.5 : 2, 0, Math.PI * 2);
+    ctx.fillStyle = enemy.kind === 'boss' || enemy.kind === 'gatekeeper' ? '#ff9b62' : '#ed7773'; ctx.fill();
+  }
+  const hero = point(hud.map.x, hud.map.y);
+  ctx.beginPath(); ctx.arc(hero.x, hero.y, 5.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff0bd'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#193a36'; ctx.stroke();
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(center, center, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = '#e9d49a'; ctx.lineWidth = 3; ctx.stroke();
+}
+
 function updateHud(hud: HudState): void {
   currentHud = hud;
+  drawMinimap(hud);
   el('#health-number').textContent = String(Math.ceil(hud.health));
   el('#health-max').textContent = String(hud.maxHealth);
   el('#level-number').textContent = String(hud.level);
@@ -169,7 +210,7 @@ function updateHud(hud: HudState): void {
   el('#ability-name').textContent = hud.weapons.map(weapon => WEAPON_INFO[weapon.id].name.toUpperCase()).join(' + ');
   el('#timer').textContent = formatTime(hud.seconds);
   const region = REGIONS[hud.region];
-  el('#objective').textContent = hud.wardsLeft > 0 ? `${region.short} · ${hud.wardsLeft} WARDS` : hud.gateOpen ? `${region.short} · ENTER GATE` : `${region.short} · HOLD GATE`;
+  el('#objective').textContent = hud.wardsLeft > 0 ? `${region.short} · ${hud.wardsLeft} ${hud.wardsLeft === 1 ? 'WARD' : 'WARDS'}` : hud.gateOpen ? `${region.short} · ENTER GATE` : `${region.short} · HOLD GATE`;
   show('#boss-bar', hud.bossHp !== null);
   el('#boss-name').textContent = hud.region === 2 ? 'THE BRIAR KING' : 'GATE SENTINEL';
   if (hud.bossHp !== null && hud.bossMaxHp) el<HTMLElement>('#boss-fill').style.width = `${Math.max(0, hud.bossHp / hud.bossMaxHp * 100)}%`;
