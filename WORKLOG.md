@@ -44,3 +44,9 @@
 - Local browser checks at 390 × 844 showed the new camp descriptions, ranged combat, Solar Nova and Whirlwind cooldowns, and no browser errors. A 375 × 667 menu kept the start button visible. A stationary Warden still lost after 1:09; this does not establish active-play balance.
 - Eleven Vitest cases and the Pages production build passed; staged site size was 1,665,219 bytes. Source and Pages build landed at `f9f6dc70c02d0475a7efc81ec2dd561892e3f95f`. GitHub Pages reported `built`, and the live game served `/grovebound/assets/index-V5sRr1JX.js` with an enabled start button.
 - Still open: ordinary full-length win and midrange Android Chrome performance/accessibility check.
+
+## 2026-09-26 — Normal-timer full-run pilot
+
+- Added a localhost-only `?debug=1` pilot that steers toward wards, shrine steps, gate encounters, and enemies, chooses upgrades, and uses the hero special. It does not advance timers, teleport, or heal.
+- In a fresh browser origin at 390 × 844, a rank-0 Warden with the starter axe completed a normal-timer run in 10:42. Region splits were Verge 3:03, Quarry 3:32, Moonfen 4:06; six wards and the Briar King fell. The result recorded 466 kills, 23,423 foe damage, 2,340 object damage, 71 damage taken, four stat caches, 17 blessings, and +8 seeds. Browser error logs were empty.
+- This validates a complete progression path and its intended duration for one automated play style. The low damage taken suggests Warden kiting may be easy. Human-play balance, other heroes, and real Android Chrome performance remain open.

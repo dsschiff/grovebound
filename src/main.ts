@@ -20,6 +20,7 @@ let game: Phaser.Game;
 let currentHud: HudState | null = null;
 let activeModal: 'menu' | 'upgrade' | 'pause' | 'result' | null = 'menu';
 let toastTimer = 0;
+let debugPilot = false;
 
 const root = document.querySelector<HTMLDivElement>('#app')!;
 root.innerHTML = `
@@ -247,6 +248,12 @@ function onUpgrade(options: Upgrade[]): void {
     scene.chooseUpgrade(options[Number(card.dataset.index)]); setModal(null);
   }));
   setModal('upgrade');
+  if (debugPilot) {
+    const preferred: Upgrade[] = ['weapon:axe', 'weapon:staff', 'weapon:bow', 'attack', 'regen',
+      'maxHealth', 'defense', 'reach', 'splash', 'pet', 'speed', 'weapon:thorns', 'wildArsenal'];
+    scene.chooseUpgrade(preferred.find(choice => options.includes(choice)) ?? options[0]);
+    setModal(null);
+  }
 }
 
 function onEnd(result: RunResult): void {
@@ -340,9 +347,14 @@ if (new URLSearchParams(location.search).has('debug')) {
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const controls = document.createElement('div');
     controls.className = 'debug-controls';
-    controls.innerHTML = '<button data-debug="approach">APPROACH OBJECT</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="heal">HEAL</button>';
+    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="heal">HEAL</button>';
     el('#ui').append(controls);
     controls.querySelectorAll<HTMLButtonElement>('button').forEach(button => button.addEventListener('click', () => {
+      if (button.dataset.debug === 'pilot') {
+        debugPilot = !debugPilot;
+        scene.setDebugPilot(debugPilot);
+        button.textContent = debugPilot ? 'PILOT ON' : 'PILOT OFF';
+      }
       if (button.dataset.debug === 'approach') scene.debugApproachObjective();
       if (button.dataset.debug === 'advance') scene.debugAdvanceRegion();
       if (button.dataset.debug === 'heal') scene.debugHeal();

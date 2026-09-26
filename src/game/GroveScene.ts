@@ -7,6 +7,7 @@ import {
 import { clearRunSnapshot, emptyRunMetrics, saveRunSnapshot, type EnemySave, type ObjectSave, type RunMetrics, type RunSnapshot } from './runSave';
 import { soundFx } from './audio';
 import { bossPhaseFor, chooseAutoTarget, pickUpgradeChoices, pierceTarget, shouldSpawnGuardian, weaponDamage, weaponSplash } from './combat';
+import { pilotDirection } from './pilot';
 
 const WORLD = 1800;
 type EnemyKind = EnemySave['kind'];
@@ -91,6 +92,7 @@ export class GroveScene extends Phaser.Scene {
   private joyPointer: number | null = null;
   private joyOrigin = new Phaser.Math.Vector2();
   private joyVector = new Phaser.Math.Vector2();
+  private pilotEnabled = false;
 
   constructor(callbacks: GameCallbacks) { super('Grove'); this.callbacks = callbacks; }
 
@@ -254,6 +256,37 @@ export class GroveScene extends Phaser.Scene {
   }
 
   debugHeal(): void { if (this.running) { this.health = this.stats.maxHealth; this.publishHud(); this.saveSnapshot(); } }
+  setDebugPilot(enabled: boolean): void {
+    this.pilotEnabled = enabled;
+    if (!enabled) this.releaseJoystick();
+  }
+
+  private updateDebugPilot(): void {
+    const gate = this.objects.find(object => object.kind === 'gate')!;
+    const guardian = this.enemies.find(enemy => enemy.kind === 'boss' || enemy.kind === 'gatekeeper');
+    const ward = this.objects.filter(object => object.kind === 'ward' && object.active)
+      .sort((a, b) => this.distance(this.hero.x, this.hero.y, a.x, a.y) - this.distance(this.hero.x, this.hero.y, b.x, b.y))[0];
+    const shrine = this.objects.find(object => (object.kind === 'shrine' || object.kind === 'relic') && object.active);
+    const cache = this.health < this.stats.maxHealth * 0.55
+      ? this.caches.find(item => this.distance(this.hero.x, this.hero.y, item.x, item.y) < 220) : null;
+    const target = gate.active ? gate : guardian ? { x: guardian.sprite.x, y: guardian.sprite.y }
+      : cache ?? ward ?? (this.stageSeconds < REGIONS[this.region].duration - 20 ? shrine : null) ?? gate;
+    const enteringGate = gate.active && target === gate;
+    const gathering = target === cache;
+    const reach = Math.max(...this.weapons.map(weapon => WEAPON_INFO[weapon.id].range)) * this.stats.reach;
+    const direction = pilotDirection({ player: { x: this.hero.x, y: this.hero.y }, target,
+      desiredDistance: enteringGate || gathering ? 0 : Math.min(210, reach * 0.7),
+      enemies: this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })),
+      orbitSign: this.seed % 2 ? 1 : -1, avoidance: enteringGate ? 0.1 : gathering ? 0.35 : 1 });
+    this.joyVector.set(direction.x, direction.y);
+    if (this.specialCooldown > 0) return;
+    const specialRange = this.heroId === 'ember' ? 190 : this.heroId === 'warden' ? 145 : 300;
+    const closeEnemies = this.enemies.filter(enemy => this.distance(this.hero.x, this.hero.y, enemy.sprite.x, enemy.sprite.y) < specialRange);
+    if (closeEnemies.length >= 2 || closeEnemies.some(enemy => enemy.kind === 'boss' || enemy.kind === 'gatekeeper')
+      || closeEnemies.length > 0 && this.health < this.stats.maxHealth * 0.7
+      || closeEnemies.length === 0 && this.objects.some(object => object.active && object.hp > 0
+        && this.distance(this.hero.x, this.hero.y, object.x, object.y) < specialRange)) this.castSpecial();
+  }
 
   castSpecial(): void {
     if (!this.running || this.choosing || this.pausedByUser || this.specialCooldown > 0) return;
@@ -303,6 +336,8 @@ export class GroveScene extends Phaser.Scene {
     this.attackPose = Math.max(0, this.attackPose - dt);
     this.specialCooldown = Math.max(0, this.specialCooldown - dt);
     this.health = Math.min(this.stats.maxHealth, this.health + this.stats.regen * dt);
+    if (this.pilotEnabled) this.updateDebugPilot();
+    if (!this.running) return;
     this.moveHero(dt);
     this.updateEnemies(dt);
     if (!this.running) return;
