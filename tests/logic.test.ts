@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
-  BASE_STATS, EMPTY_PROGRESS, Rng, addRunToProgress, availableHero, damageAfterDefense,
-  generateRegionLayout, masteryRank, parseProgress, seedsForRun, unlockThorns, upgradeStat, xpToNextLevel,
+  BASE_STATS, EMPTY_PROGRESS, LEGACY_SAVE_KEY, SAVE_KEY, Rng, addRunToProgress, availableHero, damageAfterDefense,
+  generateRegionLayout, masteryRank, parseProgress, readProgress, seedsForRun, unlockThorns, upgradeStat, xpToNextLevel,
 } from '../src/game/logic';
 import { parseRunSnapshot, type RunSnapshot } from '../src/game/runSave';
 
@@ -39,6 +39,20 @@ describe('run progression', () => {
     const earned = addRunToProgress(migrated, 40, 200, false, 'warden', 1);
     expect(availableHero(earned, 'ranger')).toBe(true);
     expect(masteryRank(earned.mastery.warden)).toBeGreaterThan(0);
+  });
+
+  it('writes the migrated v2 save when only a v1 browser save exists', () => {
+    const values = new Map([[LEGACY_SAVE_KEY, JSON.stringify({ seeds: 11, thornsUnlocked: true, bestKills: 20 })]]);
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value),
+    });
+    try {
+      const progress = readProgress();
+      expect(progress.seeds).toBe(11);
+      expect(progress.thornsUnlocked).toBe(true);
+      expect(JSON.parse(values.get(SAVE_KEY)!)).toEqual(progress);
+    } finally { vi.unstubAllGlobals(); }
   });
 
   it('assembles repeatable connected clearings in each region', () => {
