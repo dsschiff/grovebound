@@ -9,6 +9,7 @@ import { soundFx } from './audio';
 import { bossPhaseFor, chooseAutoTarget, pickUpgradeChoices, pierceTarget, shouldSpawnGuardian, weaponDamage, weaponSplash } from './combat';
 import { pilotDirection } from './pilot';
 import { hazardSites, ventPhase, type VentPhase } from './hazards';
+import { BOSS_STRIKE_WINDUP, bossStrikeCooldown, bossStrikeRadius, bossStrikeTarget, insideBossStrike, type BossStrikeState } from './bossStrike';
 
 const WORLD = 1800;
 type EnemyKind = EnemySave['kind'];
@@ -17,6 +18,7 @@ interface Enemy {
   sprite: Phaser.GameObjects.Image; kind: EnemyKind; hp: number; maxHp: number;
   speed: number; damage: number; radius: number; phase: number; pendingDamage: number; damageClock: number;
   burnRemaining: number; burnTickClock: number; burnDamage: number;
+  strike?: BossStrikeState & { ring?: Phaser.GameObjects.Arc };
 }
 interface WorldObject { view: Phaser.GameObjects.Container; kind: ObjectKind; x: number; y: number; hp: number; maxHp: number; active: boolean; ring?: Phaser.GameObjects.Arc; hazardPhase?: VentPhase }
 interface Orb { view: Phaser.GameObjects.Container; x: number; y: number; value: number }
@@ -93,6 +95,7 @@ export class GroveScene extends Phaser.Scene {
   private joyPointer: number | null = null;
   private joyOrigin = new Phaser.Math.Vector2();
   private joyVector = new Phaser.Math.Vector2();
+  private moveDirection = new Phaser.Math.Vector2();
   private pilotEnabled = false;
   private slowed = false;
 
@@ -228,13 +231,15 @@ export class GroveScene extends Phaser.Scene {
   }
   isRunning(): boolean { return this.running; }
   isChoosing(): boolean { return this.choosing; }
-  endRunEarly(): void { this.pausedByUser = false; this.running = false; this.releaseJoystick(); clearRunSnapshot(); }
+  endRunEarly(): void {
+    this.pausedByUser = false; this.running = false; this.releaseJoystick(); clearRunSnapshot();
+    for (const enemy of this.enemies) enemy.strike?.ring?.destroy();
+  }
 
   // Localhost-only QA controls are wired in main.ts when ?debug=1 is present.
   debugApproachObjective(): void {
     if (!this.running || this.choosing) return;
-    for (const enemy of this.enemies) enemy.sprite.destroy();
-    this.enemies = [];
+    this.clearEnemies();
     const target = this.objects.find(object => object.kind === 'ward' && object.active)
       ?? this.objects.find(object => (object.kind === 'shrine' || object.kind === 'relic') && object.active)
       ?? this.objects.find(object => object.kind === 'gate')!;
@@ -244,8 +249,7 @@ export class GroveScene extends Phaser.Scene {
 
   debugApproachHazard(): void {
     if (!this.running || this.choosing) return;
-    for (const enemy of this.enemies) enemy.sprite.destroy();
-    this.enemies = [];
+    this.clearEnemies();
     const target = this.objects.find(object => (object.kind === 'vent' || object.kind === 'bloom') && object.active);
     if (!target) return;
     this.hero.setPosition(Phaser.Math.Clamp(target.x + 95, 42, WORLD - 42), target.y);
@@ -273,6 +277,28 @@ export class GroveScene extends Phaser.Scene {
   }
 
   debugHeal(): void { if (this.running) { this.health = this.stats.maxHealth; this.publishHud(); this.saveSnapshot(); } }
+  debugSummonBoss(): void {
+    if (!this.running || this.choosing) return;
+    if (this.region !== 2) { this.region = 2; this.startRegion(); }
+    this.clearEnemies();
+    this.hero.setPosition(900, 900);
+    this.spawnEnemy('boss', { x: 900, y: 690 });
+    const boss = this.enemies.find(enemy => enemy.kind === 'boss')!;
+    boss.speed = 0; boss.damage = 0;
+    this.bossSpawned = true;
+    this.publishHud(); this.saveSnapshot();
+  }
+  debugMarkBoss(): void {
+    if (!this.running || this.choosing) return;
+    const boss = this.enemies.find(enemy => enemy.kind === 'boss');
+    if (!boss?.strike) return;
+    const strike = boss.strike;
+    strike.ring?.destroy();
+    strike.x = this.hero.x; strike.y = this.hero.y;
+    strike.radius = bossStrikeRadius(boss.phase); strike.windup = 1.8; strike.cooldown = 0;
+    strike.ring = this.createBossStrikeMarker(strike);
+    this.saveSnapshot();
+  }
   setDebugPilot(enabled: boolean): void {
     this.pilotEnabled = enabled;
     if (!enabled) this.releaseJoystick();
@@ -446,12 +472,17 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private clearRunObjects(): void {
-    for (const enemy of this.enemies) enemy.sprite.destroy();
+    this.clearEnemies();
     for (const object of this.objects) object.view.destroy();
     for (const orb of this.orbs) orb.view.destroy();
     for (const cache of this.caches) { this.tweens.killTweensOf(cache.view); cache.view.destroy(); }
-    this.enemies = []; this.objects = []; this.orbs = []; this.caches = [];
+    this.objects = []; this.orbs = []; this.caches = [];
     this.bars?.clear(); this.nav?.setText(''); this.releaseJoystick();
+  }
+
+  private clearEnemies(): void {
+    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.sprite.destroy(); }
+    this.enemies = [];
   }
 
   private moveHero(dt: number): void {
@@ -461,6 +492,7 @@ export class GroveScene extends Phaser.Scene {
     if (this.keys?.W?.isDown || this.cursors?.up?.isDown) dy -= 1;
     if (this.keys?.S?.isDown || this.cursors?.down?.isDown) dy += 1;
     const length = Math.hypot(dx, dy);
+    this.moveDirection.set(length > 0.03 ? dx / length : 0, length > 0.03 ? dy / length : 0);
     const attackKick = this.attackPose > 0 ? Math.sin(this.attackPose / 0.16 * Math.PI) : 0;
     if (length > 0.03) {
       const speed = this.stats.speed * (this.slowed ? 0.68 : 1);
@@ -552,12 +584,20 @@ export class GroveScene extends Phaser.Scene {
     if (this.region === 2 && kind === 'wisp') sprite.setTint(0xb2e4e6);
     if ((saved?.burnRemaining ?? 0) > 0) sprite.setTint(0xffae72);
     const phase = saved?.phase ?? (kind === 'boss' ? 0 : this.random.range(0, 6));
+    const strike = kind === 'boss' ? {
+      cooldown: saved?.bossStrike?.cooldown ?? 1.8,
+      windup: saved?.bossStrike?.windup ?? 0,
+      x: saved?.bossStrike?.x ?? point.x,
+      y: saved?.bossStrike?.y ?? point.y,
+      radius: saved?.bossStrike?.radius ?? bossStrikeRadius(phase),
+    } as Enemy['strike'] : undefined;
+    if (strike && strike.windup > 0) strike.ring = this.createBossStrikeMarker(strike);
     this.enemies.push({ sprite, kind, hp: saved?.hp ?? hp, maxHp: hp,
       speed: values.speed + (kind === 'boss' ? phase * 10 : 0),
       damage: values.damage + (kind === 'boss' ? phase * 3 : 0),
       radius: values.radius, phase, pendingDamage: 0, damageClock: 0,
       burnRemaining: saved?.burnRemaining ?? 0, burnTickClock: saved?.burnTickClock ?? 0,
-      burnDamage: saved?.burnDamage ?? 0 });
+      burnDamage: saved?.burnDamage ?? 0, strike });
   }
 
   private updateEnemies(dt: number): void {
@@ -587,7 +627,39 @@ export class GroveScene extends Phaser.Scene {
         enemy.damageClock -= dt;
         if (enemy.damageClock <= 0) this.flushDamage(enemy);
       }
+      if (enemy.strike) this.updateBossStrike(enemy, dt);
+      if (!this.running) break;
     }
+  }
+
+  private createBossStrikeMarker(strike: BossStrikeState): Phaser.GameObjects.Arc {
+    return this.add.circle(strike.x, strike.y, strike.radius, 0xb44765, 0.27)
+      .setStrokeStyle(6, 0xffd6aa, 0.95).setDepth(3);
+  }
+
+  private updateBossStrike(boss: Enemy, dt: number): void {
+    const strike = boss.strike!;
+    if (strike.windup > 0) {
+      strike.windup = Math.max(0, strike.windup - dt);
+      if (!this.reducedEffects) strike.ring?.setAlpha(0.72 + Math.sin(this.seconds * 18) * 0.2);
+      if (strike.windup > 0) return;
+      strike.ring?.destroy(); strike.ring = undefined;
+      this.burst(strike.x, strike.y, '#ffb87e', 15);
+      if (insideBossStrike({ x: this.hero.x, y: this.hero.y }, strike)) {
+        if (this.invulnerability <= 0) this.takeDamage(32 + boss.phase * 5);
+      } else this.floatText('DODGED', this.hero.x, this.hero.y - 51, '#bdf3cf');
+      strike.cooldown = bossStrikeCooldown(boss.phase);
+      this.saveSnapshot();
+      return;
+    }
+    strike.cooldown = Math.max(0, strike.cooldown - dt);
+    if (strike.cooldown > 0) return;
+    const target = bossStrikeTarget({ x: this.hero.x, y: this.hero.y }, this.moveDirection);
+    strike.x = target.x; strike.y = target.y; strike.radius = bossStrikeRadius(boss.phase);
+    strike.windup = BOSS_STRIKE_WINDUP;
+    strike.ring = this.createBossStrikeMarker(strike);
+    this.callbacks.onEvent('BRIAR MARK — MOVE!');
+    this.saveSnapshot();
   }
 
   private takeDamage(raw: number): void {
@@ -687,7 +759,7 @@ export class GroveScene extends Phaser.Scene {
     }
     this.flushDamage(enemy);
     const x = enemy.sprite.x; const y = enemy.sprite.y;
-    enemy.sprite.destroy(); this.enemies.splice(this.enemies.indexOf(enemy), 1);
+    enemy.strike?.ring?.destroy(); enemy.sprite.destroy(); this.enemies.splice(this.enemies.indexOf(enemy), 1);
     this.kills++;
     this.burst(x, y, enemy.kind === 'wisp' ? '#f8be71' : '#b4d889', enemy.kind === 'boss' ? 17 : 7);
     if (enemy.kind === 'boss') { this.finish(true); return; }
@@ -913,6 +985,7 @@ export class GroveScene extends Phaser.Scene {
     if (!this.running) return;
     this.metrics.regionSeconds[this.region] = this.stageSeconds;
     this.running = false; this.releaseJoystick(); clearRunSnapshot();
+    for (const enemy of this.enemies) enemy.strike?.ring?.destroy();
     if (won) soundFx.play('victory');
     if (won) this.tweens.add({ targets: this.hero, scaleX: 0.44, scaleY: 0.44, yoyo: true, duration: 250 });
     else this.tweens.add({ targets: this.hero, angle: 80, alpha: 0.28, duration: 370, ease: 'Cubic.Out' });
@@ -955,7 +1028,9 @@ export class GroveScene extends Phaser.Scene {
       choosing: this.choosing, upgradeOptions: [...this.upgradeOptions],
       enemies: this.enemies.map(enemy => ({ kind: enemy.kind, x: enemy.sprite.x, y: enemy.sprite.y,
         hp: enemy.hp, maxHp: enemy.maxHp, phase: enemy.phase,
-        burnRemaining: enemy.burnRemaining, burnTickClock: enemy.burnTickClock, burnDamage: enemy.burnDamage })),
+        burnRemaining: enemy.burnRemaining, burnTickClock: enemy.burnTickClock, burnDamage: enemy.burnDamage,
+        bossStrike: enemy.strike ? { cooldown: enemy.strike.cooldown, windup: enemy.strike.windup,
+          x: enemy.strike.x, y: enemy.strike.y, radius: enemy.strike.radius } : undefined })),
       objects: this.objects.map(object => ({ kind: object.kind, x: object.x, y: object.y, hp: object.hp, maxHp: object.maxHp, active: object.active })),
       orbs: this.orbs.map(orb => ({ x: orb.x, y: orb.y, value: orb.value })),
       caches: this.caches.map(cache => ({ x: cache.x, y: cache.y, stat: cache.stat })),

@@ -5,6 +5,7 @@ export interface EnemySave {
   kind: 'gnarl' | 'wisp' | 'brute' | 'gatekeeper' | 'boss';
   x: number; y: number; hp: number; maxHp: number; phase: number;
   burnRemaining?: number; burnTickClock?: number; burnDamage?: number;
+  bossStrike?: { cooldown: number; windup: number; x: number; y: number; radius: number };
 }
 export interface ObjectSave {
   kind: 'ward' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom';
@@ -70,7 +71,12 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
       && finite(enemy.y, 0, 1800) && finite(enemy.hp, 0, 10000) && finite(enemy.maxHp, 1, 10000) && finite(enemy.phase, 0, 7)
       && (enemy.burnRemaining === undefined || finite(enemy.burnRemaining, 0, 10))
       && (enemy.burnTickClock === undefined || finite(enemy.burnTickClock, 0, 2))
-      && (enemy.burnDamage === undefined || finite(enemy.burnDamage, 0, 200)))
+      && (enemy.burnDamage === undefined || finite(enemy.burnDamage, 0, 200))
+      && (enemy.bossStrike === undefined || (enemy.kind === 'boss'
+        && typeof enemy.bossStrike === 'object' && enemy.bossStrike !== null
+        && finite(enemy.bossStrike.cooldown, 0, 10) && finite(enemy.bossStrike.windup, 0, 2)
+        && finite(enemy.bossStrike.x, 0, 1800) && finite(enemy.bossStrike.y, 0, 1800)
+        && finite(enemy.bossStrike.radius, 60, 200))))
     || !Array.isArray(run.objects) || run.objects.length > 10 || !run.objects.every(object =>
       ['ward', 'shrine', 'relic', 'gate', 'vent', 'bloom'].includes(object.kind) && finite(object.x, 0, 1800)
       && finite(object.y, 0, 1800) && finite(object.hp, 0, 10000) && finite(object.maxHp, 0, 10000)

@@ -15,6 +15,7 @@ Check off a milestone only after its live build is verified. The next unchecked 
 - The Warden starts with an axe, Ranger with thorns, and Ember with a staff. A Sunbow is the fourth weapon. Mastery rank 4 gives a second permanent weapon slot; a rare run relic grants a third.
 - The axe cleaves clusters, thorns pierce one aligned foe, the Sunbow can land critical hits, and the staff leaves a short burn. Warden starts tougher and uses Whirlwind for knockback and healing; Ranger's volley reaches distant foes; Ember's nova ignites survivors. Burn state survives run resume.
 - Ember Quarry has attackable vents that warn before short eruptions. Moonfen has attackable mist blooms that slow movement inside their rings. Both appear at deterministic sites, remain optional, and yield experience when cleared; their object state survives run resume.
+- The Briar King periodically marks the ground ahead of the hero's current movement. A visible ring gives time to change direction before the strike lands; later phases widen the strike and shorten its cooldown. The marker and countdown survive run resume.
 - Browser storage remains local. Migrate `grovebound-progress-v1` to `grovebound-progress-v2` without consuming old seeds or removing the Thorn Dart unlock.
 - Keep Grovebound and Planetfall separate. Build `dsschiff/games` as a later public Pages hub; do not link a private Planetfall URL from it.
 

@@ -66,3 +66,10 @@
 - Browser QA showed an intact Quarry vent, a sealed vent with its ring removed, and an intact Moonfen bloom with the slowed cue. A paused Moonfen run reloaded with its timer, health, position, and bloom intact. Debug skips into later regions at level 1 caused quick losses and were not used for balance conclusions.
 - A fresh rank-0 Warden pilot completed a normal-timer run in 10:38 without advance or heal controls. Region splits were 3:02, 3:30, and 4:06. It cleared six wards and one hazard, defeated the Briar King, took 105 damage, and earned eight seeds. The 390 × 844 result panel remained readable; browser error logs were empty. This validates one automated route, not human balance or real Android performance.
 - Fourteen Vitest cases and the Pages production build passed; staged site size was 1,672,108 bytes. Source and build landed at `3d3212bbe32ca736261310113672ec9e2bea9124`. Pages reported `built` for that commit; the live page served `/grovebound/assets/index-DucyiQuC.js` with an enabled start button and no browser errors.
+
+## 2026-09-26 — Briar King ground strike
+
+- The Briar King now marks the ground ahead of the hero's movement and erupts after a visible 1.15-second warning. Later phases widen the mark and shorten its cooldown. Dodging shows feedback; the hit uses ordinary defense and invulnerability rules.
+- The strike's target, radius, and timers are included in exact run snapshots. Older boss snapshots without a strike field still load. The warning marker is removed when the boss dies, a run ends, or a region is rebuilt.
+- Localhost-only controls can summon a boss and force a warning. At 390 × 844, the ring and warning text were visible over the Moonfen map, and a stationary hero took damage from the strike. Browser error logs were empty. This focused check did not establish a full-run win after the new attack or verify reload during its short warning window.
+- Sixteen Vitest cases and the Pages production build passed. The staged site size is 1,674,922 bytes. Android Chrome performance, human-play balance, and a normal-timer pilot with the new boss attack remain open.

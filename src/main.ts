@@ -378,7 +378,7 @@ if (new URLSearchParams(location.search).has('debug')) {
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const controls = document.createElement('div');
     controls.className = 'debug-controls';
-    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="heal">HEAL</button>';
+    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="heal">HEAL</button>';
     el('#ui').append(controls);
     controls.querySelectorAll<HTMLButtonElement>('button').forEach(button => button.addEventListener('click', () => {
       if (button.dataset.debug === 'pilot') {
@@ -390,6 +390,8 @@ if (new URLSearchParams(location.search).has('debug')) {
       if (button.dataset.debug === 'hazard') scene.debugApproachHazard();
       if (button.dataset.debug === 'shatter') scene.debugShatterHazard();
       if (button.dataset.debug === 'advance') scene.debugAdvanceRegion();
+      if (button.dataset.debug === 'boss') scene.debugSummonBoss();
+      if (button.dataset.debug === 'mark') scene.debugMarkBoss();
       if (button.dataset.debug === 'heal') scene.debugHeal();
     }));
   }

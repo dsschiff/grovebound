@@ -96,6 +96,11 @@ describe('run progression', () => {
     const burning = { ...snapshot, enemies: [{ ...snapshot.enemies[0], burnRemaining: 2.5, burnTickClock: 0.4, burnDamage: 6 }] };
     expect(parseRunSnapshot(burning)?.enemies[0].burnRemaining).toBe(2.5);
     expect(parseRunSnapshot({ ...burning, enemies: [{ ...burning.enemies[0], burnDamage: -4 }] })).toBeNull();
+    const boss = { ...snapshot, enemies: [{ kind: 'boss' as const, x: 900, y: 800, hp: 600, maxHp: 1150,
+      phase: 2, bossStrike: { cooldown: 0, windup: 0.7, x: 930, y: 920, radius: 125 } }] };
+    expect(parseRunSnapshot(boss)?.enemies[0].bossStrike?.windup).toBe(0.7);
+    expect(parseRunSnapshot({ ...boss, enemies: [{ ...boss.enemies[0], bossStrike: undefined }] })?.enemies[0].bossStrike).toBeUndefined();
+    expect(parseRunSnapshot({ ...boss, enemies: [{ ...boss.enemies[0], bossStrike: { ...boss.enemies[0].bossStrike, windup: -1 } }] })).toBeNull();
     const { hazards: _oldHazards, ...oldMetrics } = snapshot.metrics;
     expect(parseRunSnapshot({ ...snapshot, metrics: oldMetrics })?.metrics.hazards).toBe(0);
     const withHazards = { ...snapshot, objects: [{ kind: 'vent', x: 850, y: 780, hp: 20, maxHp: 180, active: true }],
