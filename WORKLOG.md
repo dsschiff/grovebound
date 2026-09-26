@@ -34,3 +34,4 @@
 - Local browser QA at 390 × 844 displayed the full breakdown after a fast-forwarded three-region victory. The result panel remained scrollable at 375 × 667. Fast-forwarded region times reflect encounter minimums and do not validate ordinary play pacing.
 - Ten Vitest cases passed, including legacy snapshot normalization and malformed metric rejection. TypeScript and the GitHub Pages production build passed. Initial staged site size remains below the 5 MB target.
 - Still open: a complete ordinary win around 10–12 minutes and performance/accessibility testing on an actual Android Chrome phone.
+- Published source and Pages build at `ff5523ddf9e431ae240d68bda57c9911b04b48b7`; Pages reported `built`, and the live game served `/grovebound/assets/index-CmTGr7Hr.js` with an enabled start button.
