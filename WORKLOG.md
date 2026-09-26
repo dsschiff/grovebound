@@ -26,3 +26,4 @@
 - Added a circular region minimap with the hero, live enemies, wards, shrine/relic, and gate. It is drawn with the existing HUD update, without extra image downloads or save data.
 - Local browser QA at 390 × 844 showed the minimap and a ward shattering during an active fight; the HUD changed from two wards to one. A stationary Warden lost naturally at 1:19 with 35 kills, then received three seeds and returned to camp with the run save cleared. Survival and full-run balance still need active play testing.
 - Ten Vitest cases and the Pages production build passed. A real Android Chrome performance check remains open.
+- Published source and `docs/` at `328582fac43885e61a31fe618ebd188da87b4db0`. GitHub Pages reported `built`, and the live page loaded `/grovebound/assets/index-DwjQFlJX.js` with the start button enabled.
