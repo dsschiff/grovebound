@@ -13,3 +13,30 @@
 *{user-select:none;-webkit-user-select:none}
 #game canvas{touch-action:none}
 .menu-screen{touch-action:pan-y;-webkit-overflow-scrolling:touch}
+
+/* Expanded roster and six-stat combat HUD. */
+.hero-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.hero-option{min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;background:#173b32;border:1px solid #79947788;border-radius:10px;color:#f7edd0;padding:5px 3px 6px;min-height:87px}
+.hero-option img{height:46px;width:48px;object-fit:contain;filter:drop-shadow(0 3px 2px #0a2d2888)}
+.hero-option strong{display:block;font-size:11px}.hero-option small{display:block;font-size:8px;line-height:1.1;color:#c5d5bb;margin-top:2px}
+.hero-option.selected,.weapon-option.selected{border-color:#efcb7a;background:#315f47;box-shadow:inset 0 0 0 1px #edcc7866}
+.hero-option.locked,.weapon-option.locked{opacity:.48}
+.sub-heading{padding-top:11px;padding-bottom:7px}
+.weapon-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.weapon-option{min-width:0;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#173b32;border:1px solid #79947788;border-radius:9px;color:#f7edd0;padding:3px}
+.weapon-option span{font-size:19px;color:#f5d58d}.weapon-option small{font-size:8px;line-height:1.1}
+.mastery-next{text-align:center;color:#d8d8b3;font-size:9px;letter-spacing:.08em;font-weight:800;margin-top:8px}
+.debug-controls{position:absolute;z-index:30;top:125px;right:8px;display:grid;gap:3px}.debug-controls button{pointer-events:auto;background:#102f29df;color:#f8e0a6;border:1px solid #d8ba7b;border-radius:5px;font-size:8px;padding:5px}
+.skin-button{width:100%;margin-top:8px;background:#796747;color:#fff1ca;border:1px solid #e2c984;border-radius:8px;padding:7px;font-size:10px;font-weight:800;letter-spacing:.08em}
+.gold-skin{filter:sepia(.45) saturate(1.6) drop-shadow(0 9px 7px #0a2d2888)!important}
+.setting-row{display:flex;align-items:center;justify-content:center;gap:7px;color:#d6dfcb;font-size:11px;margin:9px 0 0;pointer-events:auto}.setting-row input{accent-color:#e9c67d}
+.setting-pair{display:flex;justify-content:center;gap:18px}
+.secondary-button{width:100%;min-height:44px;border:1px solid #d9ca93;border-radius:10px;background:#255c49;color:#f8e8bd;font-size:12px;font-weight:800;letter-spacing:.09em;margin-top:12px}
+.secondary-button span{margin-left:10px}
+.stats-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.stat-pill{min-height:31px;border-radius:8px}.stat-pill>span{font-size:15px}.stat-pill small{font-size:8px}.stat-pill strong{font-size:11px}
+.stat-pill.maxHealth>span{color:#ffb6a5}.stat-pill.reach>span{color:#b8e6b7}
+.special-button{position:absolute;right:16px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 109px);pointer-events:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;width:74px;height:74px;border:2px solid #ffe1a0;border-radius:50%;background:radial-gradient(circle at 40% 30%,#edc774,#9b5f3e);box-shadow:0 5px 0 #603f34,0 10px 22px #0b2a2388;color:#183c30;text-align:center}
+.special-button:disabled{filter:grayscale(.7);opacity:.72}.special-button .special-icon{font-size:25px;line-height:1}.special-button strong{font-size:8px;line-height:1.1}.special-button small{font-size:9px;font-weight:800}
+.upgrade-card.maxHealth .upgrade-icon{background:#ffb6a5}.upgrade-card.reach .upgrade-icon{background:#b8e6b7}.upgrade-card.weapon .upgrade-icon,.upgrade-card.splash .upgrade-icon,.upgrade-card.pet .upgrade-icon,.upgrade-card.wildArsenal .upgrade-icon{background:#f5d58d}
+@media(max-height:760px){.hero-stage{height:135px}.stage-hero{height:125px}.stage-tree{height:130px}.stage-enemy{height:58px}.stage-axe{height:67px}.menu-content h1{font-size:44px}.subtitle{font-size:12px;margin-top:4px}.ability-panel{padding:8px}.hero-option{min-height:70px}.hero-option img{height:34px}.instruction{margin-top:10px}}
