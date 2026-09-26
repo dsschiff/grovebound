@@ -27,3 +27,10 @@
 - Local browser QA at 390 × 844 showed the minimap and a ward shattering during an active fight; the HUD changed from two wards to one. A stationary Warden lost naturally at 1:19 with 35 kills, then received three seeds and returned to camp with the run save cleared. Survival and full-run balance still need active play testing.
 - Ten Vitest cases and the Pages production build passed. A real Android Chrome performance check remains open.
 - Published source and `docs/` at `328582fac43885e61a31fe618ebd188da87b4db0`. GitHub Pages reported `built`, and the live page loaded `/grovebound/assets/index-DwjQFlJX.js` with the start button enabled.
+
+## 2026-09-26 — Run breakdown pass
+
+- Added per-run foe and object damage, damage taken, stat caches, blessings, wardstones, equipped weapons, and time in each region to the result screen. These values are included in exact run snapshots; older version-1 snapshots load with empty metrics rather than being discarded.
+- Local browser QA at 390 × 844 displayed the full breakdown after a fast-forwarded three-region victory. The result panel remained scrollable at 375 × 667. Fast-forwarded region times reflect encounter minimums and do not validate ordinary play pacing.
+- Ten Vitest cases passed, including legacy snapshot normalization and malformed metric rejection. TypeScript and the GitHub Pages production build passed. Initial staged site size remains below the 5 MB target.
+- Still open: a complete ordinary win around 10–12 minutes and performance/accessibility testing on an actual Android Chrome phone.

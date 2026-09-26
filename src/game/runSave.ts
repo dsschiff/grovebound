@@ -9,6 +9,15 @@ export interface ObjectSave {
   kind: 'ward' | 'shrine' | 'relic' | 'gate';
   x: number; y: number; hp: number; maxHp: number; active: boolean;
 }
+export interface RunMetrics {
+  foeDamage: number; objectDamage: number; damageTaken: number;
+  caches: number; blessings: number; wards: number;
+  regionSeconds: [number | null, number | null, number | null];
+}
+export function emptyRunMetrics(): RunMetrics {
+  return { foeDamage: 0, objectDamage: 0, damageTaken: 0, caches: 0, blessings: 0, wards: 0,
+    regionSeconds: [null, null, null] };
+}
 export interface RunSnapshot {
   version: 1;
   seed: number; rngState: number; hero: Hero; skin: boolean;
@@ -23,6 +32,7 @@ export interface RunSnapshot {
   enemies: EnemySave[]; objects: ObjectSave[];
   orbs: { x: number; y: number; value: number }[];
   caches: { x: number; y: number; stat: Stat }[];
+  metrics: RunMetrics;
 }
 
 const finite = (value: unknown, min = 0, max = 100000): value is number =>
@@ -65,7 +75,14 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
       finite(orb.x, 0, 1800) && finite(orb.y, 0, 1800) && finite(orb.value, 1, 10))
     || !Array.isArray(run.caches) || run.caches.length > 10 || !run.caches.every(cache =>
       finite(cache.x, 0, 1800) && finite(cache.y, 0, 1800) && STATS.includes(cache.stat))) return null;
-  return run as RunSnapshot;
+  const metrics = run.metrics;
+  if (metrics !== undefined && (typeof metrics !== 'object' || metrics === null
+    || !finite(metrics.foeDamage) || !finite(metrics.objectDamage)
+    || !finite(metrics.damageTaken) || !finite(metrics.caches) || !finite(metrics.blessings)
+    || !finite(metrics.wards, 0, 6) || !Array.isArray(metrics.regionSeconds)
+    || metrics.regionSeconds.length !== 3
+    || !metrics.regionSeconds.every(seconds => seconds === null || finite(seconds)))) return null;
+  return { ...run, metrics: metrics ?? emptyRunMetrics() } as RunSnapshot;
 }
 
 export function readRunSnapshot(): RunSnapshot | null {

@@ -3,7 +3,7 @@ import {
   BASE_STATS, EMPTY_PROGRESS, LEGACY_SAVE_KEY, SAVE_KEY, Rng, addRunToProgress, availableHero, damageAfterDefense,
   generateRegionLayout, masteryRank, parseProgress, readProgress, seedsForRun, unlockThorns, upgradeStat, xpToNextLevel,
 } from '../src/game/logic';
-import { parseRunSnapshot, type RunSnapshot } from '../src/game/runSave';
+import { emptyRunMetrics, parseRunSnapshot, type RunSnapshot } from '../src/game/runSave';
 
 describe('run progression', () => {
   it('makes each stat pickup meaningful and caps damage reduction', () => {
@@ -84,8 +84,12 @@ describe('run progression', () => {
       enemies: [{ kind: 'gnarl', x: 930, y: 920, hp: 12, maxHp: 27, phase: 2 }],
       objects: [{ kind: 'ward', x: 500, y: 500, hp: 90, maxHp: 150, active: true }],
       orbs: [{ x: 825, y: 900, value: 1 }], caches: [{ x: 850, y: 840, stat: 'attack' }],
+      metrics: { ...emptyRunMetrics(), foeDamage: 120, caches: 2, regionSeconds: [70, null, null] },
     };
     expect(parseRunSnapshot(JSON.parse(JSON.stringify(snapshot)))).toEqual(snapshot);
+    const { metrics: _legacyMetrics, ...legacy } = snapshot;
+    expect(parseRunSnapshot(legacy)?.metrics).toEqual(emptyRunMetrics());
+    expect(parseRunSnapshot({ ...snapshot, metrics: { ...snapshot.metrics, foeDamage: -1 } })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, health: 1000 })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, version: 2 })).toBeNull();
   });

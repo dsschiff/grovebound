@@ -4,7 +4,7 @@ import {
   generateRegionLayout, upgradeStat, xpToNextLevel,
   type Hero, type Stat, type Stats, type Upgrade, type Weapon,
 } from './logic';
-import { clearRunSnapshot, saveRunSnapshot, type EnemySave, type ObjectSave, type RunSnapshot } from './runSave';
+import { clearRunSnapshot, emptyRunMetrics, saveRunSnapshot, type EnemySave, type ObjectSave, type RunMetrics, type RunSnapshot } from './runSave';
 import { soundFx } from './audio';
 import { bossPhaseFor, chooseAutoTarget, pickUpgradeChoices, shouldSpawnGuardian, weaponDamage, weaponSplash } from './combat';
 
@@ -28,7 +28,7 @@ export interface HudState {
   wardsLeft: number; gateOpen: boolean; hero: Hero;
   map: { x: number; y: number; objects: { x: number; y: number; kind: ObjectKind; active: boolean }[]; enemies: { x: number; y: number; kind: EnemyKind }[] };
 }
-export interface RunResult { won: boolean; kills: number; seconds: number; level: number; hero: Hero; region: number }
+export interface RunResult { won: boolean; kills: number; seconds: number; level: number; hero: Hero; region: number; weapons: Weapon[]; metrics: RunMetrics }
 export interface GameCallbacks {
   onHud: (hud: HudState) => void;
   onUpgrade: (options: Upgrade[]) => void;
@@ -68,6 +68,7 @@ export class GroveScene extends Phaser.Scene {
   private specialCooldown = 0;
   private reducedEffects = false;
   private stats: Stats = baseStatsFor('warden');
+  private metrics: RunMetrics = emptyRunMetrics();
   private health = 100;
   private xp = 0;
   private level = 1;
@@ -131,6 +132,7 @@ export class GroveScene extends Phaser.Scene {
     this.splashBonus = 0; this.pet = false; this.petClock = 0;
     this.autoSpecial = masteryRank >= 5 && autoSpecialEnabled; this.specialCooldown = 0; this.reducedEffects = reducedEffects;
     this.stats = baseStatsFor(hero, masteryRank);
+    this.metrics = emptyRunMetrics();
     this.health = this.stats.maxHealth;
     this.xp = 0; this.level = 1; this.kills = 0; this.seconds = 0; this.region = 0;
     this.attackPose = 0;
@@ -154,6 +156,7 @@ export class GroveScene extends Phaser.Scene {
     this.pet = snapshot.pet; this.petClock = snapshot.petClock; this.autoSpecial = snapshot.autoSpecial;
     this.specialCooldown = snapshot.specialCooldown; this.reducedEffects = snapshot.reducedEffects;
     this.stats = { ...snapshot.stats }; this.health = snapshot.health; this.xp = snapshot.xp;
+    this.metrics = { ...snapshot.metrics, regionSeconds: [...snapshot.metrics.regionSeconds] as RunMetrics['regionSeconds'] };
     this.level = snapshot.level; this.kills = snapshot.kills; this.seconds = snapshot.seconds;
     this.region = snapshot.region; this.stageSeconds = snapshot.stageSeconds;
     this.spawnClock = snapshot.spawnClock; this.cacheClock = snapshot.cacheClock;
@@ -192,6 +195,7 @@ export class GroveScene extends Phaser.Scene {
     else if (choice === 'pet') { this.pet = true; this.petView.setVisible(true); }
     else if (choice === 'wildArsenal') this.weaponSlots = 3;
     const info = this.upgradeInfo(choice);
+    this.metrics.blessings++;
     this.floatText(`+ ${info.name.toUpperCase()}`, this.hero.x, this.hero.y - 62, info.color);
     this.burst(this.hero.x, this.hero.y, info.color, 12);
     this.choosing = false; this.upgradeOptions = [];
@@ -464,6 +468,7 @@ export class GroveScene extends Phaser.Scene {
 
   private takeDamage(raw: number): void {
     const actual = damageAfterDefense(raw, this.stats.defense);
+    this.metrics.damageTaken += Math.min(actual, this.health);
     this.health = Math.max(0, this.health - actual);
     soundFx.play('hurt');
     this.invulnerability = 0.55;
@@ -515,6 +520,7 @@ export class GroveScene extends Phaser.Scene {
 
   private hitEnemy(enemy: Enemy, damage: number): void {
     if (!this.enemies.includes(enemy)) return;
+    this.metrics.foeDamage += Math.min(damage, Math.max(0, enemy.hp));
     enemy.hp -= damage; enemy.pendingDamage += damage; enemy.damageClock = 0.16;
     soundFx.play('hit');
     enemy.sprite.setTint(0xffd6a0);
@@ -570,6 +576,7 @@ export class GroveScene extends Phaser.Scene {
 
   private hitObject(object: WorldObject, damage: number): void {
     if (!object.active || object.hp <= 0) return;
+    this.metrics.objectDamage += Math.min(damage, object.hp);
     object.hp = Math.max(0, object.hp - damage);
     soundFx.play(object.hp > 0 ? 'hit' : 'ward');
     this.floatText(String(damage), object.x, object.y - 54, '#ffe8a0');
@@ -579,6 +586,7 @@ export class GroveScene extends Phaser.Scene {
     object.active = false; object.view.setAlpha(0.15);
     this.burst(object.x, object.y, object.kind === 'ward' ? '#c7e2a7' : '#f6d597', 16);
     if (object.kind === 'ward') {
+      this.metrics.wards++;
       this.callbacks.onEvent(this.wardsLeft() > 0 ? `${this.wardsLeft()} WARDSTONE REMAINS` : 'WARDSTONES SHATTERED — HOLD THE GATE');
     } else if (object.kind === 'shrine') {
       const relic = this.objects.find(item => item.kind === 'relic')!;
@@ -600,6 +608,7 @@ export class GroveScene extends Phaser.Scene {
     const gate = this.objects.find(object => object.kind === 'gate');
     if (gate?.active && this.distance(this.hero.x, this.hero.y, gate.x, gate.y) < 82) {
       if (this.region < 2) {
+        this.metrics.regionSeconds[this.region] = this.stageSeconds;
         this.region++;
         this.health = Math.min(this.stats.maxHealth, this.health + 25);
         this.startRegion(); this.spawnCache(STAT_KEYS[this.random.between(0, STAT_KEYS.length - 1)], 1010, 830);
@@ -677,6 +686,7 @@ export class GroveScene extends Phaser.Scene {
         this.floatText(`+ ${STAT_INFO[cache.stat].name.toUpperCase()}`, cache.x, cache.y - 47, STAT_INFO[cache.stat].color);
         this.burst(cache.x, cache.y, STAT_INFO[cache.stat].color, 11);
         this.tweens.killTweensOf(cache.view); cache.view.destroy(); this.caches.splice(i, 1);
+        this.metrics.caches++;
         this.publishHud(); this.saveSnapshot();
       }
     }
@@ -724,11 +734,14 @@ export class GroveScene extends Phaser.Scene {
 
   private finish(won: boolean): void {
     if (!this.running) return;
+    this.metrics.regionSeconds[this.region] = this.stageSeconds;
     this.running = false; this.releaseJoystick(); clearRunSnapshot();
     if (won) soundFx.play('victory');
     if (won) this.tweens.add({ targets: this.hero, scaleX: 0.44, scaleY: 0.44, yoyo: true, duration: 250 });
     else this.tweens.add({ targets: this.hero, angle: 80, alpha: 0.28, duration: 370, ease: 'Cubic.Out' });
-    this.callbacks.onEnd({ won, kills: this.kills, seconds: this.seconds, level: this.level, hero: this.heroId, region: won ? 3 : this.region });
+    this.callbacks.onEnd({ won, kills: this.kills, seconds: this.seconds, level: this.level, hero: this.heroId,
+      region: won ? 3 : this.region, weapons: this.weapons.map(weapon => weapon.id),
+      metrics: { ...this.metrics, regionSeconds: [...this.metrics.regionSeconds] as RunMetrics['regionSeconds'] } });
     this.publishHud();
   }
   private publishHud(): void {
@@ -767,6 +780,7 @@ export class GroveScene extends Phaser.Scene {
       objects: this.objects.map(object => ({ kind: object.kind, x: object.x, y: object.y, hp: object.hp, maxHp: object.maxHp, active: object.active })),
       orbs: this.orbs.map(orb => ({ x: orb.x, y: orb.y, value: orb.value })),
       caches: this.caches.map(cache => ({ x: cache.x, y: cache.y, stat: cache.stat })),
+      metrics: { ...this.metrics, regionSeconds: [...this.metrics.regionSeconds] as RunMetrics['regionSeconds'] },
     });
   }
 

@@ -89,8 +89,14 @@ root.innerHTML = `
 
     <div id="result" class="screen modal-screen hidden"><div class="modal-content narrow">
       <div class="modal-icon" id="result-icon">✦</div><div class="overline" id="result-eyebrow">THE GROVE REMEMBERS</div>
-      <h2 id="result-title">The wild endures</h2><p id="result-copy"></p>
+      <h2 id="result-title">The wild endures</h2><p id="result-copy"></p><div id="result-build" class="result-build"></div>
       <div class="result-grid"><div><strong id="result-kills">0</strong><span>VANQUISHED</span></div><div><strong id="result-time">0:00</strong><span>SURVIVED</span></div><div><strong id="result-level">1</strong><span>LEVEL</span></div></div>
+      <div class="run-breakdown"><div class="breakdown-title">YOUR JOURNEY</div>
+        <div class="breakdown-row"><span>FOE DAMAGE</span><strong id="result-damage">0</strong><span>DAMAGE TAKEN</span><strong id="result-taken">0</strong></div>
+        <div class="breakdown-row"><span>OBJECT DAMAGE</span><strong id="result-object-damage">0</strong><span>WARDS BROKEN</span><strong id="result-wards">0</strong></div>
+        <div class="breakdown-row"><span>STAT CACHES</span><strong id="result-caches">0</strong><span>BLESSINGS</span><strong id="result-blessings">0</strong></div>
+        <div id="result-regions" class="region-times"></div>
+      </div>
       <div class="reward-line"><span>SEEDS EARNED</span><strong id="result-seeds">+2 ✦</strong></div>
       <button id="again-button" class="primary-button">VENTURE AGAIN <span>➜</span></button>
       <button id="menu-button" class="text-button">Return to camp</button>
@@ -249,9 +255,17 @@ function onEnd(result: RunResult): void {
   el('#result-copy').textContent = result.won
     ? 'The Briar King falls. A quieter dawn returns to the grove.'
     : `You reached ${REGIONS[Math.min(2, result.region)].name}. Each venture opens a new path.`;
+  el('#result-build').textContent = `${HERO_INFO[result.hero].name.toUpperCase()} · ${result.weapons.map(weapon => WEAPON_INFO[weapon].name.toUpperCase()).join(' + ')}`;
   el('#result-kills').textContent = String(result.kills);
   el('#result-time').textContent = formatTime(result.seconds);
   el('#result-level').textContent = String(result.level);
+  el('#result-damage').textContent = Math.round(result.metrics.foeDamage).toLocaleString();
+  el('#result-taken').textContent = Math.round(result.metrics.damageTaken).toLocaleString();
+  el('#result-object-damage').textContent = Math.round(result.metrics.objectDamage).toLocaleString();
+  el('#result-wards').textContent = String(result.metrics.wards);
+  el('#result-caches').textContent = String(result.metrics.caches);
+  el('#result-blessings').textContent = String(result.metrics.blessings);
+  el('#result-regions').innerHTML = REGIONS.map((region, index) => `<div><span>${region.short}</span><strong>${result.metrics.regionSeconds[index] === null ? '—' : formatTime(result.metrics.regionSeconds[index]!)}</strong></div>`).join('');
   el('#result-seeds').textContent = `+${earned} ✦`;
   window.setTimeout(() => setModal('result'), 430);
 }
