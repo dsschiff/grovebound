@@ -118,6 +118,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .mission-card img{width:47px;height:47px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 5px #0b2929)}
 .mission-card.waylight img,.mission-card.moonflame img{animation:objective-hover 1.9s ease-in-out infinite alternate}
 .mission-card.seedheart img,.mission-card.altar img{animation:objective-heartbeat 2.2s ease-in-out infinite}
+.mission-card.stag img{animation:objective-working .7s ease-in-out infinite alternate}
 .mission-card.pump img,.mission-card.coolant img,.mission-card.forge img{animation:objective-working 1.4s ease-in-out infinite alternate}
 .mission-card.boss img{animation:objective-heartbeat 1.25s ease-in-out infinite}
 @keyframes objective-hover{from{transform:translateY(2px) rotate(-4deg)}to{transform:translateY(-4px) rotate(4deg)}}
@@ -134,6 +135,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .mission-card.coolant{border-color:#a3f7e9}.mission-card.coolant .mission-track i{background:#a3f7e9}
 .mission-card.moonflame{border-color:#d9b9ff}.mission-card.moonflame .mission-track i{background:#d9b9ff}
 .mission-card.seedheart{border-color:#bcf1a5}.mission-card.seedheart .mission-track i{background:#bcf1a5}
+.mission-card.stag{border-color:#ffcb76}.mission-card.stag .mission-track i{background:#ffd184}
 .mission-card.forge{border-color:#ffb374}.mission-card.forge .mission-track i{background:#ffb271}
 .mission-card.bloom{border-color:#a8dced}.mission-card.bloom .mission-track i{background:#b1e3ed}
 .mission-card.altar{border-color:#d5b9fa}.mission-card.altar .mission-track i{background:#dfc1ff}

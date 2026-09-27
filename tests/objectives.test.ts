@@ -22,6 +22,16 @@ describe('region objectives', () => {
     heart[0].hp = 0;
     expect(objectivesLeft(0, heart)).toBe(0);
   });
+  it('routes new Verge seeds to a three clearing stag hunt and follows saved stag state', () => {
+    expect(vergeMission(24)).toBe('stag');
+    const stag = [{ kind: 'stag' as const, x: 400, y: 650, hp: 330, active: true }];
+    expect(objectiveKinds(0, stag)).toEqual(['stag']);
+    expect(nextObjective(0, stag)?.kind).toBe('stag');
+    stag[0].hp = 110; stag[0].x = 900;
+    expect(nextObjective(0, stag)?.x).toBe(900);
+    stag[0].hp = 0;
+    expect(objectivesLeft(0, stag)).toBe(0);
+  });
   it('opens Quarry forge only after the coolant pump', () => {
     const objects = [
       { kind: 'pump' as const, x: 100, y: 100, hp: 200, active: true },

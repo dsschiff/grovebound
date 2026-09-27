@@ -242,7 +242,7 @@ function drawMinimap(hud: HudState): void {
     if (!object.active && object.kind !== 'gate') continue;
     const p = point(object.x, object.y);
     ctx.save(); ctx.translate(p.x, p.y);
-    ctx.fillStyle = { ward: '#ffe2a3', waylight: '#fff0b1', seedheart: '#b9f1a8', pump: '#9ae8ec', coolant: '#a3fff0',
+    ctx.fillStyle = { ward: '#ffe2a3', waylight: '#fff0b1', seedheart: '#b9f1a8', stag: '#ffce78', pump: '#9ae8ec', coolant: '#a3fff0',
       forge: '#ffae68', altar: '#d9c2ff', moonflame: '#d6b7ff',
       shrine: '#dca5f1', relic: '#ffca83', gate: object.active ? '#a5e8dc' : '#6b8782',
       vent: '#ff965d', bloom: '#a8d9ef', bramble: '#b8e898', ore: '#ffb16b', moonstone: '#c4adff' }[object.kind];
@@ -254,6 +254,13 @@ function drawMinimap(hud: HudState): void {
     }
     else if (object.kind === 'seedheart') {
       for (const [x, y] of [[-3, -3], [3, -3], [-3, 3], [3, 3]]) { ctx.moveTo(x + 3, y); ctx.arc(x, y, 3, 0, Math.PI * 2); }
+    }
+    else if (object.kind === 'stag') {
+      ctx.ellipse(0, 1, 3, 4, 0, 0, Math.PI * 2);
+      ctx.moveTo(-2, -2); ctx.lineTo(-6, -6); ctx.lineTo(-7, -9);
+      ctx.moveTo(-5, -5); ctx.lineTo(-2, -9);
+      ctx.moveTo(2, -2); ctx.lineTo(6, -6); ctx.lineTo(7, -9);
+      ctx.moveTo(5, -5); ctx.lineTo(2, -9);
     }
     else if (object.kind === 'coolant') ctx.ellipse(0, 0, 6, 3, 0, 0, Math.PI * 2);
     else if (object.kind === 'moonflame') ctx.ellipse(0, 0, 3, 6, -.6, 0, Math.PI * 2);
@@ -305,10 +312,11 @@ function updateHud(hud: HudState): void {
   el('#stage-timer').textContent = hud.gateOpen ? 'PORTAL OPEN' : hud.bossHp !== null ? 'GUARDIAN FIGHT'
     : gateCountdown > 0 ? `GUARDIAN IN ${formatTime(gateCountdown)}`
       : hud.objectivesLeft > 0 ? 'GUARDIAN WAITS FOR OBJECTIVES' : 'GUARDIAN ARRIVING';
-  const task = { ward: 'BREAK ROOT TOTEMS', waylight: 'GUIDE THE WAYLIGHT', seedheart: 'DEFEND THE SEEDHEART', pump: 'DRAIN COOLANT PUMP',
+  const task = { ward: 'BREAK ROOT TOTEMS', waylight: 'GUIDE THE WAYLIGHT', seedheart: 'DEFEND THE SEEDHEART', stag: 'INTERCEPT THE BRIAR STAG', pump: 'DRAIN COOLANT PUMP',
     coolant: 'FILL A COOLANT FLASK', forge: hud.coolantCarryRemaining > 0 ? 'DELIVER COOLANT TO FORGE' : 'BREAK FORGE CORE',
     moonflame: 'CHASE THE MOONFLAME', bloom: 'CLEAR MIST BLOOMS', altar: hud.ritualActive ? 'COMPLETE THE MOON RITE' : 'BREAK MOON ALTAR' }[hud.objectiveName ?? ''] ?? 'CLEAR OBJECTIVES';
-  const objective = hud.objectivesLeft > 0 ? hud.objectiveName === 'seedheart'
+  const objective = hud.objectivesLeft > 0 ? hud.objectiveName === 'stag'
+    ? `CHASE & STRIKE · ${hud.stepProgress}/3 BREAKS` : hud.objectiveName === 'seedheart'
     ? `GUARD THE RING · ${hud.stepProgress}/15s` : hud.objectiveName === 'pump'
     ? `STAND IN PUMP RING · ${hud.stepProgress}/4s` : hud.objectiveName === 'waylight'
       ? `STAY NEAR THE MOTH · ${hud.stepProgress}% HOME` : hud.objectiveName === 'coolant'
@@ -319,14 +327,14 @@ function updateHud(hud: HudState): void {
     : hud.gateOpen ? 'ENTER THE PORTAL' : hud.bossHp !== null ? 'DEFEAT THE GUARDIAN' : 'HOLD FOR THE GUARDIAN';
   if (el('#objective').textContent !== objective) el('#objective').textContent = objective;
   const missionKind = hud.objectiveName ?? (hud.bossHp !== null ? 'boss' : hud.gateOpen ? 'gate' : 'hold');
-  const missionMode = { waylight: 'ESCORT', seedheart: 'DEFEND', pump: 'CHANNEL', coolant: 'CHARGE',
+  const missionMode = { waylight: 'ESCORT', seedheart: 'DEFEND', stag: 'HUNT', pump: 'CHANNEL', coolant: 'CHARGE',
     forge: hud.coolantCarryRemaining > 0 ? 'DELIVER' : 'DESTROY', moonflame: 'PURSUIT', bloom: 'PURGE', altar: 'RITUAL',
     boss: 'BOSS', gate: 'ESCAPE', hold: 'SURVIVE', ward: 'DESTROY' }[missionKind] ?? 'MISSION';
   el('#mission-type').textContent = `${REGIONS[hud.region].short} · ${missionMode}`;
   el('#mission-card').className = `mission-card ${missionKind}`;
   el<HTMLElement>('#mission-progress').style.width = `${Math.max(0, Math.min(100, hud.objectiveProgress))}%`;
   const objectiveArt = hud.objectiveName ? {
-    ward: 'root-totem.webp', waylight: 'waylight.webp', seedheart: 'seedheart.webp', pump: 'coolant-pump.webp',
+    ward: 'root-totem.webp', waylight: 'waylight.webp', seedheart: 'seedheart.webp', stag: 'briar-stag-v1.webp', pump: 'coolant-pump.webp',
     coolant: 'coolant-spring.webp', forge: 'forge-core.webp', moonflame: 'moonflame.webp',
     bloom: 'mist-bloom.webp', altar: 'moon-altar.webp',
   }[hud.objectiveName] : hud.bossHp !== null ? 'briar-king-v2.webp' : 'grove-gate.webp';
@@ -451,7 +459,10 @@ game = new Phaser.Game({
 function startRun(): void {
   const rank = masteryRank(progress.mastery[selectedHero]);
   const available = (Object.keys(WEAPON_INFO) as Weapon[]).filter(weapon => availableWeapon(progress, weapon));
-  scene.beginRun(selectedHero, selectedWeapon, rank, available, progress.reducedEffects, selectedSkin, progress.autoSpecialEnabled, selectedSupport);
+  const localSeed = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+    ? Number(new URLSearchParams(location.search).get('seed')) : undefined;
+  scene.beginRun(selectedHero, selectedWeapon, rank, available, progress.reducedEffects, selectedSkin, progress.autoSpecialEnabled,
+    selectedSupport, localSeed || undefined);
   setModal(null);
 }
 el('#start-button').addEventListener('click', startRun);

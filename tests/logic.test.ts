@@ -103,6 +103,8 @@ describe('run progression', () => {
       objects: [{ kind: 'seedheart' as const, x: 620, y: 740, hp: 8.5, maxHp: 15, active: true }] };
     expect(parseRunSnapshot(commanded)?.weapons[0].commandCooldown).toBe(4.5);
     expect(parseRunSnapshot(commanded)?.objects[0].kind).toBe('seedheart');
+    const hunted = { ...commanded, objects: [{ kind: 'stag' as const, x: 850, y: 740, hp: 110, maxHp: 330, active: true }] };
+    expect(parseRunSnapshot(hunted)?.objects[0].hp).toBe(110);
     const chaining = { ...loadout, commandChain: { weapon: 'axe' as const, remaining: 2.6 },
       metrics: { ...loadout.metrics, resonances: 3 } };
     expect(parseRunSnapshot(chaining)?.commandChain).toEqual(chaining.commandChain);

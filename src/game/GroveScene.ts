@@ -16,6 +16,7 @@ import { WISP_LANCE_WIDTH, WISP_LANCE_WINDUP, insideWispLance, waveInterval, wil
   wispLanceCooldown, wispLanceDamage, wispLanceTarget, type WispLanceState } from './wispLance';
 import { advanceSeedheart, moonMission, nextObjective, objectiveName, objectivesLeft, quarryMission, vergeMission } from './objectives';
 import { advanceWaylight, waylightProgress } from './waylight';
+import { advanceBriarStag, stagLeg, strikeBriarStag } from './briarStag';
 import { RESONANCE_INFO, advanceCommandChain, commandChainResult, resonanceFor, type CommandChain, type Resonance } from './resonance';
 
 const WORLD = 1800;
@@ -24,6 +25,7 @@ type ObjectKind = ObjectSave['kind'];
 const OBJECT_MOTION: Partial<Record<ObjectKind, { speed: number; lift: number; tilt: number }>> = {
   waylight: { speed: 3.6, lift: 5, tilt: 0.07 },
   moonflame: { speed: 5.3, lift: 7, tilt: 0.11 },
+  stag: { speed: 7, lift: 3, tilt: 0.035 },
   seedheart: { speed: 2.1, lift: 2, tilt: 0.025 },
   bloom: { speed: 2.5, lift: 3, tilt: 0.045 },
 };
@@ -137,6 +139,7 @@ export class GroveScene extends Phaser.Scene {
   private surgeAnnounced = false;
   private lanceIntroduced = false;
   private waylightRoute: { start: { x: number; y: number }; goal: { x: number; y: number } } | null = null;
+  private stagAnchors: { x: number; y: number }[] = [];
 
   constructor(callbacks: GameCallbacks) { super('Grove'); this.callbacks = callbacks; }
 
@@ -144,7 +147,7 @@ export class GroveScene extends Phaser.Scene {
     const base = import.meta.env.BASE_URL;
     this.load.image('tree', `${base}art/tree.png`);
     for (const key of ['warden-v4', 'ranger-v4', 'ember-v4', 'warden-attack-v1', 'ranger-attack-v1', 'ember-attack-v1',
-      'waylight', 'seedheart', 'root-totem', 'coolant-pump', 'coolant-spring', 'forge-core', 'moonflame',
+      'waylight', 'seedheart', 'briar-stag-v1', 'root-totem', 'coolant-pump', 'coolant-spring', 'forge-core', 'moonflame',
       'moon-altar', 'mist-bloom', 'ember-vent', 'grove-gate', 'reliquary', 'fox-relic',
       'gnarl-v2', 'wisp-v2', 'brute-v2', 'briar-king-v2', 'bramble-field', 'ember-ore', 'moonstone']) {
       this.load.image(key, `${base}art/${key}.webp`);
@@ -170,11 +173,12 @@ export class GroveScene extends Phaser.Scene {
     this.publishHud();
   }
 
-  beginRun(hero: Hero, startingWeapon: Weapon, masteryRank: number, unlockedWeapons: Weapon[], reducedEffects: boolean, skin = false, autoSpecialEnabled = true, supportWeapon?: Weapon): void {
+  beginRun(hero: Hero, startingWeapon: Weapon, masteryRank: number, unlockedWeapons: Weapon[], reducedEffects: boolean, skin = false, autoSpecialEnabled = true, supportWeapon?: Weapon, seedOverride?: number): void {
     if (!this.hero) return;
     clearRunSnapshot();
     this.clearRunObjects();
-    this.seed = (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0 || 1;
+    this.seed = seedOverride !== undefined && Number.isInteger(seedOverride) && seedOverride > 0 && seedOverride <= 0xffffffff
+      ? seedOverride : (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0 || 1;
     this.random = new Rng(this.seed);
     this.heroId = hero; this.skin = skin; this.masteryRank = masteryRank;
     this.unlockedWeapons = unlockedWeapons;
@@ -478,7 +482,7 @@ export class GroveScene extends Phaser.Scene {
     const direction = pilotDirection({ player: { x: this.hero.x, y: this.hero.y }, target,
       desiredDistance: enteringGate || gathering || (target === objective && (objective.kind === 'pump'
         || objective.kind === 'coolant' || objective.kind === 'moonflame' || objective.kind === 'forge' && objective.maxHp <= 3
-        || objective.kind === 'waylight' || objective.kind === 'seedheart' || objective.kind === 'altar' && objective.maxHp <= 6))
+        || objective.kind === 'waylight' || objective.kind === 'seedheart' || objective.kind === 'stag' || objective.kind === 'altar' && objective.maxHp <= 6))
         ? 0 : Math.min(210, reach * 0.7),
       enemies: this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })),
       orbitSign: this.seed % 2 ? 1 : -1, avoidance: enteringGate ? 0.1 : gathering ? 0.35 : 1 });
@@ -596,7 +600,9 @@ export class GroveScene extends Phaser.Scene {
     for (const clearing of layout.clearings) {
       if (clearing.kind === 'ward') {
         if (this.region === 0 && wardIndex === 0) {
-          if (vergeMission(this.seed) === 'seedheart') this.spawnObject('seedheart', clearing.x, clearing.y, 15, 15, true);
+          const mission = vergeMission(this.seed);
+          if (mission === 'seedheart') this.spawnObject('seedheart', clearing.x, clearing.y, 15, 15, true);
+          else if (mission === 'stag') this.spawnObject('stag', clearing.x, clearing.y, 330, 330, true);
           else this.spawnObject('waylight', clearing.x, clearing.y, 1, 1, true);
         }
         else if (this.region === 1) {
@@ -634,6 +640,7 @@ export class GroveScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(theme.floor);
     const rng = new Rng((this.seed ^ Math.imul(this.region + 1, 7919)) >>> 0);
     const layout = generateRegionLayout(this.seed, this.region);
+    this.stagAnchors = this.region === 0 ? layout.clearings.filter(clearing => clearing.kind === 'ward' || clearing.kind === 'shrine').map(clearing => ({ x: clearing.x, y: clearing.y })) : [];
     const waypoints = layout.clearings.filter(clearing => clearing.kind === 'ward');
     this.waylightRoute = this.region === 0 && escort && waypoints.length > 1
       ? { start: { x: waypoints[0].x, y: waypoints[0].y }, goal: { x: waypoints[1].x, y: waypoints[1].y } } : null;
@@ -1017,7 +1024,10 @@ export class GroveScene extends Phaser.Scene {
     const markedIndex = this.markedField?.active && this.markedField.hp > 0
       && this.distance(this.hero.x, this.hero.y, this.markedField.x, this.markedField.y) < range
       ? targetObjects.indexOf(this.markedField) : -1;
+    const stagIndex = targetObjects.findIndex(candidate => candidate.kind === 'stag'
+      && this.distance(this.hero.x, this.hero.y, candidate.x, candidate.y) < range);
     const selection = markedIndex >= 0 ? { kind: 'object' as const, index: markedIndex }
+      : stagIndex >= 0 ? { kind: 'object' as const, index: stagIndex }
       : chooseAutoTarget({ x: this.hero.x, y: this.hero.y }, range,
         this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })), targetObjects);
     const target: Enemy | null = selection?.kind === 'enemy' ? this.enemies[selection.index] : null;
@@ -1371,7 +1381,7 @@ export class GroveScene extends Phaser.Scene {
 
   private spawnObject(kind: ObjectKind, x: number, y: number, hp: number, maxHp: number, active: boolean): void {
     const texture: Record<ObjectKind, string> = {
-      ward: 'root-totem', waylight: 'waylight', seedheart: 'seedheart', pump: 'coolant-pump', coolant: 'coolant-spring',
+      ward: 'root-totem', waylight: 'waylight', seedheart: 'seedheart', stag: 'briar-stag-v1', pump: 'coolant-pump', coolant: 'coolant-spring',
       forge: 'forge-core', altar: 'moon-altar', moonflame: 'moonflame',
       shrine: 'reliquary', relic: 'fox-relic', gate: 'grove-gate', vent: 'ember-vent', bloom: 'mist-bloom',
       bramble: 'bramble-field', ore: 'ember-ore', moonstone: 'moonstone',
@@ -1381,6 +1391,7 @@ export class GroveScene extends Phaser.Scene {
       coolant: { radius: 96, color: 0x96f4ed, fill: 0.11, stroke: 0.85 },
       moonflame: { radius: 84, color: 0xc8a8ff, fill: 0.09, stroke: 0.8 },
       seedheart: { radius: 150, color: 0xb8f3a0, fill: 0.08, stroke: 0.8 },
+      stag: { radius: 94, color: 0xffd080, fill: 0.045, stroke: 0.5 },
       vent: { radius: 120, color: 0xff9a55, fill: 0.035, stroke: 0.28 },
       bloom: { radius: 116, color: 0x8dc9d1, fill: 0.075, stroke: 0.62 },
       bramble: { radius: 105, color: 0x8ec477, fill: 0.08, stroke: 0.55 },
@@ -1394,17 +1405,18 @@ export class GroveScene extends Phaser.Scene {
     const field = fieldStyles[kind];
     const ring = field ? this.add.circle(0, 0, field.radius, field.color, field.fill)
       .setStrokeStyle(3, field.color, field.stroke).setVisible(active) : undefined;
-    const base = this.add.ellipse(0, 21, kind === 'gate' ? 125 : 70, 27, 0x132f2c, kind === 'waylight' ? 0.2 : 0.55);
+    const base = this.add.ellipse(0, 21, kind === 'gate' || kind === 'stag' ? 125 : 70, 27, 0x132f2c, kind === 'waylight' ? 0.2 : 0.55);
     const size = kind === 'gate' ? 134 : kind === 'forge' || kind === 'altar' || kind === 'moonstone' ? 110
-      : kind === 'coolant' ? 124 : kind === 'moonflame' ? 106
+      : kind === 'coolant' ? 124 : kind === 'stag' ? 134 : kind === 'moonflame' ? 106
       : kind === 'bramble' ? 125 : kind === 'ore' ? 116 : kind === 'seedheart' ? 122 : kind === 'relic' ? 83 : kind === 'waylight' ? 104 : 98;
     const image = this.add.image(0, kind === 'gate' ? -14 : -8, texture[kind]).setDisplaySize(size, size);
     const terrainLabel: Partial<Record<ObjectKind, string>> = {
       bramble: 'BRAMBLES · SLOW', ore: 'ORE · FOE ARMOR', moonstone: 'MOONSTONE · HASTE',
     };
-    const label = this.add.text(0, kind === 'gate' ? 61 : 49,
+    const label = this.add.text(0, kind === 'gate' || kind === 'stag' ? 65 : 49,
       kind === 'waylight' && active ? 'STAY CLOSE · GUIDE ME'
         : kind === 'seedheart' && active ? `DEFEND · ${Math.ceil(maxHp - hp)}/${maxHp}s`
+        : kind === 'stag' && active ? `HUNT THE STAG · ${stagLeg(hp, maxHp)}/3`
         : kind === 'altar' && active && maxHp <= 6 ? `MOON RITE · ${maxHp - hp}/${maxHp}`
         : kind === 'pump' && active ? `DRAIN PUMP · ${Math.floor((1 - hp / maxHp) * 4)}/4s`
         : kind === 'coolant' && active ? `FILL FLASK · ${Math.floor(maxHp - hp)}/2s`
@@ -1422,6 +1434,30 @@ export class GroveScene extends Phaser.Scene {
     if (!object.active || object.hp <= 0 || object.kind === 'pump' || object.kind === 'waylight' || object.kind === 'seedheart'
       || object.kind === 'coolant' || object.kind === 'moonflame' || object.kind === 'forge' && object.maxHp <= 3
       || object.kind === 'altar' && object.maxHp <= 6) return;
+    if (object.kind === 'stag') {
+      const strike = strikeBriarStag(object.hp, object.maxHp, damage);
+      this.metrics.objectDamage += strike.dealt;
+      object.hp = strike.hp;
+      soundFx.play(object.hp > 0 ? 'hit' : 'ward');
+      if (strike.dealt > 0) this.floatText(String(Math.ceil(strike.dealt)), object.x, object.y - 82, '#ffdc89');
+      object.view.setScale(1.13);
+      this.tweens.add({ targets: object.view, scale: 1, duration: 125 });
+      if (strike.leap !== null) {
+        const old = { x: object.x, y: object.y };
+        const anchor = this.stagAnchors[strike.leap];
+        if (anchor) { object.x = anchor.x; object.y = anchor.y; object.view.setPosition(anchor.x, anchor.y); }
+        this.burst(old.x, old.y, '#ffd088', 20);
+        this.burst(object.x, object.y, '#ffd088', 12);
+        this.floatText(`STAG FLEES · ${strike.leap}/3 BREAKS`, old.x, old.y - 108, '#fff1c8');
+        object.label.setText(`HUNT THE STAG · ${strike.leap}/3`);
+        for (let i = 0; i < 2; i++) this.spawnEnemy(i === 0 ? 'gnarl' : 'wisp',
+          { x: Phaser.Math.Clamp(old.x + (i ? 55 : -55), 50, WORLD - 50), y: Phaser.Math.Clamp(old.y + 55, 50, WORLD - 50) });
+        this.callbacks.onEvent(`BRIAR STAG FLEES TO CLEARING ${strike.leap + 1} — FOLLOW IT`);
+        this.publishHud(); this.saveSnapshot();
+      }
+      if (object.hp <= 0) this.completeObject(object);
+      return;
+    }
     this.metrics.objectDamage += Math.min(damage, object.hp);
     object.hp = Math.max(0, object.hp - damage);
     soundFx.play(object.hp > 0 ? 'hit' : 'ward');
@@ -1452,10 +1488,15 @@ export class GroveScene extends Phaser.Scene {
     }
     object.active = false; object.view.setAlpha(0.15); object.ring?.setVisible(false);
     this.burst(object.x, object.y, object.kind === 'ward' ? '#c7e2a7' : '#f6d597', 16);
-    if (object.kind === 'ward' || object.kind === 'waylight' || object.kind === 'seedheart' || object.kind === 'pump' || object.kind === 'forge' || object.kind === 'altar' || object.kind === 'moonflame') {
+    if (object.kind === 'ward' || object.kind === 'waylight' || object.kind === 'seedheart' || object.kind === 'stag' || object.kind === 'pump' || object.kind === 'forge' || object.kind === 'altar' || object.kind === 'moonflame') {
       this.metrics.wards++;
       if (object.kind === 'waylight') this.callbacks.onEvent('WAYLIGHT HOME — THE GROVE IS SAFE');
       else if (object.kind === 'seedheart') this.callbacks.onEvent('SEEDHEART AWAKENED — THE GROVE IS SAFE');
+      else if (object.kind === 'stag') {
+        this.floatText('BRIAR STAG VANQUISHED', object.x, object.y - 106, '#ffe3a1');
+        this.spawnCache('attack', object.x, object.y);
+        this.callbacks.onEvent('BRIAR STAG VANQUISHED — ATTACK CACHE DROPPED');
+      }
       else if (object.kind === 'moonflame') this.callbacks.onEvent('MOONFLAME CAUGHT — THE MOONFEN CALMS');
       else if (object.kind === 'pump') {
         const forge = this.objects.find(item => item.kind === 'forge' && item.hp > 0);
@@ -1528,6 +1569,16 @@ export class GroveScene extends Phaser.Scene {
     if (gate) { gate.active = true; gate.view.setAlpha(1); this.callbacks.onEvent('GATE OPEN — FOLLOW THE ARROW'); this.saveSnapshot(); }
   }
   private updateObjects(dt = 0): void {
+    const stag = this.objects.find(object => object.kind === 'stag' && object.active && object.hp > 0);
+    if (stag && dt > 0) {
+      const anchor = this.stagAnchors[stagLeg(stag.hp, stag.maxHp)];
+      if (anchor) {
+        const next = advanceBriarStag(stag, anchor, this.hero, this.seconds, dt);
+        stag.image.setFlipX(next.x < stag.x);
+        stag.x = next.x; stag.y = next.y;
+        stag.view.setPosition(next.x, next.y);
+      }
+    }
     if (!this.reducedEffects && dt > 0) for (const object of this.objects) {
       if (!object.active) continue;
       const motion = OBJECT_MOTION[object.kind];
@@ -1772,12 +1823,12 @@ export class GroveScene extends Phaser.Scene {
     for (const object of this.objects) {
       if (!object.active || object.hp <= 0) continue;
       if (object.kind === 'waylight') continue;
-      const x = object.x - 38; const y = object.y - 68;
+      const x = object.x - 38; const y = object.y - (object.kind === 'stag' ? 88 : 68);
       this.bars.fillStyle(0x18312d, 0.9).fillRoundedRect(x - 2, y - 2, 80, 9, 3);
       const progressBar = object.kind === 'pump' || object.kind === 'coolant' || object.kind === 'moonflame'
         || object.kind === 'forge' && object.maxHp <= 3;
       this.bars.fillStyle(object.kind === 'pump' || object.kind === 'coolant' || object.kind === 'forge' && object.maxHp <= 3
-        ? 0xa7f0ec : object.kind === 'moonflame' ? 0xd7bbff : 0xf6d899)
+        ? 0xa7f0ec : object.kind === 'moonflame' ? 0xd7bbff : object.kind === 'stag' ? 0xffc879 : 0xf6d899)
         .fillRoundedRect(x, y, 76 * (progressBar ? 1 - object.hp / object.maxHp : object.hp / object.maxHp), 5, 2);
     }
   }
@@ -1842,6 +1893,7 @@ export class GroveScene extends Phaser.Scene {
       stepTargetsLeft: this.objects.filter(object => object.kind === currentObjective?.kind && object.hp > 0).length,
       stepProgress: currentObjective?.kind === 'seedheart'
         ? Math.min(15, Math.floor(currentObjective.maxHp - currentObjective.hp))
+        : currentObjective?.kind === 'stag' ? stagLeg(currentObjective.hp, currentObjective.maxHp)
         : currentObjective?.kind === 'pump'
         ? Math.min(4, Math.floor((1 - currentObjective.hp / currentObjective.maxHp) * 4))
         : currentObjective?.kind === 'coolant'

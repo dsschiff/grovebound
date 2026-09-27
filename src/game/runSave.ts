@@ -12,7 +12,7 @@ export interface EnemySave {
   wispLance?: WispLanceState;
 }
 export interface ObjectSave {
-  kind: 'ward' | 'waylight' | 'seedheart' | 'pump' | 'coolant' | 'forge' | 'altar' | 'moonflame' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
+  kind: 'ward' | 'waylight' | 'seedheart' | 'stag' | 'pump' | 'coolant' | 'forge' | 'altar' | 'moonflame' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
     | 'bramble' | 'ore' | 'moonstone';
   x: number; y: number; hp: number; maxHp: number; active: boolean;
 }
@@ -120,7 +120,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
       || !run.emberFields.every(field => finite(field.x, 0, 1800) && finite(field.y, 0, 1800)
         && finite(field.remaining, 0, 4) && finite(field.tickClock, 0, 0.5) && finite(field.damage, 1, 500))))
     || !Array.isArray(run.objects) || run.objects.length > 12 || !run.objects.every(object =>
-      ['ward', 'waylight', 'seedheart', 'pump', 'coolant', 'forge', 'altar', 'moonflame', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
+      ['ward', 'waylight', 'seedheart', 'stag', 'pump', 'coolant', 'forge', 'altar', 'moonflame', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
       && finite(object.y, 0, 1800) && finite(object.hp, 0, 10000) && finite(object.maxHp, 0, 10000)
       && typeof object.active === 'boolean')
     || !Array.isArray(run.orbs) || run.orbs.length > 100 || !run.orbs.every(orb =>

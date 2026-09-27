@@ -2,7 +2,8 @@ import type { ObjectSave } from './runSave';
 
 export type Objective = Pick<ObjectSave, 'kind' | 'hp' | 'active' | 'x' | 'y'>;
 
-export function vergeMission(seed: number): 'waylight' | 'seedheart' {
+export function vergeMission(seed: number): 'waylight' | 'seedheart' | 'stag' {
+  if ((seed & 0x18) === 0x18) return 'stag';
   return seed % 2 === 0 ? 'seedheart' : 'waylight';
 }
 
@@ -19,6 +20,7 @@ export function advanceSeedheart(hp: number, dt: number, close: boolean, threate
 }
 
 export function objectiveKinds(region: number, objects: Objective[]): ObjectSave['kind'][] {
+  if (region === 0 && objects.some(object => object.kind === 'stag')) return ['stag'];
   if (region === 0 && objects.some(object => object.kind === 'seedheart')) return ['seedheart'];
   if (region === 0 && objects.some(object => object.kind === 'waylight')) return ['waylight'];
   if (region === 1 && objects.some(object => object.kind === 'coolant')) return ['coolant', 'forge'];
@@ -42,7 +44,7 @@ export function nextObjective(region: number, objects: Objective[]): Objective |
 
 export function objectiveName(kind: ObjectSave['kind']): string {
   return {
-    ward: 'ROOT TOTEM', waylight: 'WAYLIGHT MOTH', seedheart: 'SEEDHEART', pump: 'COOLANT PUMP',
+    ward: 'ROOT TOTEM', waylight: 'WAYLIGHT MOTH', seedheart: 'SEEDHEART', stag: 'BRIAR STAG', pump: 'COOLANT PUMP',
     coolant: 'COOLANT SPRING', forge: 'FORGE CORE', moonflame: 'MOONFLAME',
     altar: 'MOON ALTAR', bloom: 'MIST BLOOM', vent: 'EMBER VENT',
     shrine: 'SHRINE', relic: 'RELIC', gate: 'GATE',
