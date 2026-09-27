@@ -1,5 +1,6 @@
 import type { Hero, Stat, Stats, Upgrade, Weapon, WeaponPath } from './logic';
 import type { WispLanceState } from './wispLance';
+import type { CommandChain } from './resonance';
 
 export const RUN_SAVE_KEY = 'grovebound-run-v1';
 export interface EnemySave {
@@ -19,6 +20,7 @@ export interface RunMetrics {
   foeDamage: number; objectDamage: number; damageTaken: number;
   caches: number; blessings: number; wards: number; hazards: number; terrain?: number;
   lancesEvaded?: number; lanceHits?: number;
+  resonances?: number;
   weaponDamage?: Record<Weapon, number>;
   regionSeconds: [number | null, number | null, number | null];
 }
@@ -27,7 +29,7 @@ export function emptyWeaponDamage(): Record<Weapon, number> {
 }
 export function emptyRunMetrics(): RunMetrics {
   return { foeDamage: 0, objectDamage: 0, damageTaken: 0, caches: 0, blessings: 0, wards: 0, hazards: 0, terrain: 0,
-    lancesEvaded: 0, lanceHits: 0,
+    lancesEvaded: 0, lanceHits: 0, resonances: 0,
     weaponDamage: emptyWeaponDamage(),
     regionSeconds: [null, null, null] };
 }
@@ -37,6 +39,7 @@ export interface RunSnapshot {
   unlockedWeapons: Weapon[]; masteryRank: number;
   weapons: { id: Weapon; rank: number; cooldown: number; path?: WeaponPath; commandCooldown?: number }[];
   focusedWeapon?: Weapon;
+  commandChain?: CommandChain | null;
   weaponSlots: number; splashBonus: number; pet: boolean; petClock: number;
   autoSpecial: boolean; specialCooldown: number; reducedEffects: boolean;
   stats: Stats; health: number; xp: number; level: number; kills: number;
@@ -74,6 +77,9 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
       && (weapon.commandCooldown === undefined || finite(weapon.commandCooldown, 0, 8))
       && (weapon.path === undefined || (weapon.rank >= 2 && ['a', 'b'].includes(weapon.path))))
     || (run.focusedWeapon !== undefined && !run.weapons.some(weapon => weapon.id === run.focusedWeapon))
+    || (run.commandChain !== undefined && run.commandChain !== null
+      && (!WEAPONS.includes(run.commandChain.weapon) || !finite(run.commandChain.remaining, 0, 4)
+        || !run.weapons.some(weapon => weapon.id === run.commandChain?.weapon)))
     || !finite(run.weaponSlots, 1, 3) || !finite(run.splashBonus, 0, 100)
     || typeof run.pet !== 'boolean' || !finite(run.petClock, -5, 20)
     || typeof run.autoSpecial !== 'boolean' || !finite(run.specialCooldown, -5, 30)
@@ -130,13 +136,14 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || (metrics.terrain !== undefined && !finite(metrics.terrain, 0, 6))
     || (metrics.lancesEvaded !== undefined && !finite(metrics.lancesEvaded, 0, 1000))
     || (metrics.lanceHits !== undefined && !finite(metrics.lanceHits, 0, 1000))
+    || (metrics.resonances !== undefined && !finite(metrics.resonances, 0, 1000))
     || (metrics.weaponDamage !== undefined && (!metrics.weaponDamage
       || !WEAPONS.every(weapon => finite(metrics.weaponDamage?.[weapon as Weapon]))))
     || !Array.isArray(metrics.regionSeconds)
     || metrics.regionSeconds.length !== 3
     || !metrics.regionSeconds.every(seconds => seconds === null || finite(seconds)))) return null;
   return { ...run, metrics: metrics ? { ...metrics, hazards: metrics.hazards ?? 0, terrain: metrics.terrain ?? 0,
-    lancesEvaded: metrics.lancesEvaded ?? 0, lanceHits: metrics.lanceHits ?? 0,
+    lancesEvaded: metrics.lancesEvaded ?? 0, lanceHits: metrics.lanceHits ?? 0, resonances: metrics.resonances ?? 0,
     weaponDamage: metrics.weaponDamage ?? emptyWeaponDamage() } : emptyRunMetrics() } as RunSnapshot;
 }
 

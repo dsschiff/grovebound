@@ -103,6 +103,14 @@ describe('run progression', () => {
       objects: [{ kind: 'seedheart' as const, x: 620, y: 740, hp: 8.5, maxHp: 15, active: true }] };
     expect(parseRunSnapshot(commanded)?.weapons[0].commandCooldown).toBe(4.5);
     expect(parseRunSnapshot(commanded)?.objects[0].kind).toBe('seedheart');
+    const chaining = { ...loadout, commandChain: { weapon: 'axe' as const, remaining: 2.6 },
+      metrics: { ...loadout.metrics, resonances: 3 } };
+    expect(parseRunSnapshot(chaining)?.commandChain).toEqual(chaining.commandChain);
+    expect(parseRunSnapshot(chaining)?.metrics.resonances).toBe(3);
+    expect(parseRunSnapshot({ ...chaining, commandChain: { weapon: 'staff', remaining: 2.6 } })).toBeNull();
+    expect(parseRunSnapshot({ ...chaining, commandChain: { weapon: 'axe', remaining: 5 } })).toBeNull();
+    const { resonances: _oldResonances, ...preResonanceMetrics } = chaining.metrics;
+    expect(parseRunSnapshot({ ...loadout, metrics: preResonanceMetrics })?.metrics.resonances).toBe(0);
     expect(parseRunSnapshot({ ...commanded, weapons: [{ ...commanded.weapons[0], commandCooldown: 9 }] })).toBeNull();
     expect(parseRunSnapshot({ ...technique, weapons: [{ ...technique.weapons[0], rank: 1 }] })).toBeNull();
     expect(parseRunSnapshot({ ...technique, upgradeOptions: ['path:bow:c'] })).toBeNull();

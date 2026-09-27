@@ -16,6 +16,7 @@ import { WISP_LANCE_WIDTH, WISP_LANCE_WINDUP, insideWispLance, waveInterval, wil
   wispLanceCooldown, wispLanceDamage, wispLanceTarget, type WispLanceState } from './wispLance';
 import { advanceSeedheart, moonMission, nextObjective, objectiveName, objectivesLeft, quarryMission, vergeMission } from './objectives';
 import { advanceWaylight, waylightProgress } from './waylight';
+import { RESONANCE_INFO, advanceCommandChain, commandChainResult, resonanceFor, type CommandChain, type Resonance } from './resonance';
 
 const WORLD = 1800;
 type EnemyKind = EnemySave['kind'];
@@ -39,6 +40,7 @@ export interface HudState {
   kills: number; seconds: number; stageSeconds: number; region: number;
   stats: Stats; bossHp: number | null; bossMaxHp: number | null;
   weapons: EquippedWeapon[]; weaponSlots: number; focusedWeapon: Weapon; weaponDamage: Record<Weapon, number>;
+  commandChain: CommandChain | null; possibleResonances: { weapon: Weapon; resonance: Resonance }[];
   special: string; specialCooldown: number;
   objectivesLeft: number; stepTargetsLeft: number; stepProgress: number; objectiveProgress: number; objectiveName: string | null;
   ritualActive: boolean;
@@ -81,6 +83,8 @@ export class GroveScene extends Phaser.Scene {
   private unlockedWeapons: Weapon[] = ['axe'];
   private weapons: EquippedWeapon[] = [{ id: 'axe', rank: 1, cooldown: 0 }];
   private focusedWeapon: Weapon = 'axe';
+  private commandChain: CommandChain | null = null;
+  private lastCommandAim = { x: 900, y: 900 };
   private weaponSlots = 1;
   private splashBonus = 0;
   private pet = false;
@@ -168,6 +172,7 @@ export class GroveScene extends Phaser.Scene {
     if (supportWeapon && supportWeapon !== startingWeapon && unlockedWeapons.includes(supportWeapon))
       this.weapons.push({ id: supportWeapon, rank: 1, cooldown: WEAPON_INFO[supportWeapon].cooldown * 0.4 });
     this.focusedWeapon = startingWeapon;
+    this.commandChain = null;
     this.weaponSlots = masteryRank >= 4 ? 3 : 2;
     this.splashBonus = 0; this.pet = false; this.petClock = 0;
     this.autoSpecial = masteryRank >= 5 && autoSpecialEnabled; this.specialCooldown = 0; this.reducedEffects = reducedEffects;
@@ -192,6 +197,7 @@ export class GroveScene extends Phaser.Scene {
     this.unlockedWeapons = snapshot.unlockedWeapons;
     this.weapons = snapshot.weapons.map(weapon => ({ ...weapon }));
     this.focusedWeapon = snapshot.focusedWeapon ?? this.weapons[0].id;
+    this.commandChain = snapshot.commandChain ?? null;
     this.weaponSlots = snapshot.weaponSlots; this.splashBonus = snapshot.splashBonus;
     this.pet = snapshot.pet; this.petClock = snapshot.petClock; this.autoSpecial = snapshot.autoSpecial;
     this.specialCooldown = snapshot.specialCooldown; this.reducedEffects = snapshot.reducedEffects;
@@ -269,7 +275,12 @@ export class GroveScene extends Phaser.Scene {
     this.focusedWeapon = weapon;
     if ((equipped.commandCooldown ?? 0) <= 0 && this.autoAttack(equipped, true)) {
       equipped.commandCooldown = 8;
-      this.callbacks.onEvent(`${WEAPON_COMMAND[weapon].name.toUpperCase()}!`);
+      if (this.running) {
+        const outcome = commandChainResult(this.commandChain, weapon);
+        this.commandChain = outcome.chain;
+        if (outcome.resonance) this.fireResonance(outcome.resonance, weapon);
+        else this.callbacks.onEvent(`${WEAPON_COMMAND[weapon].name.toUpperCase()} · CHAIN ANOTHER SLOT`);
+      }
     } else this.callbacks.onEvent((equipped.commandCooldown ?? 0) > 0
       ? `${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · ${Math.ceil(equipped.commandCooldown ?? 0)}s TO CHARGE`
       : `${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · MOVE INTO RANGE TO FIRE`);
@@ -518,6 +529,7 @@ export class GroveScene extends Phaser.Scene {
     this.invulnerability = Math.max(0, this.invulnerability - dt);
     this.moonflowRemaining = Math.max(0, this.moonflowRemaining - dt);
     this.attackPose = Math.max(0, this.attackPose - dt);
+    this.commandChain = advanceCommandChain(this.commandChain, dt);
     this.specialCooldown = Math.max(0, this.specialCooldown - dt);
     this.health = Math.min(this.stats.maxHealth, this.health + this.stats.regen * dt);
     if (this.pilotEnabled) this.updateDebugPilot();
@@ -1000,6 +1012,7 @@ export class GroveScene extends Phaser.Scene {
     soundFx.play(weapon.id === 'axe' ? 'swing' : weapon.id === 'thorns' ? 'dart' : weapon.id === 'bow' ? 'bow' : 'staff');
     this.attackPose = 0.16; this.attackPoseDuration = 0.16;
     const x = target?.sprite.x ?? object!.x; const y = target?.sprite.y ?? object!.y;
+    if (commanded) this.lastCommandAim = { x, y };
     this.hero.setFlipX(x < this.hero.x);
     const angle = Phaser.Math.Angle.Between(this.hero.x, this.hero.y, x, y);
     const critical = weapon.id === 'bow' && (commanded || this.random.next() < bowCriticalChance(weapon.rank) + (focused ? 0.12 : 0));
@@ -1174,6 +1187,41 @@ export class GroveScene extends Phaser.Scene {
     }
     if (picked.length > 0) this.floatText(weapon === 'axe' ? `SWEEP ×${picked.length}` : `ROOTED ×${picked.length}`,
       aim.x, aim.y - 68, weapon === 'axe' ? '#ffe6ae' : '#c2f4ad');
+  }
+
+  private fireResonance(resonance: Resonance, source: Weapon): void {
+    const info = RESONANCE_INFO[resonance];
+    const center = info.center === 'hero' ? { x: this.hero.x, y: this.hero.y } : this.lastCommandAim;
+    const victims = [...this.enemies].filter(enemy => this.distance(enemy.sprite.x, enemy.sprite.y, center.x, center.y) < info.radius)
+      .sort((a, b) => this.distance(a.sprite.x, a.sprite.y, center.x, center.y)
+        - this.distance(b.sprite.x, b.sprite.y, center.x, center.y))
+      .slice(0, info.maxTargets);
+    const tint = Phaser.Display.Color.HexStringToColor(info.color).color;
+    const ring = this.add.circle(center.x, center.y, Math.min(80, info.radius * 0.5), tint, this.reducedEffects ? 0.06 : 0.13)
+      .setStrokeStyle(6, tint, 0.9).setDepth(8);
+    this.tweens.add({ targets: ring, scale: info.radius / Math.min(80, info.radius * 0.5), alpha: 0,
+      duration: this.reducedEffects ? 180 : 430, onComplete: () => ring.destroy() });
+    this.burst(center.x, center.y, info.color, resonance === 'needleRain' ? 5 : 13);
+    this.floatText(`${info.name.toUpperCase()} ×${victims.length}`, center.x, center.y - 94, info.color);
+    this.callbacks.onEvent(`${info.name.toUpperCase()} · ${info.description.toUpperCase()}`);
+    this.metrics.resonances = (this.metrics.resonances ?? 0) + 1;
+    for (const enemy of victims) {
+      if (!this.enemies.includes(enemy)) continue;
+      if (resonance === 'needleRain' && !this.reducedEffects)
+        this.trail(center.x, center.y - 70, enemy.sprite.x, enemy.sprite.y, tint);
+      const elite = enemy.kind === 'brute' || enemy.kind === 'gatekeeper' || enemy.kind === 'boss';
+      this.hitEnemy(enemy, Math.round(this.stats.attack * info.damageScale * (elite ? info.eliteScale : 1)), false, source);
+      if (!this.running) return;
+      if (!this.enemies.includes(enemy)) continue;
+      if (info.rootSeconds > 0) this.entangleEnemy(enemy, info.rootSeconds);
+      if (info.burnSeconds > 0)
+        this.ignite(enemy, info.burnSeconds, Math.max(3, Math.round(this.stats.attack * 0.35)), source);
+      if (info.push > 0) {
+        const angle = Phaser.Math.Angle.Between(center.x, center.y, enemy.sprite.x, enemy.sprite.y);
+        enemy.sprite.setPosition(Phaser.Math.Clamp(enemy.sprite.x + Math.cos(angle) * info.push, 45, WORLD - 45),
+          Phaser.Math.Clamp(enemy.sprite.y + Math.sin(angle) * info.push, 45, WORLD - 45));
+      }
+    }
   }
 
   private spawnEmberField(x: number, y: number, damage: number, remaining = 4, tickClock = 0.5): void {
@@ -1759,6 +1807,9 @@ export class GroveScene extends Phaser.Scene {
       bossHp: boss?.hp ?? null, bossMaxHp: boss?.maxHp ?? null,
       weapons: this.weapons.map(weapon => ({ ...weapon })), weaponSlots: this.weaponSlots, focusedWeapon: this.focusedWeapon,
       weaponDamage: { ...(this.metrics.weaponDamage ?? emptyWeaponDamage()) },
+      commandChain: this.commandChain ? { ...this.commandChain } : null,
+      possibleResonances: this.commandChain ? this.weapons.filter(weapon => weapon.id !== this.commandChain?.weapon)
+        .map(weapon => ({ weapon: weapon.id, resonance: resonanceFor(this.commandChain!.weapon, weapon.id)! })) : [],
       special: HERO_INFO[this.heroId].special, specialCooldown: this.specialCooldown,
       objectivesLeft: this.requiredLeft(), objectiveName: currentObjective?.kind ?? null,
       ritualActive: currentObjective?.kind === 'altar' && currentObjective.maxHp <= 6,
@@ -1802,6 +1853,7 @@ export class GroveScene extends Phaser.Scene {
       unlockedWeapons: [...this.unlockedWeapons], masteryRank: this.masteryRank,
       weapons: this.weapons.map(weapon => ({ ...weapon })), weaponSlots: this.weaponSlots,
       focusedWeapon: this.focusedWeapon,
+      commandChain: this.commandChain ? { ...this.commandChain } : null,
       splashBonus: this.splashBonus, pet: this.pet, petClock: this.petClock,
       autoSpecial: this.autoSpecial, specialCooldown: this.specialCooldown, reducedEffects: this.reducedEffects,
       stats: { ...this.stats }, health: this.health, xp: this.xp, level: this.level, kills: this.kills,

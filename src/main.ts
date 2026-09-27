@@ -8,6 +8,7 @@ import {
 } from './game/logic';
 import { emptyWeaponDamage, readRunSnapshot } from './game/runSave';
 import { soundFx } from './game/audio';
+import { RESONANCE_INFO, resonanceFor } from './game/resonance';
 import './style.css';
 
 const art = (name: string) => `${import.meta.env.BASE_URL}art/${name}.svg`;
@@ -47,7 +48,7 @@ root.innerHTML = `
       <div class="minimap-frame" aria-hidden="true"><canvas id="minimap" width="120" height="120"></canvas></div>
       <div id="boss-bar" class="boss-bar hidden"><span id="boss-name">GATE SENTINEL</span><div class="bar"><div id="boss-fill"></div></div></div>
       <button id="special-button" class="special-button" aria-label="Use special ability"><span class="special-icon">✹</span><strong id="special-label">WHIRLWIND</strong><small id="special-cooldown">READY</small></button>
-      <div class="hud-bottom"><div id="weapon-tray" class="weapon-tray" role="group" aria-label="Weapon loadout"></div><div id="stats" class="stats-strip"></div><div class="bottom-line"><span id="kills">0 VANQUISHED</span><span id="ability-name">FOCUS YOUR WEAPON</span></div></div>
+      <div class="hud-bottom"><div id="resonance-cue" class="resonance-cue hidden" aria-live="polite"></div><div id="weapon-tray" class="weapon-tray" role="group" aria-label="Weapon loadout"></div><div id="stats" class="stats-strip"></div><div class="bottom-line"><span id="kills">0 VANQUISHED</span><span id="ability-name">FOCUS YOUR WEAPON</span></div></div>
     </div>
 
     <div id="menu" class="screen menu-screen">
@@ -72,6 +73,7 @@ root.innerHTML = `
           <div id="weapon-hint" class="weapon-hint"></div>
           <div class="panel-heading sub-heading"><span>SUPPORT WEAPON · FIRES AUTOMATICALLY</span><span>START WITH 2</span></div>
           <div id="support-options" class="weapon-options"></div>
+          <div id="resonance-preview" class="resonance-preview"></div>
           <div id="mastery-next" class="mastery-next"></div>
           <button id="unlock-button" class="unlock-button hidden">UNLOCK THORN DART · 6 SEEDS</button>
           <button id="skin-button" class="skin-button hidden">USE GOLDEN SKIN</button>
@@ -79,7 +81,7 @@ root.innerHTML = `
         <div class="setting-pair"><label class="setting-row"><input id="reduced-effects" type="checkbox" /> Reduced effects</label><label class="setting-row"><input id="muted" type="checkbox" /> Mute sound</label><label id="auto-special-row" class="setting-row hidden"><input id="auto-special" type="checkbox" /> Auto special</label></div>
         <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span>➜</span></button>
         <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span>➜</span></button>
-        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP A WEAPON SLOT TO FIRE ITS NAMED COMMAND · TAP FIELDS TO BURST<br />KEYBOARD: WASD/ARROWS TO MOVE <span>✧</span> SPACE SPECIAL <span>✧</span> F TARGET</p>
+        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP TWO DIFFERENT WEAPON COMMANDS WITHIN 4s FOR A RESONANCE<br />TAP FIELDS TO BURST · WASD/ARROWS TO MOVE · SPACE SPECIAL · F TARGET</p>
         <div class="best-line" id="best-line"></div>
         <a class="hub-link" href="https://dsschiff.github.io/games/">ALL GAMES ↗</a>
       </div>
@@ -109,6 +111,7 @@ root.innerHTML = `
         <div class="breakdown-row"><span>LANCES EVADED</span><strong id="result-lances-evaded">0</strong><span>LANCE HITS</span><strong id="result-lance-hits">0</strong></div>
         <div class="hazard-tally"><span>HAZARDS CLEARED</span><strong id="result-hazards">0</strong></div>
         <div class="hazard-tally"><span>TERRAIN CLEARED</span><strong id="result-terrain">0</strong></div>
+        <div class="hazard-tally"><span>WEAPON RESONANCES</span><strong id="result-resonances">0</strong></div>
         <div class="breakdown-title weapon-report-title">WEAPON DAMAGE</div><div id="result-weapons" class="weapon-report"></div>
         <div id="result-regions" class="region-times"></div>
       </div>
@@ -177,6 +180,10 @@ function refreshMenu(): void {
     selectedSupport = button.dataset.support as Weapon; refreshMenu();
     el<HTMLButtonElement>(`#support-options [data-support="${selectedSupport}"]`).focus({ preventScroll: true });
   }));
+  const combo = resonanceFor(selectedWeapon, selectedSupport);
+  el('#resonance-preview').textContent = combo
+    ? `PAIR RESONANCE · ${RESONANCE_INFO[combo].name.toUpperCase()} — ${RESONANCE_INFO[combo].description.toUpperCase()}`
+    : 'CHOOSE TWO DIFFERENT WEAPONS TO UNLOCK A RESONANCE';
   show('#unlock-button', !progress.thornsUnlocked && progress.seeds >= THORNS_COST && progress.bestRegion < 1);
   show('#skin-button', rank >= 3);
   el('#skin-button').textContent = selectedSkin ? 'USE CLASSIC HERO + WEAPON' : 'USE GOLDEN HERO + WEAPON';
@@ -326,6 +333,13 @@ function updateHud(hud: HudState): void {
   if (el<HTMLImageElement>('#objective-art').src !== new URL(objectiveSrc, location.href).href)
     el<HTMLImageElement>('#objective-art').src = objectiveSrc;
   const traySignature = `${hud.weaponSlots}|${hud.focusedWeapon}|${hud.weapons.map(weapon => `${weapon.id}:${weapon.rank}:${weapon.path ?? ''}`).join(',')}`;
+  const cue = el('#resonance-cue');
+  show('#resonance-cue', !!hud.commandChain && hud.possibleResonances.length > 0);
+  if (hud.commandChain && hud.possibleResonances.length) {
+    const names = hud.possibleResonances.map(item => `${weaponHudName[item.weapon]} → ${RESONANCE_INFO[item.resonance].name}`);
+    const label = `CHAIN ${Math.ceil(hud.commandChain.remaining)}s · ${names.join(' · ')}`;
+    if (cue.textContent !== label) cue.textContent = label;
+  }
   if (traySignature !== weaponTraySignature) {
     weaponTraySignature = traySignature;
     el('#weapon-tray').classList.toggle('full', hud.weapons.length >= 3);
@@ -411,6 +425,7 @@ function onEnd(result: RunResult): void {
   el('#result-lance-hits').textContent = String(result.metrics.lanceHits ?? 0);
   el('#result-hazards').textContent = String(result.metrics.hazards);
   el('#result-terrain').textContent = String(result.metrics.terrain ?? 0);
+  el('#result-resonances').textContent = String(result.metrics.resonances ?? 0);
   const weaponDamage = result.metrics.weaponDamage ?? emptyWeaponDamage();
   const highestWeapon = Math.max(1, ...result.weapons.map(weapon => weaponDamage[weapon]));
   const rows = result.weapons.map(weapon => `<div class="weapon-report-row"><img src="${weaponArt(weapon)}" alt=""/><span>${WEAPON_INFO[weapon].name}</span><div class="weapon-report-track"><i style="width:${Math.max(2, weaponDamage[weapon] / highestWeapon * 100)}%;background:${WEAPON_INFO[weapon].color}"></i></div><strong>${Math.round(weaponDamage[weapon]).toLocaleString()}</strong></div>`);

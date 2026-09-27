@@ -27,6 +27,7 @@
 .weapon-option span{font-size:19px;color:#f5d58d}.weapon-option small{font-size:8px;line-height:1.1}
 .weapon-hint,.hero-hint{text-align:center;color:#f1dfae;font-size:9px;font-weight:800;letter-spacing:.08em;margin-top:7px}
 .mastery-next{text-align:center;color:#d8d8b3;font-size:9px;letter-spacing:.08em;font-weight:800;margin-top:8px}
+.resonance-preview{text-align:center;margin-top:9px;padding:7px 5px;border:1px solid #f5d89b75;border-radius:8px;background:#325b43a3;color:#ffedba;font-size:9px;line-height:1.35;font-weight:800;letter-spacing:.05em}
 .debug-controls{position:absolute;z-index:30;top:125px;right:8px;display:grid;gap:3px}.debug-controls button{pointer-events:auto;background:#102f29df;color:#f8e0a6;border:1px solid #d8ba7b;border-radius:5px;font-size:8px;padding:5px}
 .skin-button{width:100%;margin-top:8px;background:#796747;color:#fff1ca;border:1px solid #e2c984;border-radius:8px;padding:7px;font-size:10px;font-weight:800;letter-spacing:.08em}
 .gold-skin{filter:sepia(.45) saturate(1.6) drop-shadow(0 9px 7px #0a2d2888)!important}
@@ -71,6 +72,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .boss-bar{top:calc(max(13px,env(safe-area-inset-top)) + 125px)}
 .minimap-frame{top:calc(max(13px,env(safe-area-inset-top)) + 156px)}
 .weapon-tray{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;width:min(330px,calc(100% - 102px));margin-bottom:7px}
+.resonance-cue{width:min(330px,calc(100% - 102px));margin-bottom:6px;padding:5px 7px;border:1px solid #ffe0a8bb;border-radius:8px;background:#214d3be9;box-shadow:0 0 15px #f8d88a4d;color:#fff0bd;font-size:9px;line-height:1.35;font-weight:800;letter-spacing:.04em;text-shadow:0 1px 4px #19382c}
 .weapon-slot{position:relative;min-width:0;min-height:53px;padding:5px 5px 9px;overflow:hidden;text-align:left;color:#f8edcf;background:#153b34e8;border:1px solid #a3bc9c91;border-radius:9px;box-shadow:0 3px 9px #0928209c}
 .weapon-slot.equipped{pointer-events:auto}
 .weapon-slot.focused{background:#3a5d43f2;border-color:#ffdd88;box-shadow:inset 0 0 0 1px #ffdd8880,0 3px 9px #0928209c}
@@ -131,6 +133,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 @media(max-width:365px){
   .vitals{top:calc(max(13px,env(safe-area-inset-top)) + 87px)}
   .weapon-tray{width:calc(100% - 94px);grid-template-columns:minmax(0,1fr) minmax(0,1fr) 42px}
+  .resonance-cue{width:calc(100% - 94px);font-size:8px}
   .weapon-slot img{width:25px;height:27px}
   .weapon-slot span{font-size:8px}
   .weapon-slot.empty{padding-left:2px;padding-right:2px;text-align:center}
