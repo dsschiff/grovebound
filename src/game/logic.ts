@@ -46,6 +46,9 @@ export const WEAPON_RANKS: Record<Weapon, [string, string, string]> = {
   bow: ['22% crit', '35% crit', 'Ricochet'],
   staff: ['Burn 3s', 'Hotter burn', 'Firestorm'],
 };
+export const WEAPON_FOCUS: Record<Weapon, string> = {
+  axe: 'Wider cleave', thorns: '+1 pierce', bow: 'Faster fire + crit', staff: 'Wider, longer burn',
+};
 export const WEAPON_RANK_UPGRADES: Record<Weapon, [string, string]> = {
   axe: ['Cleave reaches a wider cluster', 'Cleave knocks back smaller foes'],
   thorns: ['Darts pierce two aligned foes', 'Darts pierce three aligned foes'],
@@ -94,8 +97,9 @@ export function availableHero(progress: Progress, hero: Hero): boolean {
   return hero === 'warden' || hero === 'ranger' && progress.bestRegion >= 1 || hero === 'ember' && progress.victories >= 1;
 }
 export function availableWeapon(progress: Progress, weapon: Weapon): boolean {
-  return weapon === 'axe' || weapon === 'thorns' && (progress.thornsUnlocked || availableHero(progress, 'ranger'))
-    || weapon === 'bow' && availableHero(progress, 'ranger') || weapon === 'staff' && availableHero(progress, 'ember');
+  return weapon === 'axe' || weapon === 'bow'
+    || weapon === 'thorns' && (progress.thornsUnlocked || availableHero(progress, 'ranger'))
+    || weapon === 'staff' && availableHero(progress, 'ember');
 }
 
 export interface Progress {

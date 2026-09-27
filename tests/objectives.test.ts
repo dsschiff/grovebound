@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { nextObjective, objectiveKinds, objectivesLeft } from '../src/game/objectives';
 
 describe('region objectives', () => {
+  it('uses the escorted waylight instead of repeated ward attacks in a new Verge run', () => {
+    const waylight = [{ kind: 'waylight' as const, x: 420, y: 650, hp: 1, active: true }];
+    expect(objectiveKinds(0, waylight)).toEqual(['waylight']);
+    expect(nextObjective(0, waylight)?.kind).toBe('waylight');
+    waylight[0].hp = 0;
+    expect(objectivesLeft(0, waylight)).toBe(0);
+  });
   it('opens Quarry forge only after the coolant pump', () => {
     const objects = [
       { kind: 'pump' as const, x: 100, y: 100, hp: 200, active: true },

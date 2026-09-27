@@ -90,6 +90,33 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .weapon-report-row.other{display:flex;justify-content:space-between;padding:2px 0 0;color:#b9d2b9}
 .hero-option{min-height:96px}
 .hero-option img{width:58px;height:60px}
-.weapon-option img{width:27px;height:27px}
+.weapon-option img{width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 2px 3px #061d1cb0)}
 .upgrade-icon img{width:34px;height:34px}
 @media(max-height:760px){.hero-option{min-height:78px}.hero-option img{height:45px;width:47px}}
+
+.weapon-option{min-height:60px}
+.weapon-option small{font-size:9px}
+.weapon-slot{min-height:69px;padding:5px 5px 10px}
+.weapon-slot.focused{border-width:2px;background:linear-gradient(150deg,#496b4b,#214b3d);box-shadow:inset 0 0 0 1px #ffdf918a,0 0 16px #f5c87866}
+.weapon-slot small{font-size:8px;color:#f0dfb6}
+.weapon-slot.focused small{color:#ffe099}
+.weapon-slot span{font-size:9px;gap:3px}
+.weapon-slot img{width:31px;height:31px;object-fit:contain}
+.weapon-slot .slot-detail{font-size:7px}
+.weapon-charge{height:5px}
+#ability-name{max-width:65%;text-align:right;line-height:1.2}
+.objective-status{display:flex;align-items:center;justify-content:center;gap:4px;min-height:25px;margin-top:1px}
+.objective-status img{width:26px;height:26px;object-fit:contain;filter:drop-shadow(0 1px 3px #102d299c)}
+.clock-wrap .objective-status #objective{display:block;max-width:155px;margin:0;color:#fff0c5;font-size:8px;line-height:1.15;text-align:left}
+@media(max-width:365px){
+  .vitals{top:calc(max(13px,env(safe-area-inset-top)) + 87px)}
+  .weapon-tray{width:calc(100% - 94px);grid-template-columns:minmax(0,1fr) minmax(0,1fr) 42px}
+  .weapon-slot img{width:25px;height:27px}
+  .weapon-slot span{font-size:8px}
+  .weapon-slot.empty{padding-left:2px;padding-right:2px;text-align:center}
+  .weapon-slot.empty small{font-size:6px}
+  .weapon-slot.empty span{font-size:7px;white-space:normal;line-height:1.1}
+  .weapon-tray.full{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .weapon-tray.full .weapon-slot span{flex-direction:column;gap:0;align-items:center}
+  .weapon-tray.full .weapon-slot{min-height:83px;text-align:center}
+}

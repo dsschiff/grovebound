@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { GroveScene, type HudState, type RunResult } from './game/GroveScene';
 import {
-  HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_INFO, WEAPON_RANKS,
+  HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_FOCUS, WEAPON_INFO, WEAPON_RANKS,
   addRunToProgress, availableHero, availableWeapon, masteryRank, readProgress,
   saveProgress, seedsForRun, unlockThorns,
   type Hero, type Upgrade, type Weapon,
@@ -11,12 +11,14 @@ import { soundFx } from './game/audio';
 import './style.css';
 
 const art = (name: string) => `${import.meta.env.BASE_URL}art/${name}.svg`;
-const heroArt = (hero: Hero) => `${import.meta.env.BASE_URL}art/${hero}-v2.webp`;
+const heroArt = (hero: Hero) => `${import.meta.env.BASE_URL}art/${hero}-v3.webp`;
 const enemyArt = (name: string) => `${import.meta.env.BASE_URL}art/${name}-v2.webp`;
-const weaponArt = (weapon: Weapon) => `${import.meta.env.BASE_URL}art/weapon-${weapon}.svg`;
+const weaponArt = (weapon: Weapon) => `${import.meta.env.BASE_URL}art/weapon-${weapon}-v2.webp`;
+const weaponHudName: Record<Weapon, string> = { axe: 'Axe', thorns: 'Thorns', bow: 'Sunbow', staff: 'Ember' };
 let progress = readProgress();
 let selectedHero: Hero = 'warden';
 let selectedWeapon: Weapon = 'axe';
+let selectedSupport: Weapon = 'bow';
 let selectedSkin = false;
 let scene: GroveScene;
 let game: Phaser.Game;
@@ -33,7 +35,7 @@ root.innerHTML = `
     <div id="hud" class="hud hidden">
       <div class="top-line">
         <div class="crest"><span class="crest-leaf">❧</span><span>GROVEBOUND</span></div>
-        <div class="clock-wrap"><span id="timer">0:00</span><small id="timer-heading">RUN TIME · REGION 1/3</small><small id="stage-timer">GUARDIAN READY IN 2:55</small><small id="objective" aria-live="polite">BREAK ROOT TOTEMS</small></div>
+        <div class="clock-wrap"><span id="timer">0:00</span><small id="timer-heading">RUN TIME · REGION 1/3</small><small id="stage-timer">GUARDIAN READY IN 2:55</small><div class="objective-status"><img id="objective-art" src="${import.meta.env.BASE_URL}art/waylight.webp" alt=""/><small id="objective" aria-live="polite">GUIDE THE WAYLIGHT</small></div></div>
         <button id="pause-button" class="icon-button" aria-label="Pause game">Ⅱ</button>
       </div>
       <div class="vitals">
@@ -51,7 +53,7 @@ root.innerHTML = `
       <div class="menu-content">
         <div class="overline"><span class="overline-rule"></span> A POCKET FOREST ADVENTURE <span class="overline-rule"></span></div>
         <h1>GROVE<span>BOUND</span></h1>
-        <p class="subtitle">Break roots. Shut down the forge. Clear the mist. Face the Briar King.</p>
+        <p class="subtitle">Guide a waylight. Shut down the forge. Clear the mist. Face the Briar King.</p>
         <div class="hero-stage" aria-hidden="true">
           <div class="hero-halo"></div>
           <img class="stage-tree left" src="${art('tree')}" alt="" />
@@ -67,6 +69,8 @@ root.innerHTML = `
           <div class="panel-heading sub-heading"><span>STARTING WEAPON</span><span id="mastery-label">MASTERY 0</span></div>
           <div id="weapon-options" class="weapon-options"></div>
           <div id="weapon-hint" class="weapon-hint"></div>
+          <div class="panel-heading sub-heading"><span>SUPPORT WEAPON · FIRES AUTOMATICALLY</span><span>START WITH 2</span></div>
+          <div id="support-options" class="weapon-options"></div>
           <div id="mastery-next" class="mastery-next"></div>
           <button id="unlock-button" class="unlock-button hidden">UNLOCK THORN DART · 6 SEEDS</button>
           <button id="skin-button" class="skin-button hidden">USE GOLDEN SKIN</button>
@@ -132,6 +136,8 @@ function refreshMenu(): void {
   el('#seed-count').textContent = `✦ ${progress.seeds} SEEDS`;
   if (!availableHero(progress, selectedHero)) selectedHero = 'warden';
   if (!availableWeapon(progress, selectedWeapon)) selectedWeapon = HERO_INFO[selectedHero].weapon;
+  if (selectedSupport === selectedWeapon || !availableWeapon(progress, selectedSupport))
+    selectedSupport = (Object.keys(WEAPON_INFO) as Weapon[]).find(weapon => weapon !== selectedWeapon && availableWeapon(progress, weapon)) ?? selectedWeapon;
   const rank = masteryRank(progress.mastery[selectedHero]);
   el('#mastery-label').textContent = `MASTERY ${rank}/5`;
   el('#mastery-next').textContent = rank < 5
@@ -161,6 +167,14 @@ function refreshMenu(): void {
     el<HTMLButtonElement>(`#weapon-options [data-weapon="${selectedWeapon}"]`).focus({ preventScroll: true });
   }));
   el('#weapon-hint').textContent = WEAPON_INFO[selectedWeapon].description.toUpperCase();
+  el('#support-options').innerHTML = (Object.keys(WEAPON_INFO) as Weapon[]).map(weapon => {
+    const unlocked = weapon !== selectedWeapon && availableWeapon(progress, weapon);
+    return `<button class="weapon-option ${weapon === selectedSupport ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-support="${weapon}" ${unlocked ? '' : 'disabled'}><img src="${weaponArt(weapon)}" alt=""/><small>${WEAPON_INFO[weapon].name}</small></button>`;
+  }).join('');
+  el('#support-options').querySelectorAll<HTMLButtonElement>('[data-support]').forEach(button => button.addEventListener('click', () => {
+    selectedSupport = button.dataset.support as Weapon; refreshMenu();
+    el<HTMLButtonElement>(`#support-options [data-support="${selectedSupport}"]`).focus({ preventScroll: true });
+  }));
   show('#unlock-button', !progress.thornsUnlocked && progress.seeds >= THORNS_COST && progress.bestRegion < 1);
   show('#skin-button', rank >= 3);
   el('#skin-button').textContent = selectedSkin ? 'USE CLASSIC HERO + WEAPON' : 'USE GOLDEN HERO + WEAPON';
@@ -218,12 +232,13 @@ function drawMinimap(hud: HudState): void {
     if (!object.active && object.kind !== 'gate') continue;
     const p = point(object.x, object.y);
     ctx.save(); ctx.translate(p.x, p.y);
-    ctx.fillStyle = { ward: '#ffe2a3', pump: '#9ae8ec', forge: '#ffae68', altar: '#d9c2ff',
+    ctx.fillStyle = { ward: '#ffe2a3', waylight: '#fff0b1', pump: '#9ae8ec', forge: '#ffae68', altar: '#d9c2ff',
       shrine: '#dca5f1', relic: '#ffca83', gate: object.active ? '#a5e8dc' : '#6b8782',
       vent: '#ff965d', bloom: '#a8d9ef', bramble: '#b8e898', ore: '#ffb16b', moonstone: '#c4adff' }[object.kind];
     ctx.strokeStyle = '#173a35'; ctx.lineWidth = 1.5;
     ctx.beginPath();
     if (object.kind === 'ward') { ctx.moveTo(0, -5); ctx.lineTo(5, 0); ctx.lineTo(0, 5); ctx.lineTo(-5, 0); ctx.closePath(); }
+    else if (object.kind === 'waylight') { ctx.arc(0, 0, 6, 0, Math.PI * 2); }
     else if (object.kind === 'forge' || object.kind === 'ore') ctx.rect(-5, -5, 10, 10);
     else if (object.kind === 'moonstone') { ctx.moveTo(0, -6); ctx.lineTo(5, 3); ctx.lineTo(0, 6); ctx.lineTo(-5, 3); ctx.closePath(); }
     else if (object.kind === 'bloom') {
@@ -260,7 +275,7 @@ function updateHud(hud: HudState): void {
   el<HTMLElement>('#xp-fill').style.width = `${Math.max(0, hud.xp / hud.xpNeeded * 100)}%`;
   el('#kills').textContent = `${hud.kills} VANQUISHED`;
   el('#ability-name').textContent = hud.terrainHint
-    ?? (hud.weapons.length > 1 ? 'TAP SLOT · FOCUS +25%' : 'FIND ANOTHER WEAPON');
+    ?? `FOCUS ${WEAPON_INFO[hud.focusedWeapon].name.toUpperCase()} · ${WEAPON_FOCUS[hud.focusedWeapon].toUpperCase()}`;
   el('#timer').textContent = formatTime(hud.seconds);
   const region = REGIONS[hud.region];
   el('#timer-heading').textContent = `RUN TIME · REGION ${hud.region + 1}/3`;
@@ -268,25 +283,37 @@ function updateHud(hud: HudState): void {
   el('#stage-timer').textContent = hud.gateOpen ? 'PORTAL OPEN' : hud.bossHp !== null ? 'GUARDIAN FIGHT'
     : gateCountdown > 0 ? `GUARDIAN READY IN ${formatTime(gateCountdown)}`
       : hud.objectivesLeft > 0 ? 'GUARDIAN WAITS FOR OBJECTIVES' : 'GUARDIAN ARRIVING';
-  const task = { ward: 'BREAK ROOT TOTEMS', pump: 'DRAIN COOLANT PUMP', forge: 'BREAK FORGE CORE',
-    bloom: 'CLEAR MIST BLOOMS', altar: 'BREAK MOON ALTAR' }[hud.objectiveName ?? ''] ?? 'CLEAR OBJECTIVES';
+  const task = { ward: 'BREAK ROOT TOTEMS', waylight: 'GUIDE THE WAYLIGHT', pump: 'DRAIN COOLANT PUMP', forge: 'BREAK FORGE CORE',
+    bloom: 'CLEAR MIST BLOOMS', altar: hud.ritualActive ? 'COMPLETE THE MOON RITE' : 'BREAK MOON ALTAR' }[hud.objectiveName ?? ''] ?? 'CLEAR OBJECTIVES';
   const objective = hud.objectivesLeft > 0 ? hud.objectiveName === 'pump'
-    ? `STAND IN PUMP RING · ${hud.stepProgress}/4s` : `${task} · ${hud.stepTargetsLeft} LEFT`
+    ? `STAND IN PUMP RING · ${hud.stepProgress}/4s` : hud.objectiveName === 'waylight'
+      ? `STAY NEAR THE MOTH · ${hud.stepProgress}% HOME` : hud.ritualActive
+        ? `DEFEAT FOES BY ALTAR · ${hud.stepProgress}/6` : `${task} · ${hud.stepTargetsLeft} LEFT`
     : hud.gateOpen ? 'ENTER THE PORTAL' : hud.bossHp !== null ? 'DEFEAT THE GUARDIAN' : 'HOLD FOR THE GUARDIAN';
   if (el('#objective').textContent !== objective) el('#objective').textContent = objective;
+  const objectiveArt = hud.objectiveName ? {
+    ward: 'root-totem.webp', waylight: 'waylight.webp', pump: 'coolant-pump.webp', forge: 'forge-core.webp',
+    bloom: 'mist-bloom.webp', altar: 'moon-altar.webp',
+  }[hud.objectiveName] : hud.bossHp !== null ? 'briar-king-v2.webp' : 'grove-gate.webp';
+  const objectiveSrc = `${import.meta.env.BASE_URL}art/${objectiveArt ?? 'grove-gate.webp'}`;
+  if (el<HTMLImageElement>('#objective-art').src !== new URL(objectiveSrc, location.href).href)
+    el<HTMLImageElement>('#objective-art').src = objectiveSrc;
   const traySignature = `${hud.weaponSlots}|${hud.focusedWeapon}|${hud.weapons.map(weapon => `${weapon.id}:${weapon.rank}`).join(',')}`;
   if (traySignature !== weaponTraySignature) {
     weaponTraySignature = traySignature;
+    el('#weapon-tray').classList.toggle('full', hud.weapons.length >= 3);
     el('#weapon-tray').innerHTML = Array.from({ length: 3 }, (_, index) => {
       const weapon = hud.weapons[index];
-      if (!weapon) return `<div class="weapon-slot empty ${index >= hud.weaponSlots ? 'locked' : ''}"><small>SLOT ${index + 1}</small><span>${index >= hud.weaponSlots ? 'LOCKED' : 'OPEN'}</span></div>`;
+      if (!weapon) return `<div class="weapon-slot empty ${index >= hud.weaponSlots ? 'locked' : ''}"><small>SLOT ${index + 1}</small><span>${index >= hud.weaponSlots ? 'LOCKED' : 'FIND WEAPON'}</span></div>`;
       const info = WEAPON_INFO[weapon.id];
-      return `<button class="weapon-slot equipped ${weapon.id === hud.focusedWeapon ? 'focused' : ''}" data-focus="${weapon.id}" aria-label="Focus ${info.name}, rank ${weapon.rank}, ${WEAPON_RANKS[weapon.id][weapon.rank - 1]}. Focus adds 25 percent damage to this weapon and reduces other weapons by 10 percent"><small>SLOT ${index + 1} · RANK ${weapon.rank}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${info.name}</span><div class="slot-detail"><em>${WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0</strong></div><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
+      const focused = weapon.id === hud.focusedWeapon;
+      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="Focus ${info.name}, slot ${index + 1}, rank ${weapon.rank}. Focus trait: ${WEAPON_FOCUS[weapon.id]}. Focus adds 25 percent damage and changes this weapon's attack"><small>${focused ? 'FOCUSED' : `SLOT ${index + 1}`} · RANK ${weapon.rank}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id]}</span><div class="slot-detail"><em>${focused ? WEAPON_FOCUS[weapon.id] : WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0</strong></div><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
     }).join('');
   }
   for (const weapon of hud.weapons) {
     const charge = el<HTMLElement>(`[data-charge="${weapon.id}"]`);
-    charge.style.width = `${Math.max(0, Math.min(100, (1 - weapon.cooldown / WEAPON_INFO[weapon.id].cooldown) * 100))}%`;
+    const effectiveCooldown = WEAPON_INFO[weapon.id].cooldown * (weapon.id === 'bow' && weapon.id === hud.focusedWeapon ? 0.78 : 1);
+    charge.style.width = `${Math.max(0, Math.min(100, (1 - weapon.cooldown / effectiveCooldown) * 100))}%`;
     el(`[data-weapon-damage="${weapon.id}"]`).textContent = compactDamage(hud.weaponDamage[weapon.id]);
   }
   show('#boss-bar', hud.bossHp !== null);
@@ -369,8 +396,8 @@ game = new Phaser.Game({
 
 function startRun(): void {
   const rank = masteryRank(progress.mastery[selectedHero]);
-  const available = Object.keys(WEAPON_INFO) as Weapon[];
-  scene.beginRun(selectedHero, selectedWeapon, rank, available, progress.reducedEffects, selectedSkin, progress.autoSpecialEnabled);
+  const available = (Object.keys(WEAPON_INFO) as Weapon[]).filter(weapon => availableWeapon(progress, weapon));
+  scene.beginRun(selectedHero, selectedWeapon, rank, available, progress.reducedEffects, selectedSkin, progress.autoSpecialEnabled, selectedSupport);
   setModal(null);
 }
 el('#start-button').addEventListener('click', startRun);

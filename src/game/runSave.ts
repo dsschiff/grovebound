@@ -8,7 +8,7 @@ export interface EnemySave {
   bossStrike?: { cooldown: number; windup: number; x: number; y: number; radius: number };
 }
 export interface ObjectSave {
-  kind: 'ward' | 'pump' | 'forge' | 'altar' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
+  kind: 'ward' | 'waylight' | 'pump' | 'forge' | 'altar' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
     | 'bramble' | 'ore' | 'moonstone';
   x: number; y: number; hp: number; maxHp: number; active: boolean;
 }
@@ -38,6 +38,8 @@ export interface RunSnapshot {
   seconds: number; region: number; stageSeconds: number; spawnClock: number; cacheClock: number;
   x: number; y: number; invulnerability: number;
   gatekeeperSpawned: boolean; bossSpawned: boolean; choosing: boolean; upgradeOptions: Upgrade[];
+  waylightAmbush?: boolean;
+  ritualClock?: number;
   enemies: EnemySave[]; objects: ObjectSave[];
   orbs: { x: number; y: number; value: number }[];
   caches: { x: number; y: number; stat: Stat }[];
@@ -86,8 +88,10 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
         && finite(enemy.bossStrike.cooldown, 0, 10) && finite(enemy.bossStrike.windup, 0, 2)
         && finite(enemy.bossStrike.x, 0, 1800) && finite(enemy.bossStrike.y, 0, 1800)
         && finite(enemy.bossStrike.radius, 60, 200))))
+    || (run.waylightAmbush !== undefined && typeof run.waylightAmbush !== 'boolean')
+    || (run.ritualClock !== undefined && !finite(run.ritualClock, 0, 10))
     || !Array.isArray(run.objects) || run.objects.length > 12 || !run.objects.every(object =>
-      ['ward', 'pump', 'forge', 'altar', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
+      ['ward', 'waylight', 'pump', 'forge', 'altar', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
       && finite(object.y, 0, 1800) && finite(object.hp, 0, 10000) && finite(object.maxHp, 0, 10000)
       && typeof object.active === 'boolean')
     || !Array.isArray(run.orbs) || run.orbs.length > 100 || !run.orbs.every(orb =>

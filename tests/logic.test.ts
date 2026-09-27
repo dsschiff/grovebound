@@ -116,6 +116,14 @@ describe('run progression', () => {
     const newObjective = { ...snapshot, region: 1, objects: [{ kind: 'pump', x: 850, y: 780, hp: 20, maxHp: 240, active: true },
       { kind: 'forge', x: 1100, y: 950, hp: 320, maxHp: 320, active: false }] };
     expect(parseRunSnapshot(newObjective)?.objects[1].kind).toBe('forge');
+    const escorted = { ...snapshot, waylightAmbush: true,
+      objects: [{ kind: 'waylight', x: 640, y: 760, hp: 1, maxHp: 1, active: true }] };
+    expect(parseRunSnapshot(escorted)?.objects[0].x).toBe(640);
+    expect(parseRunSnapshot({ ...escorted, waylightAmbush: 'yes' })).toBeNull();
+    const ritual = { ...snapshot, region: 2, ritualClock: 3.4,
+      objects: [{ kind: 'altar', x: 640, y: 760, hp: 4, maxHp: 6, active: true }] };
+    expect(parseRunSnapshot(ritual)?.ritualClock).toBe(3.4);
+    expect(parseRunSnapshot({ ...ritual, ritualClock: -1 })).toBeNull();
     const { terrain: _oldTerrain, ...priorMetrics } = snapshot.metrics;
     expect(parseRunSnapshot({ ...snapshot, metrics: priorMetrics })?.metrics.terrain).toBe(0);
     const { weaponDamage: _oldWeaponDamage, ...preWeaponMetrics } = snapshot.metrics;
