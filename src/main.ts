@@ -81,7 +81,7 @@ root.innerHTML = `
         <div class="setting-pair"><label class="setting-row"><input id="reduced-effects" type="checkbox" /> Reduced effects</label><label class="setting-row"><input id="muted" type="checkbox" /> Mute sound</label><label id="auto-special-row" class="setting-row hidden"><input id="auto-special" type="checkbox" /> Auto special</label></div>
         <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span>➜</span></button>
         <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span>➜</span></button>
-        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP TWO DIFFERENT WEAPON COMMANDS WITHIN 4s FOR A RESONANCE<br />TAP FIELDS TO BURST · WASD/ARROWS TO MOVE · SPACE SPECIAL · F TARGET</p>
+        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP A WEAPON SLOT TO FIRE ITS COMMAND · CHAIN TWO FOR A RESONANCE<br />TAP FIELDS TO BURST · WASD/ARROWS TO MOVE · SPACE SPECIAL · F TARGET</p>
         <div class="best-line" id="best-line"></div>
         <a class="hub-link" href="https://dsschiff.github.io/games/">ALL GAMES ↗</a>
       </div>
@@ -358,14 +358,15 @@ function updateHud(hud: HudState): void {
       const info = WEAPON_INFO[weapon.id];
       const focused = weapon.id === hud.focusedWeapon;
       const pathName = weapon.path ? WEAPON_PATH_INFO[weapon.id][weapon.path].name : null;
-      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. Tap to fire and focus slot ${index + 1}, rank ${weapon.rank}${pathName ? `, ${pathName} technique` : ''}"><small>${focused ? 'FOCUS' : `SLOT ${index + 1}`} · ${['I', 'II', 'III'][weapon.rank - 1]}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id]}</span><div class="slot-detail"><em>${pathName ?? WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0</strong></div><b class="command-status" data-command="${weapon.id}">${WEAPON_COMMAND[weapon.id].slotName} · TAP</b><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
+      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. Tap to fire and focus slot ${index + 1}, rank ${weapon.rank}${pathName ? `, ${pathName} technique` : ''}"><small>${focused ? 'FOCUS' : `SLOT ${index + 1}`} · ${['I', 'II', 'III'][weapon.rank - 1]}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id]}</span><div class="slot-detail"><em>${pathName ?? WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0</strong></div><b class="command-status" data-command="${weapon.id}">TAP TO ${WEAPON_COMMAND[weapon.id].slotName}</b><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
     }).join('');
   }
   for (const weapon of hud.weapons) {
     const charge = el<HTMLElement>(`[data-charge="${weapon.id}"]`);
     const commandRemaining = weapon.commandCooldown ?? 0;
     charge.style.width = `${Math.max(0, Math.min(100, (1 - commandRemaining / 8) * 100))}%`;
-    el(`[data-command="${weapon.id}"]`).textContent = `${WEAPON_COMMAND[weapon.id].slotName} · ${commandRemaining <= 0 ? 'TAP' : `${Math.ceil(commandRemaining)}s`}`;
+    el(`[data-command="${weapon.id}"]`).textContent = commandRemaining <= 0
+      ? `TAP TO ${WEAPON_COMMAND[weapon.id].slotName}` : `${WEAPON_COMMAND[weapon.id].slotName} · ${Math.ceil(commandRemaining)}s`;
     const button = el<HTMLButtonElement>(`[data-focus="${weapon.id}"]`);
     const label = `${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. ${commandRemaining <= 0
       ? 'Ready to fire' : `Recharges in ${Math.ceil(commandRemaining)} seconds`}. Tap to focus slot ${hud.weapons.indexOf(weapon) + 1}, rank ${weapon.rank}`;

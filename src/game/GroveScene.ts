@@ -70,6 +70,9 @@ export class GroveScene extends Phaser.Scene {
   private callbacks: GameCallbacks;
   private hero!: Phaser.GameObjects.Image;
   private heroShadow!: Phaser.GameObjects.Ellipse;
+  private weaponMarkers: { view: Phaser.GameObjects.Container; rim: Phaser.GameObjects.Arc }[] = [];
+  private weaponMarkerSignature = '';
+  private weaponFlashUntil: Partial<Record<Weapon, number>> = {};
   private nav!: Phaser.GameObjects.Text;
   private petView!: Phaser.GameObjects.Arc;
   private joystickBase!: Phaser.GameObjects.Arc;
@@ -146,7 +149,9 @@ export class GroveScene extends Phaser.Scene {
   preload(): void {
     const base = import.meta.env.BASE_URL;
     this.load.image('tree', `${base}art/tree.png`);
-    for (const key of ['warden-v4', 'ranger-v4', 'ember-v4', 'warden-attack-v1', 'ranger-attack-v1', 'ember-attack-v1',
+    for (const key of ['warden-v4', 'ranger-v4', 'ember-v4', 'warden-run-v1', 'ranger-run-v1', 'ember-run-v1',
+      'warden-attack-v1', 'ranger-attack-v1', 'ember-attack-v1',
+      'weapon-axe-v2', 'weapon-thorns-v2', 'weapon-bow-v2', 'weapon-staff-v2',
       'waylight', 'seedheart', 'briar-stag-v1', 'root-totem', 'coolant-pump', 'coolant-spring', 'forge-core', 'moonflame',
       'moon-altar', 'mist-bloom', 'ember-vent', 'grove-gate', 'reliquary', 'fox-relic',
       'gnarl-v2', 'wisp-v2', 'brute-v2', 'briar-king-v2', 'bramble-field', 'ember-ore', 'moonstone']) {
@@ -329,6 +334,7 @@ export class GroveScene extends Phaser.Scene {
   isChoosing(): boolean { return this.choosing; }
   endRunEarly(): void {
     this.pausedByUser = false; this.running = false; this.releaseJoystick(); clearRunSnapshot();
+    this.weaponMarkers.forEach(marker => marker.view.setVisible(false));
     for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); }
     this.clearFieldMark();
   }
@@ -697,6 +703,8 @@ export class GroveScene extends Phaser.Scene {
     for (const cache of this.caches) { this.tweens.killTweensOf(cache.view); cache.view.destroy(); }
     for (const field of this.emberFields) { this.tweens.killTweensOf(field.view); field.view.destroy(); }
     this.objects = []; this.orbs = []; this.caches = []; this.emberFields = [];
+    for (const marker of this.weaponMarkers) marker.view.destroy();
+    this.weaponMarkers = []; this.weaponMarkerSignature = ''; this.weaponFlashUntil = {};
     this.bars?.clear(); this.nav?.setText(''); this.releaseJoystick();
   }
 
@@ -743,7 +751,9 @@ export class GroveScene extends Phaser.Scene {
     if (this.keys?.S?.isDown || this.cursors?.down?.isDown) dy += 1;
     const length = Math.hypot(dx, dy);
     this.moveDirection.set(length > 0.03 ? dx / length : 0, length > 0.03 ? dy / length : 0);
-    const poseTexture = `${this.heroId}-${this.actionPose > 0 ? 'attack-v1' : 'v4'}`;
+    const moving = length > 0.03;
+    const runStride = moving && (this.reducedEffects || Math.sin(this.seconds * 15) > -0.2);
+    const poseTexture = `${this.heroId}-${this.actionPose > 0 ? 'attack-v1' : runStride ? 'run-v1' : 'v4'}`;
     if (this.hero.texture.key !== poseTexture) this.hero.setTexture(poseTexture);
     const attackKick = this.attackPose > 0 ? Math.sin(this.attackPose / this.attackPoseDuration * Math.PI) : 0;
     if (length > 0.03) {
@@ -757,7 +767,35 @@ export class GroveScene extends Phaser.Scene {
       .setScale(0.36 * (1 + Math.sin(this.seconds * 3) * 0.012 + attackKick * 0.09), 0.36 * (1 - attackKick * 0.06));
     this.hero.setAlpha(this.invulnerability > 0 && Math.floor(this.seconds * 18) % 2 === 0 ? 0.57 : 1);
     this.heroShadow.setPosition(this.hero.x, this.hero.y + 40).setScale(length > 0.03 ? 1.08 : 1, 1);
+    this.updateWeaponMarkers();
     this.nav.setPosition(this.hero.x, this.hero.y - 110);
+  }
+
+  private updateWeaponMarkers(): void {
+    const signature = this.weapons.map(weapon => weapon.id).join('|');
+    if (signature !== this.weaponMarkerSignature) {
+      for (const marker of this.weaponMarkers) marker.view.destroy();
+      this.weaponMarkers = this.weapons.map(weapon => {
+        const rim = this.add.circle(0, 0, 15, 0x173b34, 0.86).setStrokeStyle(2, 0xf8d997, 0.75);
+        const icon = this.add.image(0, 0, `weapon-${weapon.id === 'bow' ? 'bow' : weapon.id === 'axe' ? 'axe' : weapon.id === 'thorns' ? 'thorns' : 'staff'}-v2`).setDisplaySize(27, 27);
+        return { view: this.add.container(0, 0, [rim, icon]).setDepth(6), rim };
+      });
+      this.weaponMarkerSignature = signature;
+    }
+    const offsets = this.weapons.length === 1 ? [0] : this.weapons.length === 2 ? [-35, 35] : [-45, 0, 45];
+    for (let index = 0; index < this.weaponMarkers.length; index++) {
+      const marker = this.weaponMarkers[index];
+      const weapon = this.weapons[index];
+      const focused = weapon.id === this.focusedWeapon;
+      const ready = (weapon.commandCooldown ?? 0) <= 0;
+      const flash = Math.max(0, Math.min(1, ((this.weaponFlashUntil[weapon.id] ?? 0) - this.seconds) / 0.22));
+      marker.view.setPosition(this.hero.x + offsets[index], this.hero.y + 52 + (this.reducedEffects ? 0 : Math.sin(this.seconds * 5 + index) * 2))
+        .setScale((focused ? 1.13 : 0.95) * (1 + flash * 0.22)).setAlpha(ready || flash > 0 ? 0.97 : 0.58);
+      marker.rim.setStrokeStyle(focused ? 3 : 2,
+        ready ? Phaser.Display.Color.HexStringToColor(WEAPON_INFO[weapon.id].color).color : 0x829c88,
+        focused ? 0.95 : 0.7);
+      marker.rim.setFillStyle(flash > 0 ? 0x6c6750 : 0x173b34, 0.86);
+    }
   }
 
   private updateHazards(): void {
@@ -1034,6 +1072,7 @@ export class GroveScene extends Phaser.Scene {
     const object: WorldObject | null = selection?.kind === 'object' ? targetObjects[selection.index] : null;
     if (!target && !object) { if (!commanded) weapon.cooldown = 0.12; return false; }
     weapon.cooldown = info.cooldown * (focused && weapon.id === 'bow' ? 0.78 : 1);
+    this.weaponFlashUntil[weapon.id] = this.seconds + (commanded ? 0.38 : 0.2);
     soundFx.play(weapon.id === 'axe' ? 'swing' : weapon.id === 'thorns' ? 'dart' : weapon.id === 'bow' ? 'bow' : 'staff');
     this.attackPose = 0.16; this.attackPoseDuration = 0.16;
     if (weapon.id === HERO_INFO[this.heroId].weapon) this.actionPose = Math.max(this.actionPose, commanded ? 0.42 : 0.24);
@@ -1857,6 +1896,7 @@ export class GroveScene extends Phaser.Scene {
     if (!this.running) return;
     this.metrics.regionSeconds[this.region] = this.stageSeconds;
     this.running = false; this.releaseJoystick(); clearRunSnapshot();
+    this.weaponMarkers.forEach(marker => marker.view.setVisible(false));
     for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); }
     this.clearFieldMark();
     if (won) soundFx.play('victory');
