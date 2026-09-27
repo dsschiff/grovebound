@@ -40,6 +40,8 @@ describe('run progression', () => {
     expect(migrated.thornsUnlocked).toBe(true);
     expect(migrated.bestRegion).toBe(0);
     expect(migrated.mastery.warden).toBe(0);
+    expect(migrated.heroLook).toBe('wildkin');
+    expect(parseProgress({ heroLook: 'classic' }).heroLook).toBe('classic');
     const earned = addRunToProgress(migrated, 40, 200, false, 'warden', 1);
     expect(availableHero(earned, 'ranger')).toBe(true);
     expect(masteryRank(earned.mastery.warden)).toBeGreaterThan(0);
@@ -91,6 +93,8 @@ describe('run progression', () => {
       metrics: { ...emptyRunMetrics(), foeDamage: 120, caches: 2, regionSeconds: [70, null, null] },
     };
     expect(parseRunSnapshot(JSON.parse(JSON.stringify(snapshot)))).toEqual(snapshot);
+    expect(parseRunSnapshot({ ...snapshot, look: 'wildkin' })?.look).toBe('wildkin');
+    expect(parseRunSnapshot({ ...snapshot, look: 'cartoon' })).toBeNull();
     const loadout = { ...snapshot, weapons: [{ id: 'axe' as const, rank: 1, cooldown: 0.3 },
       { id: 'bow' as const, rank: 2, cooldown: 0.1 }], weaponSlots: 2, focusedWeapon: 'bow' as const };
     expect(parseRunSnapshot(loadout)?.focusedWeapon).toBe('bow');

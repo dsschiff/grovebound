@@ -92,6 +92,7 @@ export class GroveScene extends Phaser.Scene {
   private choosing = false;
   private pausedByUser = false;
   private heroId: Hero = 'warden';
+  private heroLook: 'wildkin' | 'classic' = 'wildkin';
   private skin = false;
   private masteryRank = 0;
   private unlockedWeapons: Weapon[] = ['axe'];
@@ -153,6 +154,9 @@ export class GroveScene extends Phaser.Scene {
     this.load.image('tree', `${base}art/ancient-tree-v1.webp`);
     for (const key of ['warden-v4', 'ranger-v4', 'ember-v4', 'warden-run-v1', 'ranger-run-v1', 'ember-run-v1',
       'warden-attack-v1', 'ranger-attack-v1', 'ember-attack-v1',
+      'warden-wildkin-idle-v1', 'ranger-wildkin-idle-v1', 'ember-wildkin-idle-v1',
+      'warden-wildkin-run-v1', 'ranger-wildkin-run-v1', 'ember-wildkin-run-v1',
+      'warden-wildkin-attack-v1', 'ranger-wildkin-attack-v1', 'ember-wildkin-attack-v1',
       'weapon-axe-v2', 'weapon-thorns-v2', 'weapon-bow-v2', 'weapon-staff-v2',
       'waylight', 'seedheart', 'briar-stag-v1', 'root-totem', 'coolant-pump', 'coolant-spring', 'forge-core', 'moonflame',
       'moon-altar', 'mist-bloom', 'ember-vent', 'grove-gate', 'reliquary', 'fox-relic',
@@ -181,14 +185,14 @@ export class GroveScene extends Phaser.Scene {
     this.publishHud();
   }
 
-  beginRun(hero: Hero, startingWeapon: Weapon, masteryRank: number, unlockedWeapons: Weapon[], reducedEffects: boolean, skin = false, autoSpecialEnabled = true, supportWeapon?: Weapon, seedOverride?: number): void {
+  beginRun(hero: Hero, startingWeapon: Weapon, masteryRank: number, unlockedWeapons: Weapon[], reducedEffects: boolean, skin = false, autoSpecialEnabled = true, supportWeapon?: Weapon, seedOverride?: number, look: 'wildkin' | 'classic' = 'wildkin'): void {
     if (!this.hero) return;
     clearRunSnapshot();
     this.clearRunObjects();
     this.seed = seedOverride !== undefined && Number.isInteger(seedOverride) && seedOverride > 0 && seedOverride <= 0xffffffff
       ? seedOverride : (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0 || 1;
     this.random = new Rng(this.seed);
-    this.heroId = hero; this.skin = skin; this.masteryRank = masteryRank;
+    this.heroId = hero; this.heroLook = look; this.skin = skin; this.masteryRank = masteryRank;
     this.unlockedWeapons = unlockedWeapons;
     this.weapons = [{ id: startingWeapon, rank: 1, cooldown: 0 }];
     if (supportWeapon && supportWeapon !== startingWeapon && unlockedWeapons.includes(supportWeapon))
@@ -204,7 +208,7 @@ export class GroveScene extends Phaser.Scene {
     this.xp = 0; this.level = 1; this.kills = 0; this.seconds = 0; this.region = 0;
     this.attackPose = 0; this.actionPose = 0; this.slowed = false;
     this.choosing = false; this.pausedByUser = false; this.upgradeOptions = [];
-    this.hero.setTexture(`${hero}-v4`).setTint(skin ? 0xf3d28a : 0xffffff).setPosition(900, 900).setAlpha(1).setDisplaySize(104, 104);
+    this.hero.setTexture(this.heroTexture('idle')).setTint(skin ? 0xf3d28a : 0xffffff).setPosition(900, 900).setAlpha(1).setDisplaySize(104, 104);
     this.startRegion();
     this.spawnCache('attack', 1050, 835);
     this.running = true;
@@ -215,7 +219,7 @@ export class GroveScene extends Phaser.Scene {
     if (!this.hero) return false;
     this.clearRunObjects();
     this.seed = snapshot.seed; this.random = new Rng(snapshot.rngState);
-    this.heroId = snapshot.hero; this.skin = snapshot.skin; this.masteryRank = snapshot.masteryRank;
+    this.heroId = snapshot.hero; this.heroLook = snapshot.look ?? 'classic'; this.skin = snapshot.skin; this.masteryRank = snapshot.masteryRank;
     this.unlockedWeapons = snapshot.unlockedWeapons;
     this.weapons = snapshot.weapons.map(weapon => ({ ...weapon }));
     this.focusedWeapon = snapshot.focusedWeapon ?? this.weapons[0].id;
@@ -234,7 +238,7 @@ export class GroveScene extends Phaser.Scene {
     this.attackPose = 0; this.actionPose = 0; this.slowed = false;
     this.gatekeeperSpawned = snapshot.gatekeeperSpawned; this.bossSpawned = snapshot.bossSpawned;
     this.choosing = snapshot.choosing; this.upgradeOptions = [...snapshot.upgradeOptions];
-    this.hero.setTexture(`${this.heroId}-v4`).setTint(this.skin ? 0xf3d28a : 0xffffff)
+    this.hero.setTexture(this.heroTexture('idle')).setTint(this.skin ? 0xf3d28a : 0xffffff)
       .setPosition(snapshot.x, snapshot.y).setAlpha(1).setDisplaySize(104, 104);
     this.waylightAmbush = snapshot.waylightAmbush ?? false;
     this.ritualClock = snapshot.ritualClock ?? 0;
@@ -782,9 +786,14 @@ export class GroveScene extends Phaser.Scene {
     } else this.markField(field, true);
   }
 
+  private heroTexture(pose: 'idle' | 'run' | 'attack'): string {
+    return this.heroLook === 'wildkin' ? `${this.heroId}-wildkin-${pose}-v1`
+      : `${this.heroId}-${pose === 'idle' ? 'v4' : `${pose}-v1`}`;
+  }
+
   private moveHero(dt: number): void {
     const compactView = this.scale.height <= 630;
-    const heroScale = compactView ? 0.28 : 0.36;
+    const heroScale = compactView ? 0.24 : 0.36;
     let dx = this.joyVector.x; let dy = this.joyVector.y;
     if (this.keys?.A?.isDown || this.cursors?.left?.isDown) dx -= 1;
     if (this.keys?.D?.isDown || this.cursors?.right?.isDown) dx += 1;
@@ -794,7 +803,7 @@ export class GroveScene extends Phaser.Scene {
     this.moveDirection.set(length > 0.03 ? dx / length : 0, length > 0.03 ? dy / length : 0);
     const moving = length > 0.03;
     const runStride = moving && (this.reducedEffects || Math.sin(this.seconds * 15) > -0.2);
-    const poseTexture = `${this.heroId}-${this.actionPose > 0 ? 'attack-v1' : runStride ? 'run-v1' : 'v4'}`;
+    const poseTexture = this.heroTexture(this.actionPose > 0 ? 'attack' : runStride ? 'run' : 'idle');
     if (this.hero.texture.key !== poseTexture) this.hero.setTexture(poseTexture);
     const attackKick = this.attackPose > 0 ? Math.sin(this.attackPose / this.attackPoseDuration * Math.PI) : 0;
     if (length > 0.03) {
@@ -2084,7 +2093,7 @@ export class GroveScene extends Phaser.Scene {
   saveSnapshot(): void {
     if (!this.running) return;
     saveRunSnapshot({
-      version: 1, seed: this.seed, rngState: this.random.state, hero: this.heroId, skin: this.skin,
+      version: 1, seed: this.seed, rngState: this.random.state, hero: this.heroId, skin: this.skin, look: this.heroLook,
       unlockedWeapons: [...this.unlockedWeapons], masteryRank: this.masteryRank,
       weapons: this.weapons.map(weapon => ({ ...weapon })), weaponSlots: this.weaponSlots,
       focusedWeapon: this.focusedWeapon,

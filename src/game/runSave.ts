@@ -37,7 +37,7 @@ export function emptyRunMetrics(): RunMetrics {
 }
 export interface RunSnapshot {
   version: 1;
-  seed: number; rngState: number; hero: Hero; skin: boolean;
+  seed: number; rngState: number; hero: Hero; skin: boolean; look?: 'wildkin' | 'classic';
   unlockedWeapons: Weapon[]; masteryRank: number;
   weapons: { id: Weapon; rank: number; cooldown: number; path?: WeaponPath; commandCooldown?: number }[];
   focusedWeapon?: Weapon;
@@ -72,6 +72,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
   const run = value as Partial<RunSnapshot>;
   if (run.version !== 1 || !finite(run.seed, 0, 4294967295) || !finite(run.rngState, 0, 4294967295)
     || !HEROES.includes(run.hero ?? '') || typeof run.skin !== 'boolean'
+    || (run.look !== undefined && run.look !== 'wildkin' && run.look !== 'classic')
     || !Array.isArray(run.unlockedWeapons) || !run.unlockedWeapons.every(weapon => WEAPONS.includes(weapon))
     || !finite(run.masteryRank, 0, 5)
     || !Array.isArray(run.weapons) || run.weapons.length < 1 || run.weapons.length > 3

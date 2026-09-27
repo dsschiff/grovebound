@@ -138,12 +138,16 @@ export interface Progress {
   reducedEffects: boolean;
   muted: boolean;
   autoSpecialEnabled: boolean;
+  heroLook: HeroLook;
 }
+
+export type HeroLook = 'wildkin' | 'classic';
 
 export const EMPTY_PROGRESS: Progress = {
   seeds: 0, thornsUnlocked: false, bestKills: 0, bestSeconds: 0, victories: 0,
   bestRegion: 0, mastery: { warden: 0, ranger: 0, ember: 0 }, reducedEffects: false, muted: false,
   autoSpecialEnabled: true,
+  heroLook: 'wildkin',
 };
 export const THORNS_COST = 6;
 export const SAVE_KEY = 'grovebound-progress-v2';
@@ -166,6 +170,7 @@ export function parseProgress(value: unknown): Progress {
     reducedEffects: data.reducedEffects === true,
     muted: data.muted === true,
     autoSpecialEnabled: data.autoSpecialEnabled !== false,
+    heroLook: data.heroLook === 'classic' ? 'classic' : 'wildkin',
   };
 }
 

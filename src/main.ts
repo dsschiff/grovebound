@@ -13,7 +13,8 @@ import { seedForVergeContract, type VergeContract } from './game/objectives';
 import './style.css';
 
 const treeArt = `${import.meta.env.BASE_URL}art/ancient-tree-v1.webp`;
-const heroArt = (hero: Hero) => `${import.meta.env.BASE_URL}art/${hero}-v4.webp`;
+const heroArt = (hero: Hero, look: 'wildkin' | 'classic') =>
+  `${import.meta.env.BASE_URL}art/${hero}-${look === 'wildkin' ? 'wildkin-idle-v1' : 'v4'}.webp`;
 const enemyArt = (name: string) => `${import.meta.env.BASE_URL}art/${name}-v2.webp`;
 const weaponArt = (weapon: Weapon) => `${import.meta.env.BASE_URL}art/weapon-${weapon}-v2.webp`;
 const weaponHudName: Record<Weapon, string> = { axe: 'Axe', thorns: 'Thorns', bow: 'Sunbow', staff: 'Ember' };
@@ -69,12 +70,13 @@ root.innerHTML = `
           <img class="stage-tree left" src="${treeArt}" alt="" />
           <img class="stage-tree right" src="${treeArt}" alt="" />
           <img class="stage-enemy" src="${enemyArt('gnarl')}" alt="" />
-          <img id="stage-hero" class="stage-hero" src="${heroArt('warden')}" alt="" />
+          <img id="stage-hero" class="stage-hero" src="${heroArt('warden', progress.heroLook)}" alt="" />
           <div class="stage-ground"></div>
         </div>
         <div class="ability-panel">
           <div class="panel-heading"><span>CHOOSE YOUR HERO</span><span id="seed-count" class="seed-count">✦ 0 SEEDS</span></div>
           <div id="hero-options" class="hero-options"></div>
+          <button id="hero-look-button" class="look-button" type="button" aria-label="Change hero appearance">WILDKIN LOOK · SWITCH TO CLASSIC</button>
           <div id="hero-hint" class="hero-hint"></div>
           <div class="panel-heading sub-heading"><span>STARTING WEAPON</span><span id="mastery-label">MASTERY 0</span></div>
           <div id="weapon-options" class="weapon-options"></div>
@@ -168,12 +170,12 @@ function refreshMenu(): void {
     refreshMenu();
     el<HTMLButtonElement>(`[data-contract="${selectedContract}"]`).focus({ preventScroll: true });
   }));
-  el<HTMLImageElement>('#stage-hero').src = heroArt(selectedHero);
+  el<HTMLImageElement>('#stage-hero').src = heroArt(selectedHero, progress.heroLook);
   el<HTMLImageElement>('#stage-hero').classList.toggle('gold-skin', selectedSkin && rank >= 3);
   el('#hero-options').innerHTML = HERO_KEYS.map(hero => {
     const unlocked = availableHero(progress, hero);
     const hint = unlocked ? HERO_INFO[hero].title : hero === 'ranger' ? 'Clear the first region' : 'Win a full run';
-    return `<button class="hero-option ${hero === selectedHero ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-hero="${hero}" ${unlocked ? '' : 'disabled'}><img src="${heroArt(hero)}" alt=""/><span><strong>${HERO_INFO[hero].name}</strong><small>${hint}</small></span></button>`;
+    return `<button class="hero-option ${hero === selectedHero ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-hero="${hero}" ${unlocked ? '' : 'disabled'}><img src="${heroArt(hero, progress.heroLook)}" alt=""/><span><strong>${HERO_INFO[hero].name}</strong><small>${hint}</small></span></button>`;
   }).join('');
   el('#hero-options').querySelectorAll<HTMLButtonElement>('[data-hero]').forEach(button => button.addEventListener('click', () => {
     selectedHero = button.dataset.hero as Hero;
@@ -181,6 +183,8 @@ function refreshMenu(): void {
     selectedSkin = false; refreshMenu();
     el<HTMLButtonElement>(`#hero-options [data-hero="${selectedHero}"]`).focus({ preventScroll: true });
   }));
+  el('#hero-look-button').textContent = progress.heroLook === 'wildkin'
+    ? 'WILDKIN LOOK · SWITCH TO CLASSIC' : 'CLASSIC LOOK · SWITCH TO WILDKIN';
   el('#hero-hint').textContent = `${HERO_INFO[selectedHero].special.toUpperCase()} · ${HERO_INFO[selectedHero].specialDescription.toUpperCase()}`;
   el('#weapon-options').innerHTML = (Object.keys(WEAPON_INFO) as Weapon[]).map(weapon => {
     const unlocked = availableWeapon(progress, weapon);
@@ -530,7 +534,7 @@ function startRun(): void {
   const randomSeed = (Math.random() * 0xffffffff) >>> 0 || 1;
   const contractSeed = seedForVergeContract(randomSeed, selectedContract);
   scene.beginRun(selectedHero, selectedWeapon, rank, available, progress.reducedEffects, selectedSkin, progress.autoSpecialEnabled,
-    selectedSupport, localSeed || contractSeed);
+    selectedSupport, localSeed || contractSeed, progress.heroLook);
   setModal(null);
 }
 el('#start-button').addEventListener('click', startRun);
@@ -541,6 +545,10 @@ el('#unlock-button').addEventListener('click', () => {
   refreshMenu(); notify('THORN DART UNLOCKED');
 });
 el('#skin-button').addEventListener('click', () => { selectedSkin = !selectedSkin; refreshMenu(); });
+el('#hero-look-button').addEventListener('click', () => {
+  progress = { ...progress, heroLook: progress.heroLook === 'wildkin' ? 'classic' : 'wildkin' };
+  saveProgress(progress); refreshMenu();
+});
 el<HTMLInputElement>('#reduced-effects').addEventListener('change', event => {
   progress = { ...progress, reducedEffects: (event.target as HTMLInputElement).checked };
   root.classList.toggle('reduced-effects', progress.reducedEffects);
