@@ -10,7 +10,7 @@ import { bossPhaseFor, bowCriticalChance, chooseAutoTarget, pickUpgradeChoices, 
   shouldSpawnGuardian, staffBurn, thornPierceCount, weaponDamage, weaponSplash } from './combat';
 import { pilotDirection } from './pilot';
 import { hazardSites, ventPhase, type VentPhase } from './hazards';
-import { enemyFieldModifiers, terrainSites } from './terrain';
+import { enemyFieldModifiers, terrainRupture, terrainSites, type TerrainKind } from './terrain';
 import { BOSS_STRIKE_WINDUP, bossStrikeCooldown, bossStrikeRadius, bossStrikeTarget, insideBossStrike, type BossStrikeState } from './bossStrike';
 import { WISP_LANCE_WIDTH, WISP_LANCE_WINDUP, insideWispLance, waveInterval, wildSurge,
   wispLanceCooldown, wispLanceDamage, wispLanceTarget, type WispLanceState } from './wispLance';
@@ -24,6 +24,7 @@ interface Enemy {
   sprite: Phaser.GameObjects.Image; kind: EnemyKind; hp: number; maxHp: number;
   speed: number; damage: number; radius: number; phase: number; pendingDamage: number; damageClock: number;
   burnRemaining: number; burnTickClock: number; burnDamage: number; burnSource?: Weapon;
+  tangleRemaining: number;
   strike?: BossStrikeState & { ring?: Phaser.GameObjects.Arc };
   lance?: WispLanceState & { marker?: Phaser.GameObjects.Graphics };
 }
@@ -41,7 +42,8 @@ export interface HudState {
   objectivesLeft: number; stepTargetsLeft: number; stepProgress: number; objectiveName: string | null;
   ritualActive: boolean;
   surge: boolean;
-  terrainHint: string | null; gateOpen: boolean; hero: Hero;
+  moonflowRemaining: number;
+  terrainHint: string | null; markedFieldName: string | null; gateOpen: boolean; hero: Hero;
   map: { x: number; y: number; objects: { x: number; y: number; kind: ObjectKind; active: boolean }[]; enemies: { x: number; y: number; kind: EnemyKind }[] };
 }
 export interface RunResult { won: boolean; kills: number; seconds: number; level: number; hero: Hero; region: number; weapons: Weapon[]; metrics: RunMetrics }
@@ -111,6 +113,10 @@ export class GroveScene extends Phaser.Scene {
   private slowed = false;
   private waylightAmbush = false;
   private ritualClock = 0;
+  private moonflowRemaining = 0;
+  private markedField: WorldObject | null = null;
+  private fieldMarker: Phaser.GameObjects.Arc | null = null;
+  private tapStart: { id: number; x: number; y: number; at: number } | null = null;
   private surgeAnnounced = false;
   private lanceIntroduced = false;
   private waylightRoute: { start: { x: number; y: number }; goal: { x: number; y: number } } | null = null;
@@ -136,7 +142,7 @@ export class GroveScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.hero, true, 0.14, 0.14);
     this.joystickBase = this.add.circle(0, 0, 53, 0xe9e6c6, 0.13).setStrokeStyle(2, 0xf9f0cf, 0.55).setScrollFactor(0).setDepth(100).setVisible(false);
     this.joystickNub = this.add.circle(0, 0, 23, 0xf8e8b0, 0.45).setStrokeStyle(2, 0xffffff, 0.7).setScrollFactor(0).setDepth(101).setVisible(false);
-    this.keys = this.input.keyboard?.addKeys('W,A,S,D,SPACE') as Record<string, Phaser.Input.Keyboard.Key>;
+    this.keys = this.input.keyboard?.addKeys('W,A,S,D,F,SPACE') as Record<string, Phaser.Input.Keyboard.Key>;
     this.cursors = this.input.keyboard?.createCursorKeys() as Phaser.Types.Input.Keyboard.CursorKeys;
     this.input.on('pointerdown', this.handlePointerDown, this);
     this.input.on('pointermove', this.handlePointerMove, this);
@@ -199,8 +205,13 @@ export class GroveScene extends Phaser.Scene {
       .setPosition(snapshot.x, snapshot.y).setAlpha(1).setDisplaySize(93, 116);
     this.waylightAmbush = snapshot.waylightAmbush ?? false;
     this.ritualClock = snapshot.ritualClock ?? 0;
+    this.moonflowRemaining = snapshot.moonflowRemaining ?? 0;
     this.drawRegion();
     snapshot.objects.forEach(object => this.spawnObject(object.kind, object.x, object.y, object.hp, object.maxHp, object.active));
+    if (snapshot.markedFieldIndex !== undefined) {
+      const field = this.objects[snapshot.markedFieldIndex];
+      if (field?.active && this.isTerrainField(field)) this.markField(field, false);
+    }
     snapshot.enemies.forEach(enemy => this.spawnEnemy(enemy.kind, { x: enemy.x, y: enemy.y }, enemy));
     snapshot.orbs.forEach(orb => this.spawnOrb(orb.x, orb.y, orb.value));
     snapshot.caches.forEach(cache => this.spawnCache(cache.stat, cache.x, cache.y));
@@ -265,6 +276,7 @@ export class GroveScene extends Phaser.Scene {
   endRunEarly(): void {
     this.pausedByUser = false; this.running = false; this.releaseJoystick(); clearRunSnapshot();
     for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); }
+    this.clearFieldMark();
   }
 
   // Localhost-only QA controls are wired in main.ts when ?debug=1 is present.
@@ -301,6 +313,8 @@ export class GroveScene extends Phaser.Scene {
     this.spawnEnemy('brute', { x: target.x - 30, y: target.y });
     const enemy = this.enemies[this.enemies.length - 1];
     enemy.hp = 5000; enemy.maxHp = 5000; enemy.speed = 0; enemy.damage = 0;
+    this.stats.maxHealth = 500; this.health = 500;
+    for (const weapon of this.weapons) weapon.cooldown = 20;
     this.publishHud(); this.saveSnapshot();
   }
 
@@ -308,6 +322,11 @@ export class GroveScene extends Phaser.Scene {
     if (!this.running || this.choosing) return;
     const target = this.objects.find(object => (object.kind === 'bramble' || object.kind === 'ore' || object.kind === 'moonstone') && object.active);
     if (target) this.hitObject(target, target.hp);
+  }
+  debugMarkTerrain(): void {
+    if (!this.running || this.choosing) return;
+    const target = this.objects.find(object => this.isTerrainField(object) && object.active);
+    if (target) this.markField(target, true);
   }
 
   debugMaxBuild(): void {
@@ -465,6 +484,7 @@ export class GroveScene extends Phaser.Scene {
     const dt = Math.min(deltaMs / 1000, 0.05);
     this.seconds += dt; this.stageSeconds += dt;
     this.invulnerability = Math.max(0, this.invulnerability - dt);
+    this.moonflowRemaining = Math.max(0, this.moonflowRemaining - dt);
     this.attackPose = Math.max(0, this.attackPose - dt);
     this.specialCooldown = Math.max(0, this.specialCooldown - dt);
     this.health = Math.min(this.stats.maxHealth, this.health + this.stats.regen * dt);
@@ -478,6 +498,13 @@ export class GroveScene extends Phaser.Scene {
     this.updateOrbs(dt);
     this.updateCaches();
     this.updateSpawns(dt);
+    if (this.keys?.F && Phaser.Input.Keyboard.JustDown(this.keys.F)) {
+      const field = this.objects.filter(object => this.isTerrainField(object) && object.active && object.hp > 0
+        && this.distance(this.hero.x, this.hero.y, object.x, object.y) < 300)
+        .sort((a, b) => this.distance(this.hero.x, this.hero.y, a.x, a.y)
+          - this.distance(this.hero.x, this.hero.y, b.x, b.y))[0];
+      if (field) this.toggleFieldMark(field);
+    }
     for (const weapon of this.weapons) {
       weapon.cooldown -= dt;
       if (weapon.cooldown <= 0) this.autoAttack(weapon);
@@ -496,6 +523,7 @@ export class GroveScene extends Phaser.Scene {
   private startRegion(): void {
     this.clearRunObjects();
     this.stageSeconds = 0; this.spawnClock = 0; this.cacheClock = 0;
+    this.moonflowRemaining = 0;
     this.gatekeeperSpawned = false; this.bossSpawned = false;
     this.waylightAmbush = false;
     this.ritualClock = 0;
@@ -586,6 +614,7 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private clearRunObjects(): void {
+    this.clearFieldMark();
     this.clearEnemies();
     for (const object of this.objects) object.view.destroy();
     for (const orb of this.orbs) orb.view.destroy();
@@ -599,6 +628,36 @@ export class GroveScene extends Phaser.Scene {
     this.enemies = [];
   }
 
+  private isTerrainField(object: WorldObject): boolean {
+    return object.kind === 'bramble' || object.kind === 'ore' || object.kind === 'moonstone';
+  }
+
+  private clearFieldMark(): void {
+    if (this.fieldMarker) { this.tweens.killTweensOf(this.fieldMarker); this.fieldMarker.destroy(); }
+    this.fieldMarker = null; this.markedField = null;
+  }
+
+  private markField(field: WorldObject, announce: boolean): void {
+    this.clearFieldMark();
+    this.markedField = field;
+    this.fieldMarker = this.add.circle(field.x, field.y, 70, 0xffe6a5, 0.055)
+      .setStrokeStyle(5, 0xffe6a5, 0.98).setDepth(6);
+    if (!this.reducedEffects) this.tweens.add({ targets: this.fieldMarker, scale: 1.12,
+      alpha: 0.64, yoyo: true, repeat: -1, duration: 580 });
+    if (announce) {
+      const burst = terrainRupture(field.kind as TerrainKind);
+      this.callbacks.onEvent(`TARGET ${objectiveName(field.kind).toUpperCase()} — ${burst.name} ON BREAK`);
+      this.floatText('TARGET LOCK', field.x, field.y - 78, '#ffe6a5');
+      this.saveSnapshot();
+    }
+  }
+
+  private toggleFieldMark(field: WorldObject): void {
+    if (this.markedField === field) {
+      this.clearFieldMark(); this.callbacks.onEvent('FIELD TARGET CLEARED'); this.saveSnapshot();
+    } else this.markField(field, true);
+  }
+
   private moveHero(dt: number): void {
     let dx = this.joyVector.x; let dy = this.joyVector.y;
     if (this.keys?.A?.isDown || this.cursors?.left?.isDown) dx -= 1;
@@ -609,7 +668,7 @@ export class GroveScene extends Phaser.Scene {
     this.moveDirection.set(length > 0.03 ? dx / length : 0, length > 0.03 ? dy / length : 0);
     const attackKick = this.attackPose > 0 ? Math.sin(this.attackPose / 0.16 * Math.PI) : 0;
     if (length > 0.03) {
-      const speed = this.stats.speed * (this.slowed ? 0.68 : 1);
+      const speed = this.stats.speed * (this.slowed ? 0.68 : 1) * (this.moonflowRemaining > 0 ? 1.28 : 1);
       this.hero.x = Phaser.Math.Clamp(this.hero.x + dx / Math.max(1, length) * speed * dt, 42, WORLD - 42);
       this.hero.y = Phaser.Math.Clamp(this.hero.y + dy / Math.max(1, length) * speed * dt, 42, WORLD - 42);
       if (dx !== 0) this.hero.setFlipX(dx < 0);
@@ -730,12 +789,14 @@ export class GroveScene extends Phaser.Scene {
       damage: values.damage + (kind === 'boss' ? phase * 3 : 0),
       radius: values.radius, phase, pendingDamage: 0, damageClock: 0,
       burnRemaining: saved?.burnRemaining ?? 0, burnTickClock: saved?.burnTickClock ?? 0,
-      burnDamage: saved?.burnDamage ?? 0, burnSource: saved?.burnSource, strike, lance });
+      burnDamage: saved?.burnDamage ?? 0, burnSource: saved?.burnSource,
+      tangleRemaining: saved?.tangleRemaining ?? 0, strike, lance });
   }
 
   private updateEnemies(dt: number): void {
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const enemy = this.enemies[i];
+      enemy.tangleRemaining = Math.max(0, enemy.tangleRemaining - dt);
       if (enemy.burnRemaining > 0) {
         enemy.burnRemaining = Math.max(0, enemy.burnRemaining - dt);
         enemy.burnTickClock -= dt;
@@ -750,7 +811,8 @@ export class GroveScene extends Phaser.Scene {
       const distance = Math.max(1, Math.hypot(dx, dy));
       if (distance > enemy.radius + 16 && !(enemy.lance && enemy.lance.windup > 0)) {
         const weave = enemy.kind === 'wisp' ? Math.sin(this.seconds * 7 + enemy.phase) * 0.32 : 0;
-        const fieldSpeed = enemyFieldModifiers(enemy.sprite.x, enemy.sprite.y, this.objects).speed;
+        const fieldSpeed = enemyFieldModifiers(enemy.sprite.x, enemy.sprite.y, this.objects).speed
+          * (enemy.tangleRemaining > 0 ? enemy.kind === 'boss' || enemy.kind === 'gatekeeper' ? 0.55 : 0.22 : 1);
         enemy.sprite.x += (dx / distance - dy / distance * weave) * enemy.speed * fieldSpeed * dt;
         enemy.sprite.y += (dy / distance + dx / distance * weave) * enemy.speed * fieldSpeed * dt;
       } else if (distance <= enemy.radius + 16 && this.invulnerability <= 0) this.takeDamage(enemy.damage);
@@ -874,8 +936,12 @@ export class GroveScene extends Phaser.Scene {
     const targetObjects = this.objects.filter(candidate => candidate.active && candidate.hp > 0
       && candidate.kind !== 'pump' && candidate.kind !== 'waylight'
       && !(candidate.kind === 'altar' && candidate.maxHp <= 6));
-    const selection = chooseAutoTarget({ x: this.hero.x, y: this.hero.y }, range,
-      this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })), targetObjects);
+    const markedIndex = this.markedField?.active && this.markedField.hp > 0
+      && this.distance(this.hero.x, this.hero.y, this.markedField.x, this.markedField.y) < range
+      ? targetObjects.indexOf(this.markedField) : -1;
+    const selection = markedIndex >= 0 ? { kind: 'object' as const, index: markedIndex }
+      : chooseAutoTarget({ x: this.hero.x, y: this.hero.y }, range,
+        this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })), targetObjects);
     const target: Enemy | null = selection?.kind === 'enemy' ? this.enemies[selection.index] : null;
     const object: WorldObject | null = selection?.kind === 'object' ? targetObjects[selection.index] : null;
     if (!target && !object) { weapon.cooldown = 0.12; return; }
@@ -1091,6 +1157,7 @@ export class GroveScene extends Phaser.Scene {
 
   private completeObject(object: WorldObject): void {
     object.hp = 0;
+    if (this.markedField === object) this.clearFieldMark();
     if (object.kind === 'pump') {
       soundFx.play('ward');
       this.floatText('PUMP DRAINED', object.x, object.y - 57, '#b8f4ee');
@@ -1135,10 +1202,38 @@ export class GroveScene extends Phaser.Scene {
     } else if (object.kind === 'bramble' || object.kind === 'ore' || object.kind === 'moonstone') {
       const reward: Stat = object.kind === 'bramble' ? 'speed' : object.kind === 'ore' ? 'attack' : 'reach';
       this.metrics.terrain = (this.metrics.terrain ?? 0) + 1;
+      this.triggerTerrainRupture(object, object.kind);
       this.spawnCache(reward, object.x, object.y);
-      this.callbacks.onEvent(`${objectiveName(object.kind)} CLEARED · ${STAT_INFO[reward].name.toUpperCase()} CACHE`);
+      this.callbacks.onEvent(`${terrainRupture(object.kind).name} · ${STAT_INFO[reward].name.toUpperCase()} CACHE`);
     }
     this.publishHud(); this.saveSnapshot();
+  }
+
+  private triggerTerrainRupture(object: WorldObject, kind: TerrainKind): void {
+    const effect = terrainRupture(kind);
+    const color = kind === 'bramble' ? 0xc1eb9b : kind === 'ore' ? 0xffb068 : 0xc9b7ff;
+    const pulse = this.add.circle(object.x, object.y, 30, color, 0.18)
+      .setStrokeStyle(8, color, 0.96).setDepth(7);
+    this.tweens.add({ targets: pulse, scale: effect.radius / 30, alpha: 0,
+      duration: this.reducedEffects ? 180 : 420, onComplete: () => pulse.destroy() });
+    this.floatText(effect.name, object.x, object.y - 76, Phaser.Display.Color.IntegerToColor(color).rgba);
+    if (effect.moonflowSeconds > 0) {
+      this.moonflowRemaining = Math.max(this.moonflowRemaining, effect.moonflowSeconds);
+      this.floatText('SPEED +28% · 6s', this.hero.x, this.hero.y - 69, '#d9cbff');
+    }
+    for (const enemy of [...this.enemies]) {
+      if (!this.enemies.includes(enemy) || this.distance(enemy.sprite.x, enemy.sprite.y, object.x, object.y) > effect.radius) continue;
+      if (effect.tangleSeconds > 0) {
+        enemy.tangleRemaining = Math.max(enemy.tangleRemaining, effect.tangleSeconds);
+        if (enemy.lance) {
+          enemy.lance.marker?.destroy(); enemy.lance.marker = undefined;
+          enemy.lance.windup = 0;
+          enemy.lance.cooldown = Math.max(enemy.lance.cooldown, effect.tangleSeconds);
+        }
+      }
+      this.hitEnemy(enemy, effect.damage, true);
+      if (!this.running) break;
+    }
   }
 
   private requiredLeft(): number { return objectivesLeft(this.region, this.objects); }
@@ -1341,6 +1436,7 @@ export class GroveScene extends Phaser.Scene {
     this.metrics.regionSeconds[this.region] = this.stageSeconds;
     this.running = false; this.releaseJoystick(); clearRunSnapshot();
     for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); }
+    this.clearFieldMark();
     if (won) soundFx.play('victory');
     if (won) this.tweens.add({ targets: this.hero, scaleX: 0.44, scaleY: 0.44, yoyo: true, duration: 250 });
     else this.tweens.add({ targets: this.hero, angle: 80, alpha: 0.28, duration: 370, ease: 'Cubic.Out' });
@@ -1367,6 +1463,7 @@ export class GroveScene extends Phaser.Scene {
       objectivesLeft: this.requiredLeft(), objectiveName: currentObjective?.kind ?? null,
       ritualActive: currentObjective?.kind === 'altar' && currentObjective.maxHp <= 6,
       surge: wildSurge(this.region, this.stageSeconds, REGIONS[this.region].duration),
+      moonflowRemaining: this.moonflowRemaining,
       stepTargetsLeft: this.objects.filter(object => object.kind === currentObjective?.kind && object.hp > 0).length,
       stepProgress: currentObjective?.kind === 'pump'
         ? Math.min(4, Math.floor((1 - currentObjective.hp / currentObjective.maxHp) * 4))
@@ -1374,9 +1471,8 @@ export class GroveScene extends Phaser.Scene {
           ? Math.round(waylightProgress(this.waylightRoute.start, this.waylightRoute.goal, currentObjective) * 100)
           : currentObjective?.kind === 'altar' && currentObjective.maxHp <= 6
             ? currentObjective.maxHp - currentObjective.hp : 0,
-      terrainHint: nearbyTerrain?.kind === 'bramble' ? 'BRAMBLES SLOW BOTH SIDES'
-        : nearbyTerrain?.kind === 'ore' ? 'ORE ARMORS FOES'
-          : nearbyTerrain?.kind === 'moonstone' ? 'MOONSTONE HASTES FOES' : null,
+      terrainHint: nearbyTerrain ? terrainRupture(nearbyTerrain.kind as TerrainKind).hint : null,
+      markedFieldName: this.markedField?.active ? objectiveName(this.markedField.kind) : null,
       gateOpen: this.objects.some(object => object.kind === 'gate' && object.active), hero: this.heroId,
       map: {
         x: this.hero.x, y: this.hero.y,
@@ -1402,10 +1498,13 @@ export class GroveScene extends Phaser.Scene {
       gatekeeperSpawned: this.gatekeeperSpawned, bossSpawned: this.bossSpawned,
       waylightAmbush: this.waylightAmbush,
       ritualClock: this.ritualClock,
+      moonflowRemaining: this.moonflowRemaining,
+      markedFieldIndex: this.markedField ? this.objects.indexOf(this.markedField) : undefined,
       choosing: this.choosing, upgradeOptions: [...this.upgradeOptions],
       enemies: this.enemies.map(enemy => ({ kind: enemy.kind, x: enemy.sprite.x, y: enemy.sprite.y,
         hp: enemy.hp, maxHp: enemy.maxHp, phase: enemy.phase,
         burnRemaining: enemy.burnRemaining, burnTickClock: enemy.burnTickClock, burnDamage: enemy.burnDamage,
+        tangleRemaining: enemy.tangleRemaining,
         burnSource: enemy.burnSource,
         bossStrike: enemy.strike ? { cooldown: enemy.strike.cooldown, windup: enemy.strike.windup,
           x: enemy.strike.x, y: enemy.strike.y, radius: enemy.strike.radius } : undefined,
@@ -1422,6 +1521,7 @@ export class GroveScene extends Phaser.Scene {
 
   private handlePointerDown(pointer: Phaser.Input.Pointer): void {
     if (!this.running || this.choosing || this.pausedByUser || this.joyPointer !== null) return;
+    this.tapStart = { id: pointer.id, x: pointer.x, y: pointer.y, at: this.time.now };
     this.joyPointer = pointer.id; this.joyOrigin.set(pointer.x, pointer.y);
     this.joystickBase.setPosition(pointer.x, pointer.y).setVisible(true);
     this.joystickNub.setPosition(pointer.x, pointer.y).setVisible(true);
@@ -1433,9 +1533,20 @@ export class GroveScene extends Phaser.Scene {
     this.joyVector.set(length > 0 ? dx / length * fraction : 0, length > 0 ? dy / length * fraction : 0);
     this.joystickNub.setPosition(this.joyOrigin.x + this.joyVector.x * 47, this.joyOrigin.y + this.joyVector.y * 47);
   }
-  private handlePointerUp(pointer: Phaser.Input.Pointer): void { if (pointer.id === this.joyPointer) this.releaseJoystick(); }
+  private handlePointerUp(pointer: Phaser.Input.Pointer): void {
+    if (pointer.id !== this.joyPointer) return;
+    const tap = this.tapStart;
+    const wasTap = tap?.id === pointer.id && Math.hypot(pointer.x - tap.x, pointer.y - tap.y) < 20
+      && this.time.now - tap.at < 360;
+    this.releaseJoystick();
+    if (!wasTap || !this.running || this.choosing || this.pausedByUser) return;
+    const field = this.objects.find(object => this.isTerrainField(object) && object.active && object.hp > 0
+      && this.distance(pointer.worldX, pointer.worldY, object.x, object.y) < 76);
+    if (!field) return;
+    this.toggleFieldMark(field);
+  }
   private releaseJoystick(): void {
-    this.joyPointer = null; this.joyVector.set(0, 0);
+    this.joyPointer = null; this.tapStart = null; this.joyVector.set(0, 0);
     this.joystickBase?.setVisible(false); this.joystickNub?.setVisible(false);
   }
 }

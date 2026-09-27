@@ -115,6 +115,13 @@ describe('run progression', () => {
     expect(parseRunSnapshot({ ...lancing, enemies: [{ ...lancing.enemies[0],
       wispLance: { ...lancing.enemies[0].wispLance, windup: -1 } }] })).toBeNull();
     expect(parseRunSnapshot({ ...lancing, enemies: [{ ...lancing.enemies[0], kind: 'gnarl' }] })).toBeNull();
+    const terrainTactic = { ...snapshot, region: 1, moonflowRemaining: 4.5, markedFieldIndex: 1,
+      enemies: [{ ...snapshot.enemies[0], tangleRemaining: 2.2 }],
+      objects: [...snapshot.objects, { kind: 'ore' as const, x: 750, y: 900, hp: 90, maxHp: 200, active: true }] };
+    expect(parseRunSnapshot(terrainTactic)?.markedFieldIndex).toBe(1);
+    expect(parseRunSnapshot(terrainTactic)?.enemies[0].tangleRemaining).toBe(2.2);
+    expect(parseRunSnapshot({ ...terrainTactic, moonflowRemaining: -1 })).toBeNull();
+    expect(parseRunSnapshot({ ...terrainTactic, enemies: [{ ...terrainTactic.enemies[0], tangleRemaining: 20 }] })).toBeNull();
     const { hazards: _oldHazards, ...oldMetrics } = snapshot.metrics;
     expect(parseRunSnapshot({ ...snapshot, metrics: oldMetrics })?.metrics.hazards).toBe(0);
     const withHazards = { ...snapshot, objects: [{ kind: 'vent', x: 850, y: 780, hp: 20, maxHp: 180, active: true }],

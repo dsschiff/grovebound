@@ -78,7 +78,7 @@ root.innerHTML = `
         <div class="setting-pair"><label class="setting-row"><input id="reduced-effects" type="checkbox" /> Reduced effects</label><label class="setting-row"><input id="muted" type="checkbox" /> Mute sound</label><label id="auto-special-row" class="setting-row hidden"><input id="auto-special" type="checkbox" /> Auto special</label></div>
         <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span>➜</span></button>
         <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span>➜</span></button>
-        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />KEYBOARD: WASD OR ARROWS TO MOVE <span>✧</span> SPACE FOR SPECIAL</p>
+        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP A FIELD TO TARGET ITS BURST<br />KEYBOARD: WASD/ARROWS TO MOVE <span>✧</span> SPACE SPECIAL <span>✧</span> F TARGET</p>
         <div class="best-line" id="best-line"></div>
         <a class="hub-link" href="https://dsschiff.github.io/games/">ALL GAMES ↗</a>
       </div>
@@ -275,7 +275,10 @@ function updateHud(hud: HudState): void {
   el<HTMLElement>('#health-fill').style.width = `${Math.max(0, hud.health / hud.maxHealth * 100)}%`;
   el<HTMLElement>('#xp-fill').style.width = `${Math.max(0, hud.xp / hud.xpNeeded * 100)}%`;
   el('#kills').textContent = `${hud.kills} VANQUISHED`;
-  el('#ability-name').textContent = hud.terrainHint
+  el('#ability-name').textContent = hud.moonflowRemaining > 0
+    ? `MOONFLOW · SPEED +28% · ${Math.ceil(hud.moonflowRemaining)}s`
+    : hud.markedFieldName ? `TARGETING ${hud.markedFieldName.toUpperCase()} · BREAK FOR BURST`
+    : hud.terrainHint
     ?? `FOCUS ${WEAPON_INFO[hud.focusedWeapon].name.toUpperCase()} · ${WEAPON_FOCUS[hud.focusedWeapon].toUpperCase()}`;
   el('#timer').textContent = formatTime(hud.seconds);
   const region = REGIONS[hud.region];
@@ -381,7 +384,7 @@ function onEnd(result: RunResult): void {
   const highestWeapon = Math.max(1, ...result.weapons.map(weapon => weaponDamage[weapon]));
   const rows = result.weapons.map(weapon => `<div class="weapon-report-row"><img src="${weaponArt(weapon)}" alt=""/><span>${WEAPON_INFO[weapon].name}</span><div class="weapon-report-track"><i style="width:${Math.max(2, weaponDamage[weapon] / highestWeapon * 100)}%;background:${WEAPON_INFO[weapon].color}"></i></div><strong>${Math.round(weaponDamage[weapon]).toLocaleString()}</strong></div>`);
   const otherDamage = Math.max(0, result.metrics.foeDamage - Object.values(weaponDamage).reduce((total, value) => total + value, 0));
-  if (otherDamage > 0) rows.push(`<div class="weapon-report-row other"><span>SPECIAL + PET</span><strong>${Math.round(otherDamage).toLocaleString()}</strong></div>`);
+  if (otherDamage > 0) rows.push(`<div class="weapon-report-row other"><span>SPECIAL + PET + FIELD</span><strong>${Math.round(otherDamage).toLocaleString()}</strong></div>`);
   el('#result-weapons').innerHTML = rows.join('');
   el('#result-regions').innerHTML = REGIONS.map((region, index) => `<div><span>${region.short}</span><strong>${result.metrics.regionSeconds[index] === null ? '—' : formatTime(result.metrics.regionSeconds[index]!)}</strong></div>`).join('');
   el('#result-seeds').textContent = `+${earned} ✦`;
@@ -467,7 +470,7 @@ if (new URLSearchParams(location.search).has('debug')) {
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const controls = document.createElement('div');
     controls.className = 'debug-controls';
-    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="growth">GROWTH CARD</button><button data-debug="build">MAX BUILD</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="terrain">INSPECT FIELD</button><button data-debug="clear-terrain">CLEAR FIELD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="wisp">WISP LANCE</button><button data-debug="heal">HEAL</button>';
+    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="growth">GROWTH CARD</button><button data-debug="build">MAX BUILD</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="terrain">INSPECT FIELD</button><button data-debug="mark-field">TARGET FIELD</button><button data-debug="clear-terrain">CLEAR FIELD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="wisp">WISP LANCE</button><button data-debug="heal">HEAL</button>';
     el('#ui').append(controls);
     controls.querySelectorAll<HTMLButtonElement>('button').forEach(button => button.addEventListener('click', () => {
       if (button.dataset.debug === 'pilot') {
@@ -481,6 +484,7 @@ if (new URLSearchParams(location.search).has('debug')) {
       if (button.dataset.debug === 'hazard') scene.debugApproachHazard();
       if (button.dataset.debug === 'shatter') scene.debugShatterHazard();
       if (button.dataset.debug === 'terrain') scene.debugInspectTerrain();
+      if (button.dataset.debug === 'mark-field') scene.debugMarkTerrain();
       if (button.dataset.debug === 'clear-terrain') scene.debugClearTerrain();
       if (button.dataset.debug === 'advance') scene.debugAdvanceRegion();
       if (button.dataset.debug === 'boss') scene.debugSummonBoss();

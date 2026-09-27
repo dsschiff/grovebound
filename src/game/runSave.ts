@@ -6,6 +6,7 @@ export interface EnemySave {
   kind: 'gnarl' | 'wisp' | 'brute' | 'gatekeeper' | 'boss';
   x: number; y: number; hp: number; maxHp: number; phase: number;
   burnRemaining?: number; burnTickClock?: number; burnDamage?: number; burnSource?: Weapon;
+  tangleRemaining?: number;
   bossStrike?: { cooldown: number; windup: number; x: number; y: number; radius: number };
   wispLance?: WispLanceState;
 }
@@ -44,6 +45,7 @@ export interface RunSnapshot {
   gatekeeperSpawned: boolean; bossSpawned: boolean; choosing: boolean; upgradeOptions: Upgrade[];
   waylightAmbush?: boolean;
   ritualClock?: number;
+  moonflowRemaining?: number; markedFieldIndex?: number;
   enemies: EnemySave[]; objects: ObjectSave[];
   orbs: { x: number; y: number; value: number }[];
   caches: { x: number; y: number; stat: Stat }[];
@@ -86,6 +88,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
       && (enemy.burnRemaining === undefined || finite(enemy.burnRemaining, 0, 10))
       && (enemy.burnTickClock === undefined || finite(enemy.burnTickClock, 0, 2))
       && (enemy.burnDamage === undefined || finite(enemy.burnDamage, 0, 200))
+      && (enemy.tangleRemaining === undefined || finite(enemy.tangleRemaining, 0, 6))
       && (enemy.burnSource === undefined || WEAPONS.includes(enemy.burnSource))
       && (enemy.bossStrike === undefined || (enemy.kind === 'boss'
         && typeof enemy.bossStrike === 'object' && enemy.bossStrike !== null
@@ -99,6 +102,8 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
         && finite(enemy.wispLance.toX, 0, 1800) && finite(enemy.wispLance.toY, 0, 1800))))
     || (run.waylightAmbush !== undefined && typeof run.waylightAmbush !== 'boolean')
     || (run.ritualClock !== undefined && !finite(run.ritualClock, 0, 10))
+    || (run.moonflowRemaining !== undefined && !finite(run.moonflowRemaining, 0, 8))
+    || (run.markedFieldIndex !== undefined && !finite(run.markedFieldIndex, 0, 11))
     || !Array.isArray(run.objects) || run.objects.length > 12 || !run.objects.every(object =>
       ['ward', 'waylight', 'pump', 'forge', 'altar', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
       && finite(object.y, 0, 1800) && finite(object.hp, 0, 10000) && finite(object.maxHp, 0, 10000)
