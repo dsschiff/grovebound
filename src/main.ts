@@ -103,9 +103,10 @@ root.innerHTML = `
         <div class="kit-panel"><div class="panel-heading"><span>CHOOSE A FIELD KIT</span><span>ONE PER RUN</span></div><div id="kit-options" class="kit-options"></div><div id="kit-hint" class="kit-hint"></div></div>
         <div class="contract-panel"><div class="panel-heading"><span>CHOOSE YOUR VERGE MISSION</span><span>REGION 1/3</span></div><div id="contract-options" class="contract-options"></div></div>
         <div class="setting-pair"><label class="setting-row"><input id="reduced-effects" type="checkbox" /> Reduced effects</label><label class="setting-row"><input id="muted" type="checkbox" /> Mute sound</label><label id="auto-special-row" class="setting-row hidden"><input id="auto-special" type="checkbox" /> Auto special</label></div>
+        <p id="legacy-run-note" class="legacy-run-note hidden">Your saved run uses the older wardstone mission. Start a new mission to play Escort, Defend, or Hunt.</p>
         <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span>➜</span></button>
         <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span>➜</span></button>
-        <p class="instruction">DRAG TO MOVE <span>✧</span> BOTH WEAPONS AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP A WEAPON SLOT TO FIRE ITS COMMAND · CHAIN TWO FOR A RESONANCE<br />BREAK GLOWING TERRAIN FOR A STAT CACHE + COMMAND REFILL · KEYS 1–3 FIRE SLOTS</p>
+        <p class="instruction">DRAG TO MOVE <span>✧</span> BOTH WEAPONS AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP A WEAPON SLOT TO FIRE ITS COMMAND · CHAIN TWO FOR A RESONANCE<br />MINE GLOWING TERRAIN FOR A STAT CACHE + COMMAND REFILL · KEYS 1–3 FIRE SLOTS</p>
         <div class="best-line" id="best-line"></div>
         <a class="hub-link" href="https://dsschiff.github.io/games/">ALL GAMES ↗</a>
       </div>
@@ -253,7 +254,12 @@ function refreshMenu(): void {
   el<HTMLInputElement>('#auto-special').checked = progress.autoSpecialEnabled;
   show('#auto-special-row', rank >= 5);
   soundFx.enabled = !progress.muted;
-  show('#resume-run-button', readRunSnapshot() !== null);
+  const savedRun = readRunSnapshot();
+  const oldMission = savedRun?.objects.some(object => object.kind === 'ward') ?? false;
+  show('#resume-run-button', savedRun !== null);
+  show('#legacy-run-note', oldMission);
+  el('#resume-run-button').innerHTML = `${oldMission ? 'RESUME OLDER RUN' : 'RESUME SAVED RUN'} <span>➜</span>`;
+  el('#start-button').innerHTML = `${oldMission ? 'START NEW MISSION' : 'ENTER THE GROVE'} <span>➜</span>`;
   el('#best-line').textContent = progress.bestKills > 0
     ? `BEST RUN · ${progress.bestKills} VANQUISHED · ${formatTime(progress.bestSeconds)} · REGION ${Math.max(1, progress.bestRegion)}`
     : 'YOUR STORY BEGINS HERE';

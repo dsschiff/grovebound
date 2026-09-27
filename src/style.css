@@ -223,6 +223,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .field-button i{position:absolute;left:0;bottom:0;height:4px;background:#b8eba0;box-shadow:0 0 9px #c9f7a1}
 .field-button.ore{border-color:#ffc18a}.field-button.ore i{background:#ffad6d}.field-button.moonstone{border-color:#d8c7ff}.field-button.moonstone i{background:#d5b4ff}
 .field-button:active{transform:scale(.97)}
+.legacy-run-note{margin:10px 2px 0;padding:8px 10px;border:1px solid #efca8ba8;border-radius:8px;background:#553f2cba;color:#fff0c7;font-size:10px;line-height:1.35;font-weight:700;text-align:center}
 .loadout-heading{align-items:baseline}.loadout-heading strong{font-size:11px}.loadout-heading span{font-size:8px}
 .weapon-slot.ready{border-color:#ffe1a1;box-shadow:0 0 0 1px #ffe1a172,0 0 18px #f6d38878,0 5px 10px #0928209c}
 .weapon-slot.ready .command-status{background:#a66e34b5;color:#fff8dc;border-color:#ffe3a7;font-weight:900}
