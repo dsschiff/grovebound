@@ -7,6 +7,7 @@
 - Local browser checks at 390 × 844 showed TANGLED inside brambles, armor and haste rings around foes in the other two fields, and the Moonstone clear event revealing a Far Reach cache. Unit tests cover deterministic placement, active/inactive effects, and old-save migration.
 - A fresh mastery-2 Ember pilot won on the ordinary timer in 10:37 without stage skips or healing controls. Region splits were 3:00, 3:31, and 4:04. It cleared all seven required objectives, five optional terrain fields, and four hazards, then defeated the Briar King. The result recorded 444 kills, 22,410 foe damage, 3,755 object damage, 79 damage taken, and eight seeds. Browser error logs were empty. At 320 × 568, the expanded result panel remained scrollable. This validates one automated route, not human difficulty or Android performance.
 - Twenty Vitest cases and the Pages production build passed. The staged site is 2,087,767 bytes, below the 5 MB initial-transfer target.
+- Source and Pages build landed at `566b50b420f2558a3ecd361e92144da866380894` on `origin/main`. GitHub Pages reported `built` for that commit; the live URL served `/grovebound/assets/index-CSnSBYeD.js` with the start button enabled and no browser errors.
 
 ## 2026-09-26 — Expansion started
 
