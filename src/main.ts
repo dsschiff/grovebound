@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
 import { GroveScene, type HudState, type RunResult } from './game/GroveScene';
 import {
-  HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_COMMAND, WEAPON_FOCUS, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS,
-  addRunToProgress, availableHero, availableWeapon, masteryRank, readProgress,
+  CAMP_KITS, CAMP_KIT_INFO, HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_COMMAND, WEAPON_FOCUS, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS,
+  addRunToProgress, availableHero, availableWeapon, chooseCampKit, masteryRank, readProgress,
   saveProgress, seedsForRun, unlockThorns,
-  type Hero, type Upgrade, type Weapon,
+  type CampKit, type Hero, type Upgrade, type Weapon,
 } from './game/logic';
 import { emptyWeaponDamage, readRunSnapshot } from './game/runSave';
 import { soundFx } from './game/audio';
@@ -88,6 +88,7 @@ root.innerHTML = `
           <button id="unlock-button" class="unlock-button hidden">UNLOCK THORN DART · 6 SEEDS</button>
           <button id="skin-button" class="skin-button hidden">USE GOLDEN SKIN</button>
         </div>
+        <div class="kit-panel"><div class="panel-heading"><span>CHOOSE A FIELD KIT</span><span>ONE PER RUN</span></div><div id="kit-options" class="kit-options"></div><div id="kit-hint" class="kit-hint"></div></div>
         <div class="contract-panel"><div class="panel-heading"><span>CHOOSE YOUR VERGE MISSION</span><span>REGION 1/3</span></div><div id="contract-options" class="contract-options"></div></div>
         <div class="setting-pair"><label class="setting-row"><input id="reduced-effects" type="checkbox" /> Reduced effects</label><label class="setting-row"><input id="muted" type="checkbox" /> Mute sound</label><label id="auto-special-row" class="setting-row hidden"><input id="auto-special" type="checkbox" /> Auto special</label></div>
         <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span>➜</span></button>
@@ -161,6 +162,25 @@ function refreshMenu(): void {
   el('#mastery-next').textContent = rank < 5
     ? `NEXT MASTERY: ${['GLOWFOX CHOICE', '+5 STARTING HP', 'GOLDEN HERO + WEAPON', 'THIRD WEAPON SLOT', 'AUTO SPECIAL'][rank]}`
     : 'MASTERY COMPLETE · AUTO SPECIAL AVAILABLE';
+  el('#kit-options').innerHTML = CAMP_KITS.map(kit => {
+    const info = CAMP_KIT_INFO[kit];
+    const unlocked = progress.unlockedKits.includes(kit);
+    const label = unlocked ? kit === progress.selectedKit ? 'EQUIPPED' : 'SELECT' : `UNLOCK · ✦${info.cost}`;
+    return `<button class="kit-option ${kit === progress.selectedKit ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-kit="${kit}" aria-pressed="${kit === progress.selectedKit}" aria-label="${info.name}. ${info.description} ${label}"><img src="${import.meta.env.BASE_URL}art/${info.art}" alt=""/><strong>${info.name}</strong><small>${label}</small></button>`;
+  }).join('');
+  el('#kit-hint').textContent = CAMP_KIT_INFO[progress.selectedKit].description.toUpperCase();
+  el('#kit-options').querySelectorAll<HTMLButtonElement>('[data-kit]').forEach(button => button.addEventListener('click', () => {
+    const kit = button.dataset.kit as CampKit;
+    const next = chooseCampKit(progress, kit);
+    if (next === progress) {
+      el('#kit-hint').textContent = `${CAMP_KIT_INFO[kit].description.toUpperCase()} · NEED ${CAMP_KIT_INFO[kit].cost} SEEDS`;
+      notify(`${CAMP_KIT_INFO[kit].name.toUpperCase()} NEEDS ${CAMP_KIT_INFO[kit].cost} SEEDS`); return;
+    }
+    const unlocked = !progress.unlockedKits.includes(kit);
+    progress = next; saveProgress(progress); refreshMenu();
+    if (unlocked) notify(`${CAMP_KIT_INFO[kit].name.toUpperCase()} KIT UNLOCKED`);
+    el<HTMLButtonElement>(`#kit-options [data-kit="${kit}"]`).focus({ preventScroll: true });
+  }));
   el('#contract-options').innerHTML = contractOrder.map(contract => {
     const info = contractInfo[contract];
     return `<button class="contract-option ${selectedContract === contract ? 'selected' : ''}" data-contract="${contract}" aria-pressed="${selectedContract === contract}"><img src="${import.meta.env.BASE_URL}art/${info.art}" alt=""/><span><small>${info.mode}</small><strong>${info.name}</strong></span></button>`;
@@ -488,7 +508,7 @@ function onEnd(result: RunResult): void {
   el('#result-copy').textContent = result.won
     ? 'The Briar King falls. A quieter dawn returns to the grove.'
     : `You reached ${REGIONS[Math.min(2, result.region)].name}. Each venture opens a new path.`;
-  el('#result-build').textContent = `${HERO_INFO[result.hero].name.toUpperCase()} · ${result.weapons.map(weapon => WEAPON_INFO[weapon].name.toUpperCase()).join(' + ')}`;
+  el('#result-build').textContent = `${HERO_INFO[result.hero].name.toUpperCase()} · ${CAMP_KIT_INFO[result.kit].name.toUpperCase()} KIT · ${result.weapons.map(weapon => WEAPON_INFO[weapon].name.toUpperCase()).join(' + ')}`;
   el('#result-kills').textContent = String(result.kills);
   el('#result-time').textContent = formatTime(result.seconds);
   el('#result-level').textContent = String(result.level);
@@ -534,7 +554,7 @@ function startRun(): void {
   const randomSeed = (Math.random() * 0xffffffff) >>> 0 || 1;
   const contractSeed = seedForVergeContract(randomSeed, selectedContract);
   scene.beginRun(selectedHero, selectedWeapon, rank, available, progress.reducedEffects, selectedSkin, progress.autoSpecialEnabled,
-    selectedSupport, localSeed || contractSeed, progress.heroLook);
+    selectedSupport, localSeed || contractSeed, progress.heroLook, progress.selectedKit);
   setModal(null);
 }
 el('#start-button').addEventListener('click', startRun);

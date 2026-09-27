@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   BASE_STATS, EMPTY_PROGRESS, LEGACY_SAVE_KEY, SAVE_KEY, Rng, addRunToProgress, availableHero, baseStatsFor, damageAfterDefense,
-  generateRegionLayout, masteryRank, parseProgress, readProgress, seedsForRun, unlockThorns, upgradeStat, xpToNextLevel,
+  chooseCampKit, generateRegionLayout, masteryRank, parseProgress, readProgress, seedsForRun, unlockThorns, upgradeStat, xpToNextLevel,
 } from '../src/game/logic';
 import { emptyRunMetrics, parseRunSnapshot, type RunSnapshot } from '../src/game/runSave';
 
@@ -40,11 +40,24 @@ describe('run progression', () => {
     expect(migrated.thornsUnlocked).toBe(true);
     expect(migrated.bestRegion).toBe(0);
     expect(migrated.mastery.warden).toBe(0);
+    expect(migrated.selectedKit).toBe('breaker');
+    expect(migrated.unlockedKits).toEqual(['breaker']);
+    expect(parseProgress({ unlockedKits: ['conductor'], selectedKit: 'forager' }).selectedKit).toBe('breaker');
+    expect(parseProgress({ unlockedKits: 9 }).unlockedKits).toEqual(['breaker']);
     expect(migrated.heroLook).toBe('wildkin');
     expect(parseProgress({ heroLook: 'classic' }).heroLook).toBe('classic');
     const earned = addRunToProgress(migrated, 40, 200, false, 'warden', 1);
     expect(availableHero(earned, 'ranger')).toBe(true);
     expect(masteryRank(earned.mastery.warden)).toBeGreaterThan(0);
+  });
+
+  it('spends seeds once to unlock a kit and lets later runs switch freely', () => {
+    const starting = { ...EMPTY_PROGRESS, seeds: 9 };
+    const conductor = chooseCampKit(starting, 'conductor');
+    expect(conductor).toMatchObject({ seeds: 1, selectedKit: 'conductor', unlockedKits: ['breaker', 'conductor'] });
+    expect(chooseCampKit(conductor, 'forager')).toBe(conductor);
+    expect(chooseCampKit(chooseCampKit(conductor, 'breaker'), 'conductor').seeds).toBe(1);
+    expect(parseProgress(conductor).selectedKit).toBe('conductor');
   });
 
   it('writes the migrated v2 save when only a v1 browser save exists', () => {
@@ -95,6 +108,8 @@ describe('run progression', () => {
     expect(parseRunSnapshot(JSON.parse(JSON.stringify(snapshot)))).toEqual(snapshot);
     expect(parseRunSnapshot({ ...snapshot, look: 'wildkin' })?.look).toBe('wildkin');
     expect(parseRunSnapshot({ ...snapshot, look: 'cartoon' })).toBeNull();
+    expect(parseRunSnapshot({ ...snapshot, kit: 'forager' })?.kit).toBe('forager');
+    expect(parseRunSnapshot({ ...snapshot, kit: 'unknown' })).toBeNull();
     const loadout = { ...snapshot, weapons: [{ id: 'axe' as const, rank: 1, cooldown: 0.3 },
       { id: 'bow' as const, rank: 2, cooldown: 0.1 }], weaponSlots: 2, focusedWeapon: 'bow' as const };
     expect(parseRunSnapshot(loadout)?.focusedWeapon).toBe('bow');
@@ -112,6 +127,7 @@ describe('run progression', () => {
     const chaining = { ...loadout, commandChain: { weapon: 'axe' as const, remaining: 2.6 },
       metrics: { ...loadout.metrics, resonances: 3 } };
     expect(parseRunSnapshot(chaining)?.commandChain).toEqual(chaining.commandChain);
+    expect(parseRunSnapshot({ ...chaining, kit: 'conductor', commandChain: { weapon: 'axe', remaining: 5.5 } })?.commandChain?.remaining).toBe(5.5);
     expect(parseRunSnapshot(chaining)?.metrics.resonances).toBe(3);
     expect(parseRunSnapshot({ ...chaining, commandChain: { weapon: 'staff', remaining: 2.6 } })).toBeNull();
     expect(parseRunSnapshot({ ...chaining, commandChain: { weapon: 'axe', remaining: 5 } })).toBeNull();

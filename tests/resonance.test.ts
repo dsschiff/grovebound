@@ -27,5 +27,6 @@ describe('weapon resonances', () => {
     expect(commandChainResult(waiting, 'bow')).toEqual({ chain: null, resonance: 'sunbreaker' });
     expect(commandChainResult(advanceCommandChain(first.chain, 4), 'bow').resonance).toBeNull();
     expect(commandChainResult(first.chain, 'axe').resonance).toBeNull();
+    expect(commandChainResult(null, 'axe', 6).chain?.remaining).toBe(6);
   });
 });

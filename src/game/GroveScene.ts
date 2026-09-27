@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import {
   HERO_INFO, REGIONS, STAT_INFO, STAT_KEYS, WEAPON_COMMAND, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS, WEAPON_RANK_UPGRADES, Rng, baseStatsFor, damageAfterDefense,
   generateRegionLayout, upgradeStat, xpToNextLevel,
-  type Hero, type Stat, type Stats, type Upgrade, type Weapon, type WeaponPath,
+  type CampKit, type Hero, type Stat, type Stats, type Upgrade, type Weapon, type WeaponPath,
 } from './logic';
 import { clearRunSnapshot, emptyRunMetrics, emptyWeaponDamage, saveRunSnapshot, type EnemySave, type ObjectSave, type RunMetrics, type RunSnapshot } from './runSave';
 import { soundFx } from './audio';
@@ -60,7 +60,7 @@ export interface HudState {
   terrainHint: string | null; markedFieldName: string | null; gateOpen: boolean; hero: Hero;
   map: { x: number; y: number; objects: { x: number; y: number; kind: ObjectKind; active: boolean }[]; enemies: { x: number; y: number; kind: EnemyKind }[] };
 }
-export interface RunResult { won: boolean; kills: number; seconds: number; level: number; hero: Hero; region: number; weapons: Weapon[]; metrics: RunMetrics }
+export interface RunResult { won: boolean; kills: number; seconds: number; level: number; hero: Hero; kit: CampKit; region: number; weapons: Weapon[]; metrics: RunMetrics }
 export interface GameCallbacks {
   onHud: (hud: HudState) => void;
   onUpgrade: (options: Upgrade[]) => void;
@@ -93,6 +93,7 @@ export class GroveScene extends Phaser.Scene {
   private pausedByUser = false;
   private heroId: Hero = 'warden';
   private heroLook: 'wildkin' | 'classic' = 'wildkin';
+  private campKit: CampKit = 'breaker';
   private skin = false;
   private masteryRank = 0;
   private unlockedWeapons: Weapon[] = ['axe'];
@@ -185,14 +186,14 @@ export class GroveScene extends Phaser.Scene {
     this.publishHud();
   }
 
-  beginRun(hero: Hero, startingWeapon: Weapon, masteryRank: number, unlockedWeapons: Weapon[], reducedEffects: boolean, skin = false, autoSpecialEnabled = true, supportWeapon?: Weapon, seedOverride?: number, look: 'wildkin' | 'classic' = 'wildkin'): void {
+  beginRun(hero: Hero, startingWeapon: Weapon, masteryRank: number, unlockedWeapons: Weapon[], reducedEffects: boolean, skin = false, autoSpecialEnabled = true, supportWeapon?: Weapon, seedOverride?: number, look: 'wildkin' | 'classic' = 'wildkin', kit: CampKit = 'breaker'): void {
     if (!this.hero) return;
     clearRunSnapshot();
     this.clearRunObjects();
     this.seed = seedOverride !== undefined && Number.isInteger(seedOverride) && seedOverride > 0 && seedOverride <= 0xffffffff
       ? seedOverride : (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0 || 1;
     this.random = new Rng(this.seed);
-    this.heroId = hero; this.heroLook = look; this.skin = skin; this.masteryRank = masteryRank;
+    this.heroId = hero; this.heroLook = look; this.campKit = kit; this.skin = skin; this.masteryRank = masteryRank;
     this.unlockedWeapons = unlockedWeapons;
     this.weapons = [{ id: startingWeapon, rank: 1, cooldown: 0 }];
     if (supportWeapon && supportWeapon !== startingWeapon && unlockedWeapons.includes(supportWeapon))
@@ -219,7 +220,8 @@ export class GroveScene extends Phaser.Scene {
     if (!this.hero) return false;
     this.clearRunObjects();
     this.seed = snapshot.seed; this.random = new Rng(snapshot.rngState);
-    this.heroId = snapshot.hero; this.heroLook = snapshot.look ?? 'classic'; this.skin = snapshot.skin; this.masteryRank = snapshot.masteryRank;
+    this.heroId = snapshot.hero; this.heroLook = snapshot.look ?? 'classic'; this.campKit = snapshot.kit ?? 'breaker';
+    this.skin = snapshot.skin; this.masteryRank = snapshot.masteryRank;
     this.unlockedWeapons = snapshot.unlockedWeapons;
     this.weapons = snapshot.weapons.map(weapon => ({ ...weapon }));
     this.focusedWeapon = snapshot.focusedWeapon ?? this.weapons[0].id;
@@ -300,12 +302,12 @@ export class GroveScene extends Phaser.Scene {
     if (!equipped) return;
     this.focusedWeapon = weapon;
     if ((equipped.commandCooldown ?? 0) <= 0 && this.autoAttack(equipped, true)) {
-      equipped.commandCooldown = 8;
+      equipped.commandCooldown = this.campKit === 'conductor' ? 7 : 8;
       if (this.running) {
-        const outcome = commandChainResult(this.commandChain, weapon);
+        const outcome = commandChainResult(this.commandChain, weapon, this.campKit === 'conductor' ? 6 : 4);
         this.commandChain = outcome.chain;
         if (outcome.resonance) this.fireResonance(outcome.resonance, weapon);
-        else this.callbacks.onEvent(`${WEAPON_COMMAND[weapon].name.toUpperCase()} · CHAIN ANOTHER SLOT`);
+        else this.callbacks.onEvent(`${WEAPON_COMMAND[weapon].name.toUpperCase()} · CHAIN ANOTHER SLOT${this.campKit === 'conductor' ? ' · 6s' : ''}`);
       }
     } else {
       const recharging = (equipped.commandCooldown ?? 0) > 0;
@@ -1711,11 +1713,14 @@ export class GroveScene extends Phaser.Scene {
   private triggerTerrainRupture(object: WorldObject, kind: TerrainKind): void {
     const effect = terrainRupture(kind);
     const color = kind === 'bramble' ? 0xc1eb9b : kind === 'ore' ? 0xffb068 : 0xc9b7ff;
+    const radius = effect.radius * (this.campKit === 'breaker' ? 1.3 : 1);
+    const damage = Math.round(effect.damage * (this.campKit === 'breaker' ? 1.5 : 1));
     const pulse = this.add.circle(object.x, object.y, 30, color, 0.18)
       .setStrokeStyle(8, color, 0.96).setDepth(7);
-    this.tweens.add({ targets: pulse, scale: effect.radius / 30, alpha: 0,
+    this.tweens.add({ targets: pulse, scale: radius / 30, alpha: 0,
       duration: this.reducedEffects ? 180 : 420, onComplete: () => pulse.destroy() });
     this.floatText(effect.name, object.x, object.y - 76, Phaser.Display.Color.IntegerToColor(color).rgba);
+    if (this.campKit === 'breaker') this.floatText('BREAKER +50%', object.x, object.y - 95, '#fff0b4');
     if (effect.moonflowSeconds > 0) {
       this.moonflowRemaining = Math.max(this.moonflowRemaining, effect.moonflowSeconds);
       this.floatText('SPEED +28% · 6s', this.hero.x, this.hero.y - 69, '#d9cbff');
@@ -1723,9 +1728,9 @@ export class GroveScene extends Phaser.Scene {
     for (const weapon of this.weapons) weapon.commandCooldown = 0;
     this.floatText('COMMANDS READY', this.hero.x, this.hero.y - 86, '#fff1b8');
     for (const enemy of [...this.enemies]) {
-      if (!this.enemies.includes(enemy) || this.distance(enemy.sprite.x, enemy.sprite.y, object.x, object.y) > effect.radius) continue;
+      if (!this.enemies.includes(enemy) || this.distance(enemy.sprite.x, enemy.sprite.y, object.x, object.y) > radius) continue;
       if (effect.tangleSeconds > 0) this.entangleEnemy(enemy, effect.tangleSeconds);
-      this.hitEnemy(enemy, effect.damage, true);
+      this.hitEnemy(enemy, damage, true);
       if (!this.running) break;
     }
   }
@@ -1954,6 +1959,11 @@ export class GroveScene extends Phaser.Scene {
         this.stats = upgradeStat(this.stats, cache.stat);
         soundFx.play('pickup');
         if (cache.stat === 'maxHealth') this.health = Math.min(this.stats.maxHealth, this.health + this.stats.maxHealth - oldMax);
+        if (this.campKit === 'forager') {
+          const restored = Math.min(10, this.stats.maxHealth - this.health);
+          this.health += restored;
+          if (restored > 0) this.floatText(`+${Math.ceil(restored)} FORAGE`, this.hero.x, this.hero.y - 70, '#bdebb1');
+        }
         this.floatText(`+ ${STAT_INFO[cache.stat].name.toUpperCase()}`, cache.x, cache.y - 47, STAT_INFO[cache.stat].color);
         this.burst(cache.x, cache.y, STAT_INFO[cache.stat].color, 11);
         this.tweens.killTweensOf(cache.view); cache.view.destroy(); this.caches.splice(i, 1);
@@ -2031,7 +2041,7 @@ export class GroveScene extends Phaser.Scene {
     if (won) soundFx.play('victory');
     if (won) this.tweens.add({ targets: this.hero, scaleX: 0.44, scaleY: 0.44, yoyo: true, duration: 250 });
     else this.tweens.add({ targets: this.hero, angle: 80, alpha: 0.28, duration: 370, ease: 'Cubic.Out' });
-    this.callbacks.onEnd({ won, kills: this.kills, seconds: this.seconds, level: this.level, hero: this.heroId,
+    this.callbacks.onEnd({ won, kills: this.kills, seconds: this.seconds, level: this.level, hero: this.heroId, kit: this.campKit,
       region: won ? 3 : this.region, weapons: this.weapons.map(weapon => weapon.id),
       metrics: { ...this.metrics, weaponDamage: { ...(this.metrics.weaponDamage ?? emptyWeaponDamage()) },
         regionSeconds: [...this.metrics.regionSeconds] as RunMetrics['regionSeconds'] } });
@@ -2093,7 +2103,7 @@ export class GroveScene extends Phaser.Scene {
   saveSnapshot(): void {
     if (!this.running) return;
     saveRunSnapshot({
-      version: 1, seed: this.seed, rngState: this.random.state, hero: this.heroId, skin: this.skin, look: this.heroLook,
+      version: 1, seed: this.seed, rngState: this.random.state, hero: this.heroId, skin: this.skin, look: this.heroLook, kit: this.campKit,
       unlockedWeapons: [...this.unlockedWeapons], masteryRank: this.masteryRank,
       weapons: this.weapons.map(weapon => ({ ...weapon })), weaponSlots: this.weaponSlots,
       focusedWeapon: this.focusedWeapon,

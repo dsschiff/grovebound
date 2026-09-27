@@ -3,6 +3,13 @@ export type Weapon = 'axe' | 'thorns' | 'bow' | 'staff';
 export type WeaponPath = 'a' | 'b';
 export type Ability = Weapon;
 export type Hero = 'warden' | 'ranger' | 'ember';
+export type CampKit = 'breaker' | 'conductor' | 'forager';
+export const CAMP_KITS: CampKit[] = ['breaker', 'conductor', 'forager'];
+export const CAMP_KIT_INFO: Record<CampKit, { name: string; description: string; cost: number; art: string }> = {
+  breaker: { name: 'Breaker', description: 'Field bursts hit 50% harder and reach 30% farther.', cost: 0, art: 'weapon-axe-v2.webp' },
+  conductor: { name: 'Conductor', description: 'Commands recharge in 7s. Chain another within 6s.', cost: 8, art: 'weapon-bow-v2.webp' },
+  forager: { name: 'Forager', description: 'Every stat cache also restores 10 health.', cost: 8, art: 'ancient-tree-v1.webp' },
+};
 export type Upgrade = Stat | 'splash' | 'pet' | 'wildArsenal' | `weapon:${Weapon}` | `path:${Weapon}:${WeaponPath}`;
 
 export interface Stats {
@@ -139,6 +146,8 @@ export interface Progress {
   muted: boolean;
   autoSpecialEnabled: boolean;
   heroLook: HeroLook;
+  unlockedKits: CampKit[];
+  selectedKit: CampKit;
 }
 
 export type HeroLook = 'wildkin' | 'classic';
@@ -148,6 +157,7 @@ export const EMPTY_PROGRESS: Progress = {
   bestRegion: 0, mastery: { warden: 0, ranger: 0, ember: 0 }, reducedEffects: false, muted: false,
   autoSpecialEnabled: true,
   heroLook: 'wildkin',
+  unlockedKits: ['breaker'], selectedKit: 'breaker',
 };
 export const THORNS_COST = 6;
 export const SAVE_KEY = 'grovebound-progress-v2';
@@ -160,6 +170,8 @@ function validNumber(value: unknown): number {
 export function parseProgress(value: unknown): Progress {
   if (typeof value !== 'object' || value === null) return structuredClone(EMPTY_PROGRESS);
   const data = value as Partial<Progress>;
+  const savedKits = Array.isArray(data.unlockedKits) ? data.unlockedKits : [];
+  const unlockedKits: CampKit[] = ['breaker', ...CAMP_KITS.filter(kit => kit !== 'breaker' && savedKits.includes(kit))];
   return {
     seeds: validNumber(data.seeds), thornsUnlocked: data.thornsUnlocked === true,
     bestKills: validNumber(data.bestKills), bestSeconds: validNumber(data.bestSeconds),
@@ -171,6 +183,8 @@ export function parseProgress(value: unknown): Progress {
     muted: data.muted === true,
     autoSpecialEnabled: data.autoSpecialEnabled !== false,
     heroLook: data.heroLook === 'classic' ? 'classic' : 'wildkin',
+    unlockedKits,
+    selectedKit: unlockedKits.includes(data.selectedKit as CampKit) ? data.selectedKit as CampKit : 'breaker',
   };
 }
 
@@ -203,6 +217,13 @@ export function addRunToProgress(progress: Progress, kills: number, seconds: num
 export function unlockThorns(progress: Progress): Progress {
   if (progress.thornsUnlocked || progress.seeds < THORNS_COST) return progress;
   return { ...progress, seeds: progress.seeds - THORNS_COST, thornsUnlocked: true };
+}
+
+export function chooseCampKit(progress: Progress, kit: CampKit): Progress {
+  if (progress.unlockedKits.includes(kit)) return { ...progress, selectedKit: kit };
+  const cost = CAMP_KIT_INFO[kit].cost;
+  if (progress.seeds < cost) return progress;
+  return { ...progress, seeds: progress.seeds - cost, unlockedKits: [...progress.unlockedKits, kit], selectedKit: kit };
 }
 
 // A small deterministic generator allows layouts and interrupted runs to be restored.

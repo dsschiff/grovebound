@@ -39,7 +39,7 @@ export function advanceCommandChain(chain: CommandChain | null, dt: number): Com
   return remaining > 0 ? { weapon: chain.weapon, remaining } : null;
 }
 
-export function commandChainResult(chain: CommandChain | null, weapon: Weapon): { chain: CommandChain | null; resonance: Resonance | null } {
+export function commandChainResult(chain: CommandChain | null, weapon: Weapon, windowSeconds = 4): { chain: CommandChain | null; resonance: Resonance | null } {
   const resonance = chain && chain.remaining > 0 ? resonanceFor(chain.weapon, weapon) : null;
-  return { chain: resonance ? null : { weapon, remaining: 4 }, resonance };
+  return { chain: resonance ? null : { weapon, remaining: windowSeconds }, resonance };
 }

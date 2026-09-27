@@ -37,7 +37,7 @@ export function emptyRunMetrics(): RunMetrics {
 }
 export interface RunSnapshot {
   version: 1;
-  seed: number; rngState: number; hero: Hero; skin: boolean; look?: 'wildkin' | 'classic';
+  seed: number; rngState: number; hero: Hero; skin: boolean; look?: 'wildkin' | 'classic'; kit?: 'breaker' | 'conductor' | 'forager';
   unlockedWeapons: Weapon[]; masteryRank: number;
   weapons: { id: Weapon; rank: number; cooldown: number; path?: WeaponPath; commandCooldown?: number }[];
   focusedWeapon?: Weapon;
@@ -73,6 +73,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
   if (run.version !== 1 || !finite(run.seed, 0, 4294967295) || !finite(run.rngState, 0, 4294967295)
     || !HEROES.includes(run.hero ?? '') || typeof run.skin !== 'boolean'
     || (run.look !== undefined && run.look !== 'wildkin' && run.look !== 'classic')
+    || (run.kit !== undefined && !['breaker', 'conductor', 'forager'].includes(run.kit))
     || !Array.isArray(run.unlockedWeapons) || !run.unlockedWeapons.every(weapon => WEAPONS.includes(weapon))
     || !finite(run.masteryRank, 0, 5)
     || !Array.isArray(run.weapons) || run.weapons.length < 1 || run.weapons.length > 3
@@ -81,7 +82,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
       && (weapon.path === undefined || (weapon.rank >= 2 && ['a', 'b'].includes(weapon.path))))
     || (run.focusedWeapon !== undefined && !run.weapons.some(weapon => weapon.id === run.focusedWeapon))
     || (run.commandChain !== undefined && run.commandChain !== null
-      && (!WEAPONS.includes(run.commandChain.weapon) || !finite(run.commandChain.remaining, 0, 4)
+      && (!WEAPONS.includes(run.commandChain.weapon) || !finite(run.commandChain.remaining, 0, run.kit === 'conductor' ? 6 : 4)
         || !run.weapons.some(weapon => weapon.id === run.commandChain?.weapon)))
     || !finite(run.weaponSlots, 1, 3) || !finite(run.splashBonus, 0, 100)
     || typeof run.pet !== 'boolean' || !finite(run.petClock, -5, 20)
