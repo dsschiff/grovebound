@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
 import {
-  HERO_INFO, REGIONS, STAT_INFO, STAT_KEYS, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS, WEAPON_RANK_UPGRADES, Rng, baseStatsFor, damageAfterDefense,
+  HERO_INFO, REGIONS, STAT_INFO, STAT_KEYS, WEAPON_COMMAND, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS, WEAPON_RANK_UPGRADES, Rng, baseStatsFor, damageAfterDefense,
   generateRegionLayout, upgradeStat, xpToNextLevel,
   type Hero, type Stat, type Stats, type Upgrade, type Weapon, type WeaponPath,
 } from './logic';
 import { clearRunSnapshot, emptyRunMetrics, emptyWeaponDamage, saveRunSnapshot, type EnemySave, type ObjectSave, type RunMetrics, type RunSnapshot } from './runSave';
 import { soundFx } from './audio';
-import { bossPhaseFor, bowCriticalChance, chooseAutoTarget, pickUpgradeChoices, pierceTargets, ricochetTarget,
+import { advanceEmberField, bossPhaseFor, bowCriticalChance, chooseAutoTarget, pickUpgradeChoices, pierceTargets, ricochetTarget, targetsInArc,
   shouldSpawnGuardian, staffBurn, thornPierceCount, weaponDamage, weaponPathEffects, weaponSplash } from './combat';
 import { pilotDirection } from './pilot';
 import { hazardSites, ventPhase, type VentPhase } from './hazards';
@@ -32,6 +32,7 @@ interface WorldObject { view: Phaser.GameObjects.Container; label: Phaser.GameOb
 interface Orb { view: Phaser.GameObjects.Container; x: number; y: number; value: number }
 interface Cache { view: Phaser.GameObjects.Container; x: number; y: number; stat: Stat }
 interface EquippedWeapon { id: Weapon; rank: number; cooldown: number; path?: WeaponPath; commandCooldown?: number }
+interface EmberField { x: number; y: number; remaining: number; tickClock: number; damage: number; view: Phaser.GameObjects.Arc }
 
 export interface HudState {
   health: number; maxHealth: number; level: number; xp: number; xpNeeded: number;
@@ -70,6 +71,7 @@ export class GroveScene extends Phaser.Scene {
   private objects: WorldObject[] = [];
   private orbs: Orb[] = [];
   private caches: Cache[] = [];
+  private emberFields: EmberField[] = [];
   private running = false;
   private choosing = false;
   private pausedByUser = false;
@@ -223,6 +225,7 @@ export class GroveScene extends Phaser.Scene {
       if (field?.active && this.isTerrainField(field)) this.markField(field, false);
     }
     snapshot.enemies.forEach(enemy => this.spawnEnemy(enemy.kind, { x: enemy.x, y: enemy.y }, enemy));
+    snapshot.emberFields?.forEach(field => this.spawnEmberField(field.x, field.y, field.damage, field.remaining, field.tickClock));
     snapshot.orbs.forEach(orb => this.spawnOrb(orb.x, orb.y, orb.value));
     snapshot.caches.forEach(cache => this.spawnCache(cache.stat, cache.x, cache.y));
     this.petView.setVisible(this.pet);
@@ -266,7 +269,7 @@ export class GroveScene extends Phaser.Scene {
     this.focusedWeapon = weapon;
     if ((equipped.commandCooldown ?? 0) <= 0 && this.autoAttack(equipped, true)) {
       equipped.commandCooldown = 8;
-      this.callbacks.onEvent(`${WEAPON_INFO[weapon].name.toUpperCase()} COMMAND · ${equipped.path ? WEAPON_PATH_INFO[weapon][equipped.path].name.toUpperCase() : 'CHARGED STRIKE'}`);
+      this.callbacks.onEvent(`${WEAPON_COMMAND[weapon].name.toUpperCase()}!`);
     } else this.callbacks.onEvent((equipped.commandCooldown ?? 0) > 0
       ? `${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · ${Math.ceil(equipped.commandCooldown ?? 0)}s TO CHARGE`
       : `${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · MOVE INTO RANGE TO FIRE`);
@@ -539,6 +542,8 @@ export class GroveScene extends Phaser.Scene {
       weapon.cooldown -= dt;
       if (weapon.cooldown <= 0) this.autoAttack(weapon);
     }
+    this.updateEmberFields(dt);
+    if (!this.running) return;
     this.updatePet(dt);
     if (this.autoSpecial && this.specialCooldown <= 0 && this.enemies.some(enemy => this.distance(this.hero.x, this.hero.y, enemy.sprite.x, enemy.sprite.y) < 170)) this.castSpecial();
     if (this.keys?.SPACE && Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) this.castSpecial();
@@ -659,7 +664,8 @@ export class GroveScene extends Phaser.Scene {
     for (const object of this.objects) object.view.destroy();
     for (const orb of this.orbs) orb.view.destroy();
     for (const cache of this.caches) { this.tweens.killTweensOf(cache.view); cache.view.destroy(); }
-    this.objects = []; this.orbs = []; this.caches = [];
+    for (const field of this.emberFields) { this.tweens.killTweensOf(field.view); field.view.destroy(); }
+    this.objects = []; this.orbs = []; this.caches = []; this.emberFields = [];
     this.bars?.clear(); this.nav?.setText(''); this.releaseJoystick();
   }
 
@@ -976,7 +982,7 @@ export class GroveScene extends Phaser.Scene {
     const info = WEAPON_INFO[weapon.id];
     const path = weaponPathEffects(weapon.id, weapon.path);
     const focused = this.focusedWeapon === weapon.id;
-    const range = info.range * this.stats.reach * (commanded ? 1.38 : 1);
+    const range = info.range * this.stats.reach * (commanded ? weapon.id === 'bow' ? 2.05 : 1.38 : 1);
     const targetObjects = this.objects.filter(candidate => candidate.active && candidate.hp > 0
       && candidate.kind !== 'pump' && candidate.kind !== 'waylight' && candidate.kind !== 'seedheart'
       && candidate.kind !== 'coolant' && candidate.kind !== 'moonflame' && !(candidate.kind === 'forge' && candidate.maxHp <= 3)
@@ -998,13 +1004,14 @@ export class GroveScene extends Phaser.Scene {
     const angle = Phaser.Math.Angle.Between(this.hero.x, this.hero.y, x, y);
     const critical = weapon.id === 'bow' && (commanded || this.random.next() < bowCriticalChance(weapon.rank) + (focused ? 0.12 : 0));
     const focusBonus = this.weapons.length < 2 ? 1 : this.focusedWeapon === weapon.id ? 1.25 : 0.9;
-    const damage = Math.round(weaponDamage(this.stats.attack, weapon.id, weapon.rank) * focusBonus * (critical ? 1.7 : 1) * (commanded ? 2 : 1));
+    const damage = Math.round(weaponDamage(this.stats.attack, weapon.id, weapon.rank) * focusBonus * (critical ? 1.7 : 1)
+      * (commanded ? weapon.id === 'bow' ? 2.35 : 2 : 1));
     if (commanded) {
       const pulse = this.add.circle(this.hero.x, this.hero.y, 23, Phaser.Display.Color.HexStringToColor(info.color).color, 0.18)
         .setStrokeStyle(5, Phaser.Display.Color.HexStringToColor(info.color).color, 0.9).setDepth(7);
       this.tweens.add({ targets: pulse, scale: 3.8, alpha: 0, duration: this.reducedEffects ? 150 : 330,
         onComplete: () => pulse.destroy() });
-      this.floatText(`${info.name.toUpperCase()}!`, this.hero.x, this.hero.y - 72, info.color);
+      this.floatText(`${WEAPON_COMMAND[weapon.id].name.toUpperCase()}!`, this.hero.x, this.hero.y - 72, info.color);
       this.attackPose = 0.3; this.attackPoseDuration = 0.3;
     }
     const otherEnemies = target && (weapon.id === 'thorns' || path.pierce > 0)
@@ -1049,7 +1056,8 @@ export class GroveScene extends Phaser.Scene {
       const victims = splash > 0 ? this.enemies.filter(enemy => this.distance(enemy.sprite.x, enemy.sprite.y, x, y) < splash) : [target];
       for (const enemy of victims) {
         const elite = enemy.kind === 'brute' || enemy.kind === 'gatekeeper' || enemy.kind === 'boss';
-        this.hitEnemy(enemy, Math.round(damage * (elite ? path.eliteMultiplier : 1)), false, weapon.id);
+        this.hitEnemy(enemy, Math.round(damage * (elite ? path.eliteMultiplier : 1)
+          * (commanded && weapon.id === 'bow' && elite && enemy === target ? 1.35 : 1)), false, weapon.id);
         if (!this.running) return true;
         if (elite && path.eliteMultiplier > 1 && enemy === target) this.floatText('BREAKER', x, y - 58, '#ffc49b');
         if (path.rootSeconds > 0) this.entangleEnemy(enemy, path.rootSeconds);
@@ -1120,9 +1128,85 @@ export class GroveScene extends Phaser.Scene {
         }
       }
     } else if (object) this.hitObject(object, damage);
-    if (critical) this.floatText('CRITICAL!', x, y - 61, '#fff1a7');
+    if (commanded && this.running) this.applyWeaponCommand(weapon.id, { x, y }, damage);
+    if (critical) this.floatText(commanded ? 'DAWNSHOT!' : 'CRITICAL!', x, y - 61, '#fff1a7');
     if (!this.reducedEffects) this.burst(x, y, info.color, 3);
     return true;
+  }
+
+  private applyWeaponCommand(weapon: Weapon, aim: { x: number; y: number }, damage: number): void {
+    const origin = { x: this.hero.x, y: this.hero.y };
+    if (weapon === 'bow') {
+      this.trail(origin.x, origin.y, aim.x, aim.y, 0xffed9c);
+      return;
+    }
+    if (weapon === 'staff') {
+      this.spawnEmberField(aim.x, aim.y, Math.max(4, Math.round(damage * 0.23)));
+      this.floatText('BURNING GROUND · 4s', aim.x, aim.y - 66, '#ffca93');
+      return;
+    }
+    const candidates = [...this.enemies];
+    const range = (weapon === 'axe' ? 185 : 325) * this.stats.reach;
+    const arc = weapon === 'axe' ? 1.25 : 0.67;
+    const picked = targetsInArc(origin, aim, candidates.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })),
+      range, arc, weapon === 'axe' ? candidates.length : 6);
+    const angle = Phaser.Math.Angle.Between(origin.x, origin.y, aim.x, aim.y);
+    if (weapon === 'axe') {
+      const sweep = this.add.graphics().setDepth(9);
+      sweep.lineStyle(25, 0xffe2a0, 0.18).beginPath().arc(origin.x, origin.y, range, angle - arc, angle + arc).strokePath();
+      sweep.lineStyle(7, 0xfff3c7, 0.94).beginPath().arc(origin.x, origin.y, range, angle - arc, angle + arc).strokePath();
+      this.tweens.add({ targets: sweep, alpha: 0, duration: this.reducedEffects ? 130 : 300, onComplete: () => sweep.destroy() });
+    }
+    for (const index of picked) {
+      const enemy = candidates[index];
+      if (!this.enemies.includes(enemy)) continue;
+      const x = enemy.sprite.x; const y = enemy.sprite.y;
+      if (weapon === 'thorns' && !this.reducedEffects) this.trail(origin.x, origin.y, x, y, 0xb8f3a7);
+      this.hitEnemy(enemy, Math.max(1, Math.round(damage * (weapon === 'axe' ? 0.48 : 0.42))), true, weapon);
+      if (!this.running) return;
+      if (!this.enemies.includes(enemy)) continue;
+      if (weapon === 'thorns') this.entangleEnemy(enemy, 1.8);
+      else {
+        const push = enemy.kind === 'boss' || enemy.kind === 'gatekeeper' ? 24 : 75;
+        enemy.sprite.setPosition(Phaser.Math.Clamp(x + Math.cos(angle) * push, 45, WORLD - 45),
+          Phaser.Math.Clamp(y + Math.sin(angle) * push, 45, WORLD - 45));
+      }
+    }
+    if (picked.length > 0) this.floatText(weapon === 'axe' ? `SWEEP ×${picked.length}` : `ROOTED ×${picked.length}`,
+      aim.x, aim.y - 68, weapon === 'axe' ? '#ffe6ae' : '#c2f4ad');
+  }
+
+  private spawnEmberField(x: number, y: number, damage: number, remaining = 4, tickClock = 0.5): void {
+    if (this.emberFields.length >= 3) {
+      const expired = this.emberFields.shift()!;
+      this.tweens.killTweensOf(expired.view); expired.view.destroy();
+    }
+    const view = this.add.circle(x, y, 112, 0xff9d5e, this.reducedEffects ? 0.08 : 0.15)
+      .setStrokeStyle(5, 0xffc487, 0.8).setDepth(1);
+    if (!this.reducedEffects) this.tweens.add({ targets: view, scale: 1.07, yoyo: true, repeat: -1, duration: 580 });
+    this.emberFields.push({ x, y, remaining, tickClock, damage, view });
+    soundFx.play('staff');
+  }
+
+  private updateEmberFields(dt: number): void {
+    for (let i = this.emberFields.length - 1; i >= 0; i--) {
+      const field = this.emberFields[i];
+      const step = advanceEmberField(field.remaining, field.tickClock, dt);
+      field.remaining = step.remaining; field.tickClock = step.tickClock;
+      if (step.ticks > 0) {
+        for (const enemy of [...this.enemies]) {
+          if (this.distance(enemy.sprite.x, enemy.sprite.y, field.x, field.y) < 112) {
+            this.hitEnemy(enemy, field.damage, true, 'staff');
+            if (!this.running) return;
+          }
+        }
+        if (!this.reducedEffects) this.burst(field.x, field.y, '#ffad70', 2);
+      }
+      field.view.setAlpha(Math.min(1, field.remaining));
+      if (field.remaining <= 0) {
+        this.tweens.killTweensOf(field.view); field.view.destroy(); this.emberFields.splice(i, 1);
+      }
+    }
   }
 
   private hitEnemy(enemy: Enemy, damage: number, quiet = false, source?: Weapon): void {
@@ -1729,6 +1813,8 @@ export class GroveScene extends Phaser.Scene {
       ritualClock: this.ritualClock,
       coolantCarryRemaining: this.coolantCarryRemaining,
       moonflowRemaining: this.moonflowRemaining,
+      emberFields: this.emberFields.map(field => ({ x: field.x, y: field.y, remaining: field.remaining,
+        tickClock: field.tickClock, damage: field.damage })),
       markedFieldIndex: this.markedField ? this.objects.indexOf(this.markedField) : undefined,
       choosing: this.choosing, upgradeOptions: [...this.upgradeOptions],
       enemies: this.enemies.map(enemy => ({ kind: enemy.kind, x: enemy.sprite.x, y: enemy.sprite.y,

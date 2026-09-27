@@ -47,6 +47,7 @@ export interface RunSnapshot {
   ritualClock?: number;
   coolantCarryRemaining?: number;
   moonflowRemaining?: number; markedFieldIndex?: number;
+  emberFields?: { x: number; y: number; remaining: number; tickClock: number; damage: number }[];
   enemies: EnemySave[]; objects: ObjectSave[];
   orbs: { x: number; y: number; value: number }[];
   caches: { x: number; y: number; stat: Stat }[];
@@ -109,6 +110,9 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || (run.coolantCarryRemaining !== undefined && !finite(run.coolantCarryRemaining, 0, 12))
     || (run.moonflowRemaining !== undefined && !finite(run.moonflowRemaining, 0, 8))
     || (run.markedFieldIndex !== undefined && !finite(run.markedFieldIndex, 0, 11))
+    || (run.emberFields !== undefined && (!Array.isArray(run.emberFields) || run.emberFields.length > 3
+      || !run.emberFields.every(field => finite(field.x, 0, 1800) && finite(field.y, 0, 1800)
+        && finite(field.remaining, 0, 4) && finite(field.tickClock, 0, 0.5) && finite(field.damage, 1, 500))))
     || !Array.isArray(run.objects) || run.objects.length > 12 || !run.objects.every(object =>
       ['ward', 'waylight', 'seedheart', 'pump', 'coolant', 'forge', 'altar', 'moonflame', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
       && finite(object.y, 0, 1800) && finite(object.hp, 0, 10000) && finite(object.maxHp, 0, 10000)

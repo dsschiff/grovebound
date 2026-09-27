@@ -1,9 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { bossPhaseFor, bowCriticalChance, chooseAutoTarget, pickUpgradeChoices, pierceTarget, pierceTargets,
+import { advanceEmberField, bossPhaseFor, bowCriticalChance, chooseAutoTarget, pickUpgradeChoices, pierceTarget, pierceTargets, targetsInArc,
   ricochetTarget, shouldSpawnGuardian, staffBurn, thornPierceCount, weaponDamage, weaponPathEffects, weaponSplash } from '../src/game/combat';
 import { BASE_STATS, Rng } from '../src/game/logic';
 
 describe('combat and objective rules', () => {
+  it('keeps command volleys in the aimed arc and orders hits by distance', () => {
+    const origin = { x: 100, y: 100 };
+    const enemies = [{ x: 220, y: 105 }, { x: 60, y: 100 }, { x: 170, y: 130 }, { x: 500, y: 100 }];
+    expect(targetsInArc(origin, { x: 250, y: 100 }, enemies, 180, 0.7)).toEqual([2, 0]);
+    expect(targetsInArc(origin, { x: 250, y: 100 }, enemies, 180, 0.7, 1)).toEqual([2]);
+  });
+  it('ticks burning ground every half second and preserves its remaining clock', () => {
+    expect(advanceEmberField(4, 0.5, 0.2)).toEqual({ remaining: 3.8, tickClock: 0.3, ticks: 0 });
+    expect(advanceEmberField(3.8, 0.3, 0.3)).toEqual({ remaining: 3.5, tickClock: 0.5, ticks: 1 });
+    expect(advanceEmberField(0.05, 0.05, 0.05)).toEqual({ remaining: 0, tickClock: 0.5, ticks: 1 });
+  });
   it('prioritizes nearby enemies, then attackable objects', () => {
     const origin = { x: 0, y: 0 };
     const objects = [{ x: 25, y: 0 }];

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { GroveScene, type HudState, type RunResult } from './game/GroveScene';
 import {
-  HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_FOCUS, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS,
+  HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_COMMAND, WEAPON_FOCUS, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS,
   addRunToProgress, availableHero, availableWeapon, masteryRank, readProgress,
   saveProgress, seedsForRun, unlockThorns,
   type Hero, type Upgrade, type Weapon,
@@ -79,7 +79,7 @@ root.innerHTML = `
         <div class="setting-pair"><label class="setting-row"><input id="reduced-effects" type="checkbox" /> Reduced effects</label><label class="setting-row"><input id="muted" type="checkbox" /> Mute sound</label><label id="auto-special-row" class="setting-row hidden"><input id="auto-special" type="checkbox" /> Auto special</label></div>
         <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span>➜</span></button>
         <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span>➜</span></button>
-        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP WEAPON SLOTS TO FIRE A CHARGED ATTACK · TAP FIELDS TO BURST<br />KEYBOARD: WASD/ARROWS TO MOVE <span>✧</span> SPACE SPECIAL <span>✧</span> F TARGET</p>
+        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP A WEAPON SLOT TO FIRE ITS NAMED COMMAND · TAP FIELDS TO BURST<br />KEYBOARD: WASD/ARROWS TO MOVE <span>✧</span> SPACE SPECIAL <span>✧</span> F TARGET</p>
         <div class="best-line" id="best-line"></div>
         <a class="hub-link" href="https://dsschiff.github.io/games/">ALL GAMES ↗</a>
       </div>
@@ -162,16 +162,16 @@ function refreshMenu(): void {
   el('#weapon-options').innerHTML = (Object.keys(WEAPON_INFO) as Weapon[]).map(weapon => {
     const unlocked = availableWeapon(progress, weapon);
     const info = WEAPON_INFO[weapon];
-    return `<button class="weapon-option ${weapon === selectedWeapon ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-weapon="${weapon}" ${unlocked ? '' : 'disabled'}><img src="${weaponArt(weapon)}" alt=""/><small>${info.name}</small></button>`;
+    return `<button class="weapon-option ${weapon === selectedWeapon ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-weapon="${weapon}" aria-label="${info.name}. Command: ${WEAPON_COMMAND[weapon].name}. ${WEAPON_COMMAND[weapon].description}" ${unlocked ? '' : 'disabled'}><img src="${weaponArt(weapon)}" alt=""/><small>${info.name}</small></button>`;
   }).join('');
   el('#weapon-options').querySelectorAll<HTMLButtonElement>('[data-weapon]').forEach(button => button.addEventListener('click', () => {
     selectedWeapon = button.dataset.weapon as Weapon; refreshMenu();
     el<HTMLButtonElement>(`#weapon-options [data-weapon="${selectedWeapon}"]`).focus({ preventScroll: true });
   }));
-  el('#weapon-hint').textContent = WEAPON_INFO[selectedWeapon].description.toUpperCase();
+  el('#weapon-hint').textContent = `${WEAPON_INFO[selectedWeapon].description.toUpperCase()} · COMMAND: ${WEAPON_COMMAND[selectedWeapon].name.toUpperCase()}`;
   el('#support-options').innerHTML = (Object.keys(WEAPON_INFO) as Weapon[]).map(weapon => {
     const unlocked = weapon !== selectedWeapon && availableWeapon(progress, weapon);
-    return `<button class="weapon-option ${weapon === selectedSupport ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-support="${weapon}" ${unlocked ? '' : 'disabled'}><img src="${weaponArt(weapon)}" alt=""/><small>${WEAPON_INFO[weapon].name}</small></button>`;
+    return `<button class="weapon-option ${weapon === selectedSupport ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-support="${weapon}" aria-label="${WEAPON_INFO[weapon].name}. Command: ${WEAPON_COMMAND[weapon].name}. ${WEAPON_COMMAND[weapon].description}" ${unlocked ? '' : 'disabled'}><img src="${weaponArt(weapon)}" alt=""/><small>${WEAPON_INFO[weapon].name}</small></button>`;
   }).join('');
   el('#support-options').querySelectorAll<HTMLButtonElement>('[data-support]').forEach(button => button.addEventListener('click', () => {
     selectedSupport = button.dataset.support as Weapon; refreshMenu();
@@ -335,14 +335,18 @@ function updateHud(hud: HudState): void {
       const info = WEAPON_INFO[weapon.id];
       const focused = weapon.id === hud.focusedWeapon;
       const pathName = weapon.path ? WEAPON_PATH_INFO[weapon.id][weapon.path].name : null;
-      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="Fire ${info.name} command and focus slot ${index + 1}, rank ${weapon.rank}${pathName ? `, ${pathName} technique` : ''}"><small>${focused ? 'FOCUS' : `SLOT ${index + 1}`} · ${['I', 'II', 'III'][weapon.rank - 1]}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id]}</span><div class="slot-detail"><em>${pathName ?? WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0</strong></div><b class="command-status" data-command="${weapon.id}">READY · TAP</b><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
+      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. Tap to fire and focus slot ${index + 1}, rank ${weapon.rank}${pathName ? `, ${pathName} technique` : ''}"><small>${focused ? 'FOCUS' : `SLOT ${index + 1}`} · ${['I', 'II', 'III'][weapon.rank - 1]}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id]}</span><div class="slot-detail"><em>${pathName ?? WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0</strong></div><b class="command-status" data-command="${weapon.id}">${WEAPON_COMMAND[weapon.id].slotName} · TAP</b><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
     }).join('');
   }
   for (const weapon of hud.weapons) {
     const charge = el<HTMLElement>(`[data-charge="${weapon.id}"]`);
     const commandRemaining = weapon.commandCooldown ?? 0;
     charge.style.width = `${Math.max(0, Math.min(100, (1 - commandRemaining / 8) * 100))}%`;
-    el(`[data-command="${weapon.id}"]`).textContent = commandRemaining <= 0 ? 'READY · TAP' : `CHARGE ${Math.ceil(commandRemaining)}s`;
+    el(`[data-command="${weapon.id}"]`).textContent = `${WEAPON_COMMAND[weapon.id].slotName} · ${commandRemaining <= 0 ? 'TAP' : `${Math.ceil(commandRemaining)}s`}`;
+    const button = el<HTMLButtonElement>(`[data-focus="${weapon.id}"]`);
+    const label = `${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. ${commandRemaining <= 0
+      ? 'Ready to fire' : `Recharges in ${Math.ceil(commandRemaining)} seconds`}. Tap to focus slot ${hud.weapons.indexOf(weapon) + 1}, rank ${weapon.rank}`;
+    if (button.getAttribute('aria-label') !== label) button.setAttribute('aria-label', label);
     el(`[data-focus="${weapon.id}"]`).classList.toggle('ready', commandRemaining <= 0);
     el(`[data-weapon-damage="${weapon.id}"]`).textContent = compactDamage(hud.weaponDamage[weapon.id]);
   }

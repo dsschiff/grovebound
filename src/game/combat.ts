@@ -2,6 +2,25 @@ import { STAT_KEYS, WEAPON_INFO, canUpgradeStat, type Stat, type Stats, type Upg
 
 export interface Point { x: number; y: number }
 
+export function targetsInArc(origin: Point, aim: Point, targets: Point[], range: number, halfAngle: number, limit = targets.length): number[] {
+  const facing = Math.atan2(aim.y - origin.y, aim.x - origin.x);
+  return targets.map((target, index) => {
+    const distance = Math.hypot(target.x - origin.x, target.y - origin.y);
+    const angle = Math.atan2(target.y - origin.y, target.x - origin.x);
+    const turn = Math.atan2(Math.sin(angle - facing), Math.cos(angle - facing));
+    return { index, distance, turn };
+  }).filter(target => target.distance > 0 && target.distance <= range && Math.abs(target.turn) <= halfAngle)
+    .sort((a, b) => a.distance - b.distance).slice(0, limit).map(target => target.index);
+}
+
+export function advanceEmberField(remaining: number, tickClock: number, dt: number): { remaining: number; tickClock: number; ticks: number } {
+  const nextRemaining = Math.max(0, remaining - dt);
+  let nextClock = tickClock - dt;
+  let ticks = 0;
+  while (remaining > 0 && nextClock <= 0) { nextClock += 0.5; ticks++; }
+  return { remaining: nextRemaining, tickClock: Math.min(0.5, nextClock), ticks };
+}
+
 export function chooseAutoTarget(origin: Point, range: number, enemies: Point[], objects: Point[]): { kind: 'enemy' | 'object'; index: number } | null {
   let index = -1;
   let nearest = range;

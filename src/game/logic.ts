@@ -50,6 +50,12 @@ export const WEAPON_RANKS: Record<Weapon, [string, string, string]> = {
 export const WEAPON_FOCUS: Record<Weapon, string> = {
   axe: 'Wider cleave', thorns: '+1 pierce', bow: 'Faster fire + crit', staff: 'Wider, longer burn',
 };
+export const WEAPON_COMMAND: Record<Weapon, { name: string; slotName: string; description: string }> = {
+  axe: { name: 'Crescent Sweep', slotName: 'SWEEP', description: 'Sweep a wide arc and knock foes back' },
+  thorns: { name: 'Root Volley', slotName: 'ROOT VOLLEY', description: 'Piercing fan that roots nearby foes' },
+  bow: { name: 'Dawnshot', slotName: 'DAWNSHOT', description: 'Long-range critical shot that breaks elites' },
+  staff: { name: 'Ember Field', slotName: 'EMBER FIELD', description: 'Leave burning ground for four seconds' },
+};
 export const WEAPON_PATH_INFO: Record<Weapon, Record<WeaponPath, { name: string; trait: string; description: string }>> = {
   axe: {
     a: { name: 'Storm Arc', trait: 'Wider sweep', description: 'Cleave reaches farther around its target' },

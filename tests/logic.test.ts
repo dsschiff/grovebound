@@ -150,6 +150,9 @@ describe('run progression', () => {
     const pursuit = { ...snapshot, region: 2,
       objects: [{ kind: 'moonflame', x: 1200, y: 650, hp: 1, maxHp: 3, active: true }] };
     expect(parseRunSnapshot(pursuit)?.objects[0].x).toBe(1200);
+    const fireGround = { ...snapshot, emberFields: [{ x: 780, y: 820, remaining: 2.5, tickClock: 0.3, damage: 8 }] };
+    expect(parseRunSnapshot(fireGround)?.emberFields?.[0].remaining).toBe(2.5);
+    expect(parseRunSnapshot({ ...fireGround, emberFields: [{ ...fireGround.emberFields[0], damage: -1 }] })).toBeNull();
     const escorted = { ...snapshot, waylightAmbush: true,
       objects: [{ kind: 'waylight', x: 640, y: 760, hp: 1, maxHp: 1, active: true }] };
     expect(parseRunSnapshot(escorted)?.objects[0].x).toBe(640);
