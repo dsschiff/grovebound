@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { advanceSeedheart, moonMission, nextObjective, objectiveKinds, objectivesLeft, quarryMission, vergeMission } from '../src/game/objectives';
+import { advanceSeedheart, moonMission, nextObjective, objectiveKinds, objectivesLeft, quarryMission, seedForVergeContract, vergeMission } from '../src/game/objectives';
 
 describe('region objectives', () => {
+  it('honors a chosen Verge mission without freezing the rest of the route seed', () => {
+    for (const seed of [0, 1, 2, 24, 25, 0xffffffff]) {
+      for (const contract of ['waylight', 'seedheart', 'stag'] as const)
+        expect(vergeMission(seedForVergeContract(seed, contract))).toBe(contract);
+    }
+    expect(seedForVergeContract(0x123401, 'waylight') & 0xffff00).toBe(0x123400);
+  });
   it('uses the escorted waylight instead of repeated ward attacks in a new Verge run', () => {
     const waylight = [{ kind: 'waylight' as const, x: 420, y: 650, hp: 1, active: true }];
     expect(objectiveKinds(0, waylight)).toEqual(['waylight']);

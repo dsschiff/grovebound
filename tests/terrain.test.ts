@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { enemyFieldModifiers, terrainRupture, terrainSites } from '../src/game/terrain';
 
 describe('tactical terrain placement', () => {
-  it('places two repeatable, bounded sites with a region-specific effect', () => {
+  it('places a visible starter field and two repeatable route sites with a region-specific effect', () => {
     for (const seed of [1, 7821, 0xffffffff]) {
       for (const [region, kind] of ['bramble', 'ore', 'moonstone'].entries()) {
         const sites = terrainSites(seed, region);
         expect(sites).toEqual(terrainSites(seed, region));
-        expect(sites).toHaveLength(2);
+        expect(sites).toHaveLength(3);
+        expect(Math.hypot(sites[0].x - 900, sites[0].y - 900)).toBeGreaterThan(155);
+        expect(Math.hypot(sites[0].x - 900, sites[0].y - 900)).toBeLessThan(170);
         expect(sites.every(site => site.kind === kind && site.x > 100 && site.x < 1700
           && site.y > 100 && site.y < 1700)).toBe(true);
         expect(Math.hypot(sites[0].x - sites[1].x, sites[0].y - sites[1].y)).toBeGreaterThan(150);

@@ -14,6 +14,7 @@ import { enemyFieldModifiers, terrainRupture, terrainSites, type TerrainKind } f
 import { BOSS_STRIKE_WINDUP, bossStrikeCooldown, bossStrikeRadius, bossStrikeTarget, insideBossStrike, type BossStrikeState } from './bossStrike';
 import { WISP_LANCE_WIDTH, WISP_LANCE_WINDUP, insideWispLance, waveInterval, wildSurge,
   wispLanceCooldown, wispLanceDamage, wispLanceTarget, type WispLanceState } from './wispLance';
+import { advanceThornbackDash, thornbackTarget, THORNBACK_WINDUP, type ThornbackChargeState } from './thornback';
 import { advanceSeedheart, moonMission, nextObjective, objectiveName, objectivesLeft, quarryMission, vergeMission } from './objectives';
 import { advanceWaylight, waylightProgress } from './waylight';
 import { advanceBriarStag, stagLeg, strikeBriarStag } from './briarStag';
@@ -36,6 +37,7 @@ interface Enemy {
   tangleRemaining: number;
   strike?: BossStrikeState & { ring?: Phaser.GameObjects.Arc };
   lance?: WispLanceState & { marker?: Phaser.GameObjects.Graphics };
+  charge?: ThornbackChargeState & { marker?: Phaser.GameObjects.Graphics };
 }
 interface WorldObject { view: Phaser.GameObjects.Container; image: Phaser.GameObjects.Image; label: Phaser.GameObjects.Text; kind: ObjectKind; x: number; y: number; hp: number; maxHp: number; active: boolean; ring?: Phaser.GameObjects.Arc; hazardPhase?: VentPhase }
 interface Orb { view: Phaser.GameObjects.Container; x: number; y: number; value: number }
@@ -148,13 +150,14 @@ export class GroveScene extends Phaser.Scene {
 
   preload(): void {
     const base = import.meta.env.BASE_URL;
-    this.load.image('tree', `${base}art/tree.png`);
+    this.load.image('tree', `${base}art/ancient-tree-v1.webp`);
     for (const key of ['warden-v4', 'ranger-v4', 'ember-v4', 'warden-run-v1', 'ranger-run-v1', 'ember-run-v1',
       'warden-attack-v1', 'ranger-attack-v1', 'ember-attack-v1',
       'weapon-axe-v2', 'weapon-thorns-v2', 'weapon-bow-v2', 'weapon-staff-v2',
       'waylight', 'seedheart', 'briar-stag-v1', 'root-totem', 'coolant-pump', 'coolant-spring', 'forge-core', 'moonflame',
       'moon-altar', 'mist-bloom', 'ember-vent', 'grove-gate', 'reliquary', 'fox-relic',
-      'gnarl-v2', 'wisp-v2', 'brute-v2', 'briar-king-v2', 'bramble-field', 'ember-ore', 'moonstone']) {
+      'gnarl-v2', 'wisp-v2', 'brute-v2', 'thornback-v1', 'briar-king-v2', 'bramble-field', 'ember-ore', 'moonstone',
+      'ember-boulder-v1']) {
       this.load.image(key, `${base}art/${key}.webp`);
     }
   }
@@ -300,9 +303,14 @@ export class GroveScene extends Phaser.Scene {
         if (outcome.resonance) this.fireResonance(outcome.resonance, weapon);
         else this.callbacks.onEvent(`${WEAPON_COMMAND[weapon].name.toUpperCase()} · CHAIN ANOTHER SLOT`);
       }
-    } else this.callbacks.onEvent((equipped.commandCooldown ?? 0) > 0
-      ? `${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · ${Math.ceil(equipped.commandCooldown ?? 0)}s TO CHARGE`
-      : `${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · MOVE INTO RANGE TO FIRE`);
+    } else {
+      const recharging = (equipped.commandCooldown ?? 0) > 0;
+      this.callbacks.onEvent(recharging
+        ? `${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · ${Math.ceil(equipped.commandCooldown ?? 0)}s TO CHARGE`
+        : `${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · MOVE INTO RANGE TO FIRE`);
+      this.floatText(recharging ? 'RECHARGING' : 'NO TARGET IN RANGE', this.hero.x, this.hero.y - 76,
+        WEAPON_INFO[weapon].color);
+    }
     this.publishHud(); this.saveSnapshot();
   }
 
@@ -335,7 +343,7 @@ export class GroveScene extends Phaser.Scene {
   endRunEarly(): void {
     this.pausedByUser = false; this.running = false; this.releaseJoystick(); clearRunSnapshot();
     this.weaponMarkers.forEach(marker => marker.view.setVisible(false));
-    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); }
+    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.charge?.marker?.destroy(); }
     this.clearFieldMark();
   }
 
@@ -444,6 +452,34 @@ export class GroveScene extends Phaser.Scene {
     lance.toX = this.hero.x; lance.toY = this.hero.y;
     lance.marker = this.createWispLanceMarker(lance);
     this.callbacks.onEvent('WISP LANCE — SIDESTEP THE LINE');
+    this.publishHud(); this.saveSnapshot();
+  }
+  debugSummonThornback(): void {
+    if (!this.running || this.choosing) return;
+    this.clearEnemies();
+    this.hero.setPosition(900, 900);
+    this.gatekeeperSpawned = true;
+    this.spawnEnemy('thornback', { x: 760, y: 900 });
+    const boar = this.enemies[0];
+    boar.hp = 800; boar.maxHp = 800; boar.speed = 0;
+    const charge = boar.charge!;
+    const target = thornbackTarget(boar.sprite, this.hero);
+    charge.cooldown = 0; charge.windup = 2;
+    charge.fromX = boar.sprite.x; charge.fromY = boar.sprite.y;
+    charge.toX = target.x; charge.toY = target.y;
+    charge.marker = this.createThornbackMarker(charge);
+    this.callbacks.onEvent('THORNBACK — WATCH ITS CHARGE LANE');
+    this.publishHud(); this.saveSnapshot();
+  }
+  debugSidestepThornback(): void {
+    if (!this.running || this.choosing) return;
+    const charge = this.enemies.find(enemy => enemy.charge && (enemy.charge.windup > 0 || enemy.charge.dashRemaining > 0))?.charge;
+    if (!charge) return;
+    const dx = charge.toX - charge.fromX; const dy = charge.toY - charge.fromY;
+    const length = Math.max(1, Math.hypot(dx, dy));
+    this.hero.setPosition(Phaser.Math.Clamp(this.hero.x - dy / length * 120, 42, WORLD - 42),
+      Phaser.Math.Clamp(this.hero.y + dx / length * 120, 42, WORLD - 42));
+    this.callbacks.onEvent('SIDESTEP POSITION — WATCH THE BOAR PASS');
     this.publishHud(); this.saveSnapshot();
   }
   debugSummonBoss(): void {
@@ -680,10 +716,13 @@ export class GroveScene extends Phaser.Scene {
       if (layout.clearings.some(clearing => this.distance(x, y, clearing.x, clearing.y) < clearing.radius + 55)) continue;
       if (layout.clearings.slice(1).some(clearing => this.distanceToSegment(x, y, 900, 900, clearing.x, clearing.y) < 115)) continue;
       if (this.region === 1) {
-        const rock = this.add.polygon(x, y, [0, 20, 20, -15, 49, 6, 45, 34, 15, 38], 0x443f3a, 0.85).setStrokeStyle(3, 0xb07d5a, 0.6).setDepth(-3);
+        const size = rng.between(47, 77);
+        const rock = this.add.image(x, y, 'ember-boulder-v1').setDisplaySize(size, size).setDepth(-3)
+          .setAngle(rng.range(-11, 11)).setAlpha(rng.range(0.78, 0.96));
         this.decorations.push(rock);
       } else {
-        const tree = this.add.image(x, y, 'tree').setDisplaySize(rng.between(75, 115), rng.between(88, 140)).setDepth(-3);
+        const size = rng.between(80, 128);
+        const tree = this.add.image(x, y, 'tree').setDisplaySize(size, size).setDepth(-3);
         if (this.region === 2) tree.setTint(0x8dbac0);
         tree.setAlpha(rng.range(0.73, 0.95)); this.decorations.push(tree);
       }
@@ -709,7 +748,7 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private clearEnemies(): void {
-    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.sprite.destroy(); }
+    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.charge?.marker?.destroy(); enemy.sprite.destroy(); }
     this.enemies = [];
   }
 
@@ -744,6 +783,8 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private moveHero(dt: number): void {
+    const compactView = this.scale.height <= 630;
+    const heroScale = compactView ? 0.28 : 0.36;
     let dx = this.joyVector.x; let dy = this.joyVector.y;
     if (this.keys?.A?.isDown || this.cursors?.left?.isDown) dx -= 1;
     if (this.keys?.D?.isDown || this.cursors?.right?.isDown) dx += 1;
@@ -762,13 +803,13 @@ export class GroveScene extends Phaser.Scene {
       this.hero.y = Phaser.Math.Clamp(this.hero.y + dy / Math.max(1, length) * speed * dt, 42, WORLD - 42);
       if (dx !== 0) this.hero.setFlipX(dx < 0);
       this.hero.setRotation(Math.sin(this.seconds * 12) * 0.045 + attackKick * (this.hero.flipX ? -0.12 : 0.12))
-        .setScale(0.36 * (1 + Math.sin(this.seconds * 12) * 0.025 + attackKick * 0.09), 0.36 * (1 - Math.sin(this.seconds * 12) * 0.025 - attackKick * 0.06));
+        .setScale(heroScale * (1 + Math.sin(this.seconds * 12) * 0.025 + attackKick * 0.09), heroScale * (1 - Math.sin(this.seconds * 12) * 0.025 - attackKick * 0.06));
     } else this.hero.setRotation(attackKick * (this.hero.flipX ? -0.12 : 0.12))
-      .setScale(0.36 * (1 + Math.sin(this.seconds * 3) * 0.012 + attackKick * 0.09), 0.36 * (1 - attackKick * 0.06));
+      .setScale(heroScale * (1 + Math.sin(this.seconds * 3) * 0.012 + attackKick * 0.09), heroScale * (1 - attackKick * 0.06));
     this.hero.setAlpha(this.invulnerability > 0 && Math.floor(this.seconds * 18) % 2 === 0 ? 0.57 : 1);
-    this.heroShadow.setPosition(this.hero.x, this.hero.y + 40).setScale(length > 0.03 ? 1.08 : 1, 1);
+    this.heroShadow.setPosition(this.hero.x, this.hero.y + (compactView ? 31 : 40)).setScale(length > 0.03 ? 1.08 : 1, 1);
     this.updateWeaponMarkers();
-    this.nav.setPosition(this.hero.x, this.hero.y - 110);
+    this.nav.setPosition(this.hero.x, this.hero.y - (compactView ? 89 : 110));
   }
 
   private updateWeaponMarkers(): void {
@@ -789,7 +830,7 @@ export class GroveScene extends Phaser.Scene {
       const focused = weapon.id === this.focusedWeapon;
       const ready = (weapon.commandCooldown ?? 0) <= 0;
       const flash = Math.max(0, Math.min(1, ((this.weaponFlashUntil[weapon.id] ?? 0) - this.seconds) / 0.22));
-      marker.view.setPosition(this.hero.x + offsets[index], this.hero.y + 52 + (this.reducedEffects ? 0 : Math.sin(this.seconds * 5 + index) * 2))
+      marker.view.setPosition(this.hero.x + offsets[index], this.hero.y + (this.scale.height <= 630 ? 43 : 52) + (this.reducedEffects ? 0 : Math.sin(this.seconds * 5 + index) * 2))
         .setScale((focused ? 1.13 : 0.95) * (1 + flash * 0.22)).setAlpha(ready || flash > 0 ? 0.97 : 0.58);
       marker.rim.setStrokeStyle(focused ? 3 : 2,
         ready ? Phaser.Display.Color.HexStringToColor(WEAPON_INFO[weapon.id].color).color : 0x829c88,
@@ -862,8 +903,10 @@ export class GroveScene extends Phaser.Scene {
   private chooseEnemyKind(): EnemyKind {
     const roll = this.random.next();
     const surge = wildSurge(this.region, this.stageSeconds, REGIONS[this.region].duration);
-    if (this.stageSeconds > 55 && roll < 0.16 + this.region * 0.05) return 'brute';
-    if (this.stageSeconds > 25 && roll < 0.43 + this.region * 0.05 + (surge ? 0.16 : 0)) return 'wisp';
+    if (this.stageSeconds > 40 && roll < 0.12 + this.region * 0.03
+      && this.enemies.filter(enemy => enemy.kind === 'thornback').length < 3) return 'thornback';
+    if (this.stageSeconds > 55 && roll < 0.26 + this.region * 0.05) return 'brute';
+    if (this.stageSeconds > 25 && roll < 0.5 + this.region * 0.05 + (surge ? 0.16 : 0)) return 'wisp';
     return 'gnarl';
   }
 
@@ -877,10 +920,11 @@ export class GroveScene extends Phaser.Scene {
       gnarl: { hp: 27, speed: 77, damage: 8, radius: 23, size: 48, texture: 'gnarl-v2' },
       wisp: { hp: 17, speed: 126, damage: 6, radius: 17, size: 43, texture: 'wisp-v2' },
       brute: { hp: 82, speed: 53, damage: 15, radius: 31, size: 67, texture: 'brute-v2' },
+      thornback: { hp: 110, speed: 92, damage: 17, radius: 30, size: 74, texture: 'thornback-v1' },
       gatekeeper: { hp: 420, speed: 67, damage: 18, radius: 38, size: 91, texture: 'brute-v2' },
       boss: { hp: 1150, speed: 63, damage: 22, radius: 54, size: 125, texture: 'briar-king-v2' },
     }[kind];
-    const point = position ?? this.spawnPoint();
+    const point = position ?? this.spawnPoint(kind === 'thornback' ? 280 : 430);
     const hp = saved?.maxHp ?? Math.round(values.hp * (kind === 'boss' || kind === 'gatekeeper' ? 1 : 1 + this.region * 0.25 + this.stageSeconds / 700));
     const sprite = this.add.image(point.x, point.y, values.texture).setDisplaySize(values.size, values.size).setDepth(4);
     if (kind === 'gatekeeper') sprite.setTint(0xf1bd8d);
@@ -902,13 +946,22 @@ export class GroveScene extends Phaser.Scene {
       toX: saved?.wispLance?.toX ?? point.x, toY: saved?.wispLance?.toY ?? point.y,
     } : undefined;
     if (lance && lance.windup > 0) lance.marker = this.createWispLanceMarker(lance);
+    const charge: Enemy['charge'] = kind === 'thornback' ? {
+      cooldown: saved?.thornbackCharge?.cooldown ?? 1.1 + phase * 0.1,
+      windup: saved?.thornbackCharge?.windup ?? 0,
+      dashRemaining: saved?.thornbackCharge?.dashRemaining ?? 0,
+      fromX: saved?.thornbackCharge?.fromX ?? point.x, fromY: saved?.thornbackCharge?.fromY ?? point.y,
+      toX: saved?.thornbackCharge?.toX ?? point.x, toY: saved?.thornbackCharge?.toY ?? point.y,
+      hit: saved?.thornbackCharge?.hit ?? false,
+    } : undefined;
+    if (charge && charge.windup > 0) charge.marker = this.createThornbackMarker(charge);
     this.enemies.push({ sprite, kind, hp: saved?.hp ?? hp, maxHp: hp,
       speed: values.speed + (kind === 'boss' ? phase * 10 : 0),
       damage: values.damage + (kind === 'boss' ? phase * 3 : 0),
       radius: values.radius, phase, pendingDamage: 0, damageClock: 0,
       burnRemaining: saved?.burnRemaining ?? 0, burnTickClock: saved?.burnTickClock ?? 0,
       burnDamage: saved?.burnDamage ?? 0, burnSource: saved?.burnSource,
-      tangleRemaining: saved?.tangleRemaining ?? 0, strike, lance });
+      tangleRemaining: saved?.tangleRemaining ?? 0, strike, lance, charge });
   }
 
   private updateEnemies(dt: number): void {
@@ -930,13 +983,14 @@ export class GroveScene extends Phaser.Scene {
       }
       const dx = this.hero.x - enemy.sprite.x; const dy = this.hero.y - enemy.sprite.y;
       const distance = Math.max(1, Math.hypot(dx, dy));
-      if (distance > enemy.radius + 16 && !(enemy.lance && enemy.lance.windup > 0)) {
+      const chargeAction = enemy.charge ? this.updateThornbackCharge(enemy, dt, distance) : false;
+      if (!chargeAction && distance > enemy.radius + 16 && !(enemy.lance && enemy.lance.windup > 0)) {
         const weave = enemy.kind === 'wisp' ? Math.sin(this.seconds * 7 + enemy.phase) * 0.32 : 0;
         const fieldSpeed = enemyFieldModifiers(enemy.sprite.x, enemy.sprite.y, this.objects).speed
           * (enemy.tangleRemaining > 0 ? enemy.kind === 'boss' || enemy.kind === 'gatekeeper' ? 0.55 : 0.22 : 1);
         enemy.sprite.x += (dx / distance - dy / distance * weave) * enemy.speed * fieldSpeed * dt;
         enemy.sprite.y += (dy / distance + dx / distance * weave) * enemy.speed * fieldSpeed * dt;
-      } else if (distance <= enemy.radius + 16 && this.invulnerability <= 0) this.takeDamage(enemy.damage);
+      } else if (!chargeAction && distance <= enemy.radius + 16 && this.invulnerability <= 0) this.takeDamage(enemy.damage);
       if (!this.running) break;
       enemy.sprite.setFlipX(dx < 0);
       enemy.sprite.setRotation(Math.sin(this.seconds * (enemy.kind === 'wisp' ? 8 : 3) + enemy.phase) * 0.055);
@@ -948,6 +1002,70 @@ export class GroveScene extends Phaser.Scene {
       if (enemy.lance) this.updateWispLance(enemy, dt);
       if (!this.running) break;
     }
+  }
+
+  private createThornbackMarker(charge: ThornbackChargeState): Phaser.GameObjects.Graphics {
+    const marker = this.add.graphics().setDepth(3);
+    marker.lineStyle(72, 0x4b291e, 0.45).lineBetween(charge.fromX, charge.fromY, charge.toX, charge.toY);
+    marker.lineStyle(52, 0xf59a54, 0.55).lineBetween(charge.fromX, charge.fromY, charge.toX, charge.toY);
+    marker.lineStyle(4, 0xffe4a7, 0.95).lineBetween(charge.fromX, charge.fromY, charge.toX, charge.toY);
+    marker.fillStyle(0xffd98c, 0.88).fillCircle(charge.toX, charge.toY, 11);
+    return marker;
+  }
+
+  private updateThornbackCharge(boar: Enemy, dt: number, distance: number): boolean {
+    const charge = boar.charge!;
+    if (boar.tangleRemaining > 0 && (charge.windup > 0 || charge.dashRemaining > 0)) {
+      charge.marker?.destroy(); charge.marker = undefined;
+      charge.windup = 0; charge.dashRemaining = 0; charge.cooldown = 3.5;
+      this.floatText('CHARGE BROKEN', boar.sprite.x, boar.sprite.y - 58, '#c9f0a8');
+      this.saveSnapshot();
+      return true;
+    }
+    if (charge.windup > 0) {
+      charge.windup = Math.max(0, charge.windup - dt);
+      if (!this.reducedEffects) charge.marker?.setAlpha(0.72 + Math.sin(this.seconds * 15) * 0.2);
+      if (charge.windup === 0) {
+        charge.marker?.destroy(); charge.marker = undefined;
+        charge.dashRemaining = 1;
+        this.saveSnapshot();
+      }
+      return true;
+    }
+    if (charge.dashRemaining > 0) {
+      const step = advanceThornbackDash(charge, dt);
+      charge.dashRemaining = step.remaining;
+      boar.sprite.setPosition(step.point.x, step.point.y);
+      if (!charge.hit && this.distance(this.hero.x, this.hero.y, step.point.x, step.point.y) < boar.radius + 17) {
+        charge.hit = true;
+        if (this.invulnerability <= 0) {
+          this.metrics.chargeHits = (this.metrics.chargeHits ?? 0) + 1;
+          this.floatText('RAMMED', this.hero.x, this.hero.y - 60, '#ffc08f');
+          this.takeDamage(boar.damage);
+        }
+      }
+      if (step.finished) {
+        charge.cooldown = 3.4;
+        this.trail(charge.fromX, charge.fromY, charge.toX, charge.toY, 0xffc07d);
+        if (!charge.hit) this.metrics.chargesEvaded = (this.metrics.chargesEvaded ?? 0) + 1;
+        if (!charge.hit && this.distance(this.hero.x, this.hero.y, boar.sprite.x, boar.sprite.y) < 400)
+          this.floatText('SIDESTEP', this.hero.x, this.hero.y - 57, '#c8f0cb');
+        this.saveSnapshot();
+      }
+      return true;
+    }
+    charge.cooldown = Math.max(0, charge.cooldown - dt);
+    if (charge.cooldown > 0 || boar.tangleRemaining > 0 || distance < 95 || distance > 150
+      || this.enemies.filter(enemy => (enemy.charge?.windup ?? 0) > 0).length >= 2) return false;
+    const target = thornbackTarget(boar.sprite, this.hero);
+    charge.fromX = boar.sprite.x; charge.fromY = boar.sprite.y;
+    charge.toX = target.x; charge.toY = target.y;
+    charge.windup = THORNBACK_WINDUP; charge.hit = false;
+    charge.marker = this.createThornbackMarker(charge);
+    this.floatText('CHARGE!', boar.sprite.x, boar.sprite.y - 59, '#ffd498');
+    this.callbacks.onEvent('THORNBACK CHARGE — SIDESTEP THE LANE');
+    this.saveSnapshot();
+    return true;
   }
 
   private createBossStrikeMarker(strike: BossStrikeState): Phaser.GameObjects.Arc {
@@ -1058,7 +1176,8 @@ export class GroveScene extends Phaser.Scene {
     const targetObjects = this.objects.filter(candidate => candidate.active && candidate.hp > 0
       && candidate.kind !== 'pump' && candidate.kind !== 'waylight' && candidate.kind !== 'seedheart'
       && candidate.kind !== 'coolant' && candidate.kind !== 'moonflame' && !(candidate.kind === 'forge' && candidate.maxHp <= 3)
-      && !(candidate.kind === 'altar' && candidate.maxHp <= 6));
+      && !(candidate.kind === 'altar' && candidate.maxHp <= 6)
+      && (!this.isTerrainField(candidate) || candidate === this.markedField));
     const markedIndex = this.markedField?.active && this.markedField.hp > 0
       && this.distance(this.hero.x, this.hero.y, this.markedField.x, this.markedField.y) < range
       ? targetObjects.indexOf(this.markedField) : -1;
@@ -1133,7 +1252,7 @@ export class GroveScene extends Phaser.Scene {
         + path.splash + (commanded && (weapon.id === 'axe' || weapon.id === 'staff') ? 45 : 0);
       const victims = splash > 0 ? this.enemies.filter(enemy => this.distance(enemy.sprite.x, enemy.sprite.y, x, y) < splash) : [target];
       for (const enemy of victims) {
-        const elite = enemy.kind === 'brute' || enemy.kind === 'gatekeeper' || enemy.kind === 'boss';
+        const elite = enemy.kind === 'brute' || enemy.kind === 'thornback' || enemy.kind === 'gatekeeper' || enemy.kind === 'boss';
         this.hitEnemy(enemy, Math.round(damage * (elite ? path.eliteMultiplier : 1)
           * (commanded && weapon.id === 'bow' && elite && enemy === target ? 1.35 : 1)), false, weapon.id);
         if (!this.running) return true;
@@ -1274,7 +1393,7 @@ export class GroveScene extends Phaser.Scene {
       if (!this.enemies.includes(enemy)) continue;
       if (resonance === 'needleRain' && !this.reducedEffects)
         this.trail(center.x, center.y - 70, enemy.sprite.x, enemy.sprite.y, tint);
-      const elite = enemy.kind === 'brute' || enemy.kind === 'gatekeeper' || enemy.kind === 'boss';
+      const elite = enemy.kind === 'brute' || enemy.kind === 'thornback' || enemy.kind === 'gatekeeper' || enemy.kind === 'boss';
       this.hitEnemy(enemy, Math.round(this.stats.attack * info.damageScale * (elite ? info.eliteScale : 1)), false, source);
       if (!this.running) return;
       if (!this.enemies.includes(enemy)) continue;
@@ -1353,7 +1472,8 @@ export class GroveScene extends Phaser.Scene {
       this.health += restored;
       this.floatText(`+${Math.ceil(restored)} ASH`, this.hero.x, this.hero.y - 67, '#f9c8a5');
     }
-    enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.sprite.destroy(); this.enemies.splice(this.enemies.indexOf(enemy), 1);
+    enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.charge?.marker?.destroy();
+    enemy.sprite.destroy(); this.enemies.splice(this.enemies.indexOf(enemy), 1);
     this.kills++;
     const rite = this.objects.find(object => object.kind === 'altar' && object.active && object.hp > 0 && object.maxHp <= 6);
     if (rite && this.distance(x, y, rite.x, rite.y) < 250) {
@@ -1365,7 +1485,7 @@ export class GroveScene extends Phaser.Scene {
     this.burst(x, y, enemy.kind === 'wisp' ? '#f8be71' : '#b4d889', enemy.kind === 'boss' ? 17 : 7);
     if (enemy.kind === 'boss') { this.finish(true); return; }
     if (enemy.kind === 'gatekeeper') { this.openGate(); return; }
-    this.spawnOrb(x, y, enemy.kind === 'brute' ? 3 : 1);
+    this.spawnOrb(x, y, enemy.kind === 'brute' || enemy.kind === 'thornback' ? 3 : 1);
   }
 
   private ignite(enemy: Enemy, seconds: number, damage: number, source?: Weapon): void {
@@ -1855,7 +1975,7 @@ export class GroveScene extends Phaser.Scene {
       }
       if (enemy.hp >= enemy.maxHp && enemy.kind !== 'boss' && enemy.kind !== 'gatekeeper') continue;
       const width = enemy.kind === 'boss' ? 86 : 36;
-      const x = enemy.sprite.x - width / 2; const y = enemy.sprite.y - (enemy.kind === 'boss' ? 67 : 31);
+      const x = enemy.sprite.x - width / 2; const y = enemy.sprite.y - (enemy.kind === 'boss' ? 67 : enemy.kind === 'thornback' ? 45 : 31);
       this.bars.fillStyle(0x18312d, 0.9).fillRoundedRect(x - 2, y - 2, width + 4, 8, 3);
       this.bars.fillStyle(enemy.kind === 'boss' ? 0xeea673 : 0xeeb08e).fillRoundedRect(x, y, width * Math.max(0, enemy.hp / enemy.maxHp), 4, 2);
     }
@@ -1897,7 +2017,7 @@ export class GroveScene extends Phaser.Scene {
     this.metrics.regionSeconds[this.region] = this.stageSeconds;
     this.running = false; this.releaseJoystick(); clearRunSnapshot();
     this.weaponMarkers.forEach(marker => marker.view.setVisible(false));
-    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); }
+    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.charge?.marker?.destroy(); }
     this.clearFieldMark();
     if (won) soundFx.play('victory');
     if (won) this.tweens.add({ targets: this.hero, scaleX: 0.44, scaleY: 0.44, yoyo: true, duration: 250 });
@@ -1993,7 +2113,11 @@ export class GroveScene extends Phaser.Scene {
           x: enemy.strike.x, y: enemy.strike.y, radius: enemy.strike.radius } : undefined,
         wispLance: enemy.lance ? { cooldown: enemy.lance.cooldown, windup: enemy.lance.windup,
           fromX: enemy.lance.fromX, fromY: enemy.lance.fromY,
-          toX: enemy.lance.toX, toY: enemy.lance.toY } : undefined })),
+          toX: enemy.lance.toX, toY: enemy.lance.toY } : undefined,
+        thornbackCharge: enemy.charge ? { cooldown: enemy.charge.cooldown, windup: enemy.charge.windup,
+          dashRemaining: enemy.charge.dashRemaining,
+          fromX: enemy.charge.fromX, fromY: enemy.charge.fromY,
+          toX: enemy.charge.toX, toY: enemy.charge.toY, hit: enemy.charge.hit } : undefined })),
       objects: this.objects.map(object => ({ kind: object.kind, x: object.x, y: object.y, hp: object.hp, maxHp: object.maxHp, active: object.active })),
       orbs: this.orbs.map(orb => ({ x: orb.x, y: orb.y, value: orb.value })),
       caches: this.caches.map(cache => ({ x: cache.x, y: cache.y, stat: cache.stat })),

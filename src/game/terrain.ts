@@ -31,7 +31,7 @@ export function enemyFieldModifiers(x: number, y: number, fields: TerrainField[]
 export function terrainSites(seed: number, region: number): TerrainSite[] {
   const kind: TerrainKind = region === 0 ? 'bramble' : region === 1 ? 'ore' : 'moonstone';
   const clearings = generateRegionLayout(seed, region).clearings;
-  return [clearings[2], clearings[3]].map((clearing, index) => {
+  const routeSites = [clearings[2], clearings[3]].map((clearing, index) => {
     const dx = clearing.x - 900;
     const dy = clearing.y - 900;
     const length = Math.hypot(dx, dy);
@@ -42,4 +42,9 @@ export function terrainSites(seed: number, region: number): TerrainSite[] {
       y: Math.round(900 + dy * 0.48 + dx / length * 85 * side),
     };
   });
+  const nearStart = [[770, 810], [1030, 810], [770, 990], [1030, 990]]
+    .map(([x, y]) => ({ kind, x, y,
+      clearance: Math.min(...routeSites.map(site => Math.hypot(site.x - x, site.y - y))) }))
+    .sort((a, b) => b.clearance - a.clearance)[0];
+  return [{ kind, x: nearStart.x, y: nearStart.y }, ...routeSites];
 }

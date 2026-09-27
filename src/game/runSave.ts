@@ -1,15 +1,17 @@
 import type { Hero, Stat, Stats, Upgrade, Weapon, WeaponPath } from './logic';
 import type { WispLanceState } from './wispLance';
 import type { CommandChain } from './resonance';
+import type { ThornbackChargeState } from './thornback';
 
 export const RUN_SAVE_KEY = 'grovebound-run-v1';
 export interface EnemySave {
-  kind: 'gnarl' | 'wisp' | 'brute' | 'gatekeeper' | 'boss';
+  kind: 'gnarl' | 'wisp' | 'brute' | 'thornback' | 'gatekeeper' | 'boss';
   x: number; y: number; hp: number; maxHp: number; phase: number;
   burnRemaining?: number; burnTickClock?: number; burnDamage?: number; burnSource?: Weapon;
   tangleRemaining?: number;
   bossStrike?: { cooldown: number; windup: number; x: number; y: number; radius: number };
   wispLance?: WispLanceState;
+  thornbackCharge?: ThornbackChargeState;
 }
 export interface ObjectSave {
   kind: 'ward' | 'waylight' | 'seedheart' | 'stag' | 'pump' | 'coolant' | 'forge' | 'altar' | 'moonflame' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
@@ -19,7 +21,7 @@ export interface ObjectSave {
 export interface RunMetrics {
   foeDamage: number; objectDamage: number; damageTaken: number;
   caches: number; blessings: number; wards: number; hazards: number; terrain?: number;
-  lancesEvaded?: number; lanceHits?: number;
+  lancesEvaded?: number; lanceHits?: number; chargesEvaded?: number; chargeHits?: number;
   resonances?: number;
   weaponDamage?: Record<Weapon, number>;
   regionSeconds: [number | null, number | null, number | null];
@@ -29,7 +31,7 @@ export function emptyWeaponDamage(): Record<Weapon, number> {
 }
 export function emptyRunMetrics(): RunMetrics {
   return { foeDamage: 0, objectDamage: 0, damageTaken: 0, caches: 0, blessings: 0, wards: 0, hazards: 0, terrain: 0,
-    lancesEvaded: 0, lanceHits: 0, resonances: 0,
+    lancesEvaded: 0, lanceHits: 0, chargesEvaded: 0, chargeHits: 0, resonances: 0,
     weaponDamage: emptyWeaponDamage(),
     regionSeconds: [null, null, null] };
 }
@@ -94,7 +96,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || typeof run.choosing !== 'boolean' || !Array.isArray(run.upgradeOptions)
     || !run.upgradeOptions.every(option => UPGRADES.includes(option))
     || !Array.isArray(run.enemies) || run.enemies.length > 100 || !run.enemies.every(enemy =>
-      ['gnarl', 'wisp', 'brute', 'gatekeeper', 'boss'].includes(enemy.kind) && finite(enemy.x, 0, 1800)
+      ['gnarl', 'wisp', 'brute', 'thornback', 'gatekeeper', 'boss'].includes(enemy.kind) && finite(enemy.x, 0, 1800)
       && finite(enemy.y, 0, 1800) && finite(enemy.hp, 0, 10000) && finite(enemy.maxHp, 1, 10000) && finite(enemy.phase, 0, 7)
       && (enemy.burnRemaining === undefined || finite(enemy.burnRemaining, 0, 10))
       && (enemy.burnTickClock === undefined || finite(enemy.burnTickClock, 0, 2))
@@ -110,7 +112,15 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
         && typeof enemy.wispLance === 'object' && enemy.wispLance !== null
         && finite(enemy.wispLance.cooldown, 0, 10) && finite(enemy.wispLance.windup, 0, 8)
         && finite(enemy.wispLance.fromX, 0, 1800) && finite(enemy.wispLance.fromY, 0, 1800)
-        && finite(enemy.wispLance.toX, 0, 1800) && finite(enemy.wispLance.toY, 0, 1800))))
+        && finite(enemy.wispLance.toX, 0, 1800) && finite(enemy.wispLance.toY, 0, 1800)))
+      && (enemy.kind !== 'thornback' || enemy.thornbackCharge !== undefined)
+      && (enemy.thornbackCharge === undefined || (enemy.kind === 'thornback'
+        && typeof enemy.thornbackCharge === 'object' && enemy.thornbackCharge !== null
+        && finite(enemy.thornbackCharge.cooldown, 0, 10) && finite(enemy.thornbackCharge.windup, 0, 2)
+        && finite(enemy.thornbackCharge.dashRemaining, 0, 1)
+        && finite(enemy.thornbackCharge.fromX, 0, 1800) && finite(enemy.thornbackCharge.fromY, 0, 1800)
+        && finite(enemy.thornbackCharge.toX, 0, 1800) && finite(enemy.thornbackCharge.toY, 0, 1800)
+        && typeof enemy.thornbackCharge.hit === 'boolean')))
     || (run.waylightAmbush !== undefined && typeof run.waylightAmbush !== 'boolean')
     || (run.ritualClock !== undefined && !finite(run.ritualClock, 0, 10))
     || (run.coolantCarryRemaining !== undefined && !finite(run.coolantCarryRemaining, 0, 12))
@@ -136,6 +146,8 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || (metrics.terrain !== undefined && !finite(metrics.terrain, 0, 6))
     || (metrics.lancesEvaded !== undefined && !finite(metrics.lancesEvaded, 0, 1000))
     || (metrics.lanceHits !== undefined && !finite(metrics.lanceHits, 0, 1000))
+    || (metrics.chargesEvaded !== undefined && !finite(metrics.chargesEvaded, 0, 1000))
+    || (metrics.chargeHits !== undefined && !finite(metrics.chargeHits, 0, 1000))
     || (metrics.resonances !== undefined && !finite(metrics.resonances, 0, 1000))
     || (metrics.weaponDamage !== undefined && (!metrics.weaponDamage
       || !WEAPONS.every(weapon => finite(metrics.weaponDamage?.[weapon as Weapon]))))
@@ -143,7 +155,8 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || metrics.regionSeconds.length !== 3
     || !metrics.regionSeconds.every(seconds => seconds === null || finite(seconds)))) return null;
   return { ...run, metrics: metrics ? { ...metrics, hazards: metrics.hazards ?? 0, terrain: metrics.terrain ?? 0,
-    lancesEvaded: metrics.lancesEvaded ?? 0, lanceHits: metrics.lanceHits ?? 0, resonances: metrics.resonances ?? 0,
+    lancesEvaded: metrics.lancesEvaded ?? 0, lanceHits: metrics.lanceHits ?? 0,
+    chargesEvaded: metrics.chargesEvaded ?? 0, chargeHits: metrics.chargeHits ?? 0, resonances: metrics.resonances ?? 0,
     weaponDamage: metrics.weaponDamage ?? emptyWeaponDamage() } : emptyRunMetrics() } as RunSnapshot;
 }
 

@@ -154,3 +154,56 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
   .weapon-tray.full .weapon-slot span{flex-direction:column;gap:0;align-items:center}
   .weapon-tray.full .weapon-slot{min-height:83px;text-align:center}
 }
+
+.contract-panel{margin-top:10px;padding:10px;background:#12382fe8;border:1px solid #d9ca9370;border-radius:14px;box-shadow:0 7px 20px #08251f66;text-align:left}
+.contract-panel .panel-heading{padding-bottom:8px;color:#f4dfac}
+.contract-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.contract-option{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:100px;padding:6px 3px;color:#f4edd3;background:#224738;border:1px solid #9cb4948a;border-radius:11px;text-align:center}
+.contract-option.selected{border:2px solid #ffe09d;background:linear-gradient(155deg,#3c6545,#1c4b3d);box-shadow:inset 0 0 0 1px #ffe2a263,0 0 13px #f1ca7652}
+.contract-option img{height:51px;width:57px;object-fit:contain;filter:drop-shadow(0 3px 4px #0a2923)}
+.contract-option small{display:block;color:#f1d394;font-size:8px;font-weight:800;letter-spacing:.1em}
+.contract-option strong{display:block;font-size:9px;line-height:1.13}
+.loadout-heading{display:flex;align-items:center;justify-content:space-between;width:calc(100% - 102px);margin:0 0 4px;padding:0 2px;color:#fff1c7;text-shadow:0 2px 4px #143328;letter-spacing:.06em}
+.loadout-heading strong{font-size:10px;white-space:nowrap}
+.loadout-heading span{font-size:8px;font-weight:800;color:#d0e6c8;white-space:nowrap}
+.weapon-tray.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.weapon-slot{min-height:88px;padding:7px 7px 12px;border-width:2px;border-color:#c9d1a4c4;background:linear-gradient(155deg,#1e4a3eea,#102d2de8)}
+.weapon-slot.focused{border-color:#ffe19a;background:linear-gradient(155deg,#4c714aeF,#204b3deF)}
+.weapon-slot small{font-size:9px;letter-spacing:.08em}
+.weapon-slot .weapon-identity{display:flex;align-items:center;gap:4px;margin-top:1px;font-size:11px;font-weight:800;letter-spacing:.01em}
+.weapon-slot .weapon-identity img{height:33px;width:33px}
+.weapon-slot .slot-detail{margin-top:0;font-size:8px}
+.weapon-slot .slot-detail strong{font-size:8px}
+.weapon-slot .command-status{margin-top:4px;padding:3px 2px;border:1px solid #d3c6936e;border-radius:5px;background:#0a2e28b5;text-align:center;font-size:10px;letter-spacing:.02em}
+.weapon-slot.ready .command-status{border-color:#ffe4a3a8;background:#7b624257;color:#fff0bd}
+.weapon-tray.full .weapon-slot{min-height:88px}
+.weapon-tray.full .weapon-slot .weapon-identity{font-size:8px;flex-direction:column;gap:0}
+.weapon-tray.full .weapon-slot .weapon-identity img{height:28px;width:28px}
+.weapon-tray.full .weapon-slot .command-status{font-size:8px}
+.mission-card{width:min(233px,calc(100% - 145px));min-height:82px;gap:6px;padding:6px 7px;border-width:2px}
+.mission-card img{width:62px;height:62px}
+.mission-copy strong{font-size:10px;margin:3px 0 2px}
+.mission-copy #mission-hint{display:block;color:#d8eddb;font-size:8px;line-height:1.2;font-weight:700}
+.mission-copy .mission-track{margin-top:5px;height:6px}
+@media(max-width:365px){
+  .loadout-heading{width:calc(100% - 94px)}
+  .loadout-heading span{font-size:7px}
+  .weapon-tray.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .weapon-slot .weapon-identity{font-size:9px}
+  .weapon-slot .command-status{font-size:8px}
+  .mission-card{width:min(214px,calc(100% - 154px))}
+  .mission-card img{width:52px;height:52px}
+}
+@media(max-height:630px){
+  .minimap-frame{width:90px;height:90px;right:8px;top:calc(max(13px,env(safe-area-inset-top)) + 145px)}
+  .mission-card{top:calc(max(13px,env(safe-area-inset-top)) + 145px);min-height:72px}
+  .mission-card img{height:47px;width:47px}
+  .mission-copy strong{font-size:9px}
+  .mission-copy #mission-hint{font-size:7px}
+  .weapon-slot{min-height:76px;padding:4px 5px 9px}
+  .weapon-slot .weapon-identity img{height:26px;width:26px}
+  .weapon-slot .command-status{margin-top:2px;padding:2px 1px}
+  .weapon-tray.full .weapon-slot{min-height:76px}
+  .stat-pill{min-height:38px}
+  .bottom-line{padding-top:5px}
+}

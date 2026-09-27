@@ -137,6 +137,13 @@ describe('run progression', () => {
     expect(parseRunSnapshot({ ...lancing, enemies: [{ ...lancing.enemies[0],
       wispLance: { ...lancing.enemies[0].wispLance, windup: -1 } }] })).toBeNull();
     expect(parseRunSnapshot({ ...lancing, enemies: [{ ...lancing.enemies[0], kind: 'gnarl' }] })).toBeNull();
+    const charging = { ...snapshot, enemies: [{ kind: 'thornback' as const, x: 650, y: 900, hp: 48, maxHp: 48, phase: 0,
+      thornbackCharge: { cooldown: 0, windup: 0.42, dashRemaining: 0,
+        fromX: 650, fromY: 900, toX: 930, toY: 900, hit: false } }] };
+    expect(parseRunSnapshot(charging)?.enemies[0].thornbackCharge?.windup).toBe(0.42);
+    expect(parseRunSnapshot({ ...charging, enemies: [{ ...charging.enemies[0], thornbackCharge: undefined }] })).toBeNull();
+    expect(parseRunSnapshot({ ...charging, enemies: [{ ...charging.enemies[0],
+      thornbackCharge: { ...charging.enemies[0].thornbackCharge, dashRemaining: 1.2 } }] })).toBeNull();
     const terrainTactic = { ...snapshot, region: 1, moonflowRemaining: 4.5, markedFieldIndex: 1,
       enemies: [{ ...snapshot.enemies[0], tangleRemaining: 2.2 }],
       objects: [...snapshot.objects, { kind: 'ore' as const, x: 750, y: 900, hp: 90, maxHp: 200, active: true }] };
@@ -146,6 +153,9 @@ describe('run progression', () => {
     expect(parseRunSnapshot({ ...terrainTactic, enemies: [{ ...terrainTactic.enemies[0], tangleRemaining: 20 }] })).toBeNull();
     const { hazards: _oldHazards, ...oldMetrics } = snapshot.metrics;
     expect(parseRunSnapshot({ ...snapshot, metrics: oldMetrics })?.metrics.hazards).toBe(0);
+    const { chargesEvaded: _oldChargesEvaded, chargeHits: _oldChargeHits, ...beforeCharges } = snapshot.metrics;
+    expect(parseRunSnapshot({ ...snapshot, metrics: beforeCharges })?.metrics.chargesEvaded).toBe(0);
+    expect(parseRunSnapshot({ ...snapshot, metrics: beforeCharges })?.metrics.chargeHits).toBe(0);
     const withHazards = { ...snapshot, objects: [{ kind: 'vent', x: 850, y: 780, hp: 20, maxHp: 180, active: true }],
       metrics: { ...snapshot.metrics, hazards: 2 } };
     expect(parseRunSnapshot(withHazards)?.metrics.hazards).toBe(2);

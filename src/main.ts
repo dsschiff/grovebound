@@ -9,18 +9,26 @@ import {
 import { emptyWeaponDamage, readRunSnapshot } from './game/runSave';
 import { soundFx } from './game/audio';
 import { RESONANCE_INFO, resonanceFor } from './game/resonance';
+import { seedForVergeContract, type VergeContract } from './game/objectives';
 import './style.css';
 
-const art = (name: string) => `${import.meta.env.BASE_URL}art/${name}.svg`;
+const treeArt = `${import.meta.env.BASE_URL}art/ancient-tree-v1.webp`;
 const heroArt = (hero: Hero) => `${import.meta.env.BASE_URL}art/${hero}-v4.webp`;
 const enemyArt = (name: string) => `${import.meta.env.BASE_URL}art/${name}-v2.webp`;
 const weaponArt = (weapon: Weapon) => `${import.meta.env.BASE_URL}art/weapon-${weapon}-v2.webp`;
 const weaponHudName: Record<Weapon, string> = { axe: 'Axe', thorns: 'Thorns', bow: 'Sunbow', staff: 'Ember' };
+const contractOrder: VergeContract[] = ['waylight', 'seedheart', 'stag'];
+const contractInfo: Record<VergeContract, { name: string; mode: string; art: string; hint: string }> = {
+  waylight: { name: 'Waylight Moth', mode: 'ESCORT', art: 'waylight.webp', hint: 'Stay close; clear foes from its path.' },
+  seedheart: { name: 'Seedheart', mode: 'DEFEND', art: 'seedheart.webp', hint: 'Hold the ring while it awakens.' },
+  stag: { name: 'Briar Stag', mode: 'HUNT', art: 'briar-stag-v1.webp', hint: 'Strike it, then pursue each retreat.' },
+};
 let progress = readProgress();
 let selectedHero: Hero = 'warden';
 let selectedWeapon: Weapon = 'axe';
 let selectedSupport: Weapon = 'bow';
 let selectedSkin = false;
+let selectedContract: VergeContract = contractOrder[progress.mastery.warden % contractOrder.length];
 let scene: GroveScene;
 let game: Phaser.Game;
 let currentHud: HudState | null = null;
@@ -44,11 +52,11 @@ root.innerHTML = `
         <div class="bar health-bar"><div id="health-fill"></div></div>
         <div class="bar xp-bar"><div id="xp-fill"></div></div>
       </div>
-      <div id="mission-card" class="mission-card waylight"><img id="objective-art" src="${import.meta.env.BASE_URL}art/waylight.webp" alt=""/><div class="mission-copy"><small id="mission-type">ESCORT</small><strong id="objective" aria-live="polite">STAY NEAR THE MOTH</strong><div class="mission-track"><i id="mission-progress"></i></div></div></div>
+      <div id="mission-card" class="mission-card waylight"><img id="objective-art" src="${import.meta.env.BASE_URL}art/waylight.webp" alt=""/><div class="mission-copy"><small id="mission-type">ESCORT</small><strong id="objective" aria-live="polite">STAY NEAR THE MOTH</strong><span id="mission-hint">Stay close and clear its path.</span><div class="mission-track"><i id="mission-progress"></i></div></div></div>
       <div class="minimap-frame" aria-hidden="true"><canvas id="minimap" width="120" height="120"></canvas></div>
       <div id="boss-bar" class="boss-bar hidden"><span id="boss-name">GATE SENTINEL</span><div class="bar"><div id="boss-fill"></div></div></div>
       <button id="special-button" class="special-button" aria-label="Use special ability"><span class="special-icon">✹</span><strong id="special-label">WHIRLWIND</strong><small id="special-cooldown">READY</small></button>
-      <div class="hud-bottom"><div id="resonance-cue" class="resonance-cue hidden" aria-live="polite"></div><div id="weapon-tray" class="weapon-tray" role="group" aria-label="Weapon loadout"></div><div id="stats" class="stats-strip"></div><div class="bottom-line"><span id="kills">0 VANQUISHED</span><span id="ability-name">FOCUS YOUR WEAPON</span></div></div>
+      <div class="hud-bottom"><div id="resonance-cue" class="resonance-cue hidden" aria-live="polite"></div><div class="loadout-heading"><strong>COMMANDS</strong><span>2 EQUIPPED · TAP TO FIRE</span></div><div id="weapon-tray" class="weapon-tray" role="group" aria-label="Weapon commands"></div><div id="stats" class="stats-strip"></div><div class="bottom-line"><span id="kills">0 VANQUISHED</span><span id="ability-name">FOCUS YOUR WEAPON</span></div></div>
     </div>
 
     <div id="menu" class="screen menu-screen">
@@ -58,8 +66,8 @@ root.innerHTML = `
         <p class="subtitle">Escort, defend, deliver, or pursue across three changing regions. Face the Briar King.</p>
         <div class="hero-stage" aria-hidden="true">
           <div class="hero-halo"></div>
-          <img class="stage-tree left" src="${art('tree')}" alt="" />
-          <img class="stage-tree right" src="${art('tree')}" alt="" />
+          <img class="stage-tree left" src="${treeArt}" alt="" />
+          <img class="stage-tree right" src="${treeArt}" alt="" />
           <img class="stage-enemy" src="${enemyArt('gnarl')}" alt="" />
           <img id="stage-hero" class="stage-hero" src="${heroArt('warden')}" alt="" />
           <div class="stage-ground"></div>
@@ -78,10 +86,11 @@ root.innerHTML = `
           <button id="unlock-button" class="unlock-button hidden">UNLOCK THORN DART · 6 SEEDS</button>
           <button id="skin-button" class="skin-button hidden">USE GOLDEN SKIN</button>
         </div>
+        <div class="contract-panel"><div class="panel-heading"><span>CHOOSE YOUR VERGE MISSION</span><span>REGION 1/3</span></div><div id="contract-options" class="contract-options"></div></div>
         <div class="setting-pair"><label class="setting-row"><input id="reduced-effects" type="checkbox" /> Reduced effects</label><label class="setting-row"><input id="muted" type="checkbox" /> Mute sound</label><label id="auto-special-row" class="setting-row hidden"><input id="auto-special" type="checkbox" /> Auto special</label></div>
         <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span>➜</span></button>
         <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span>➜</span></button>
-        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP A WEAPON SLOT TO FIRE ITS COMMAND · CHAIN TWO FOR A RESONANCE<br />TAP FIELDS TO BURST · WASD/ARROWS TO MOVE · SPACE SPECIAL · F TARGET</p>
+        <p class="instruction">DRAG TO MOVE <span>✧</span> BOTH WEAPONS AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP A WEAPON SLOT TO FIRE ITS COMMAND · CHAIN TWO FOR A RESONANCE<br />BREAK GLOWING TERRAIN FOR A STAT CACHE + COMMAND REFILL · KEYS 1–3 FIRE SLOTS</p>
         <div class="best-line" id="best-line"></div>
         <a class="hub-link" href="https://dsschiff.github.io/games/">ALL GAMES ↗</a>
       </div>
@@ -109,6 +118,7 @@ root.innerHTML = `
         <div class="breakdown-row"><span>OBJECT DAMAGE</span><strong id="result-object-damage">0</strong><span>OBJECTIVES CLEARED</span><strong id="result-wards">0</strong></div>
         <div class="breakdown-row"><span>STAT CACHES</span><strong id="result-caches">0</strong><span>BLESSINGS</span><strong id="result-blessings">0</strong></div>
         <div class="breakdown-row"><span>LANCES EVADED</span><strong id="result-lances-evaded">0</strong><span>LANCE HITS</span><strong id="result-lance-hits">0</strong></div>
+        <div class="breakdown-row"><span>CHARGES EVADED</span><strong id="result-charges-evaded">0</strong><span>CHARGE HITS</span><strong id="result-charge-hits">0</strong></div>
         <div class="hazard-tally"><span>HAZARDS CLEARED</span><strong id="result-hazards">0</strong></div>
         <div class="hazard-tally"><span>TERRAIN CLEARED</span><strong id="result-terrain">0</strong></div>
         <div class="hazard-tally"><span>WEAPON RESONANCES</span><strong id="result-resonances">0</strong></div>
@@ -149,6 +159,15 @@ function refreshMenu(): void {
   el('#mastery-next').textContent = rank < 5
     ? `NEXT MASTERY: ${['GLOWFOX CHOICE', '+5 STARTING HP', 'GOLDEN HERO + WEAPON', 'THIRD WEAPON SLOT', 'AUTO SPECIAL'][rank]}`
     : 'MASTERY COMPLETE · AUTO SPECIAL AVAILABLE';
+  el('#contract-options').innerHTML = contractOrder.map(contract => {
+    const info = contractInfo[contract];
+    return `<button class="contract-option ${selectedContract === contract ? 'selected' : ''}" data-contract="${contract}" aria-pressed="${selectedContract === contract}"><img src="${import.meta.env.BASE_URL}art/${info.art}" alt=""/><span><small>${info.mode}</small><strong>${info.name}</strong></span></button>`;
+  }).join('');
+  el('#contract-options').querySelectorAll<HTMLButtonElement>('[data-contract]').forEach(button => button.addEventListener('click', () => {
+    selectedContract = button.dataset.contract as VergeContract;
+    refreshMenu();
+    el<HTMLButtonElement>(`[data-contract="${selectedContract}"]`).focus({ preventScroll: true });
+  }));
   el<HTMLImageElement>('#stage-hero').src = heroArt(selectedHero);
   el<HTMLImageElement>('#stage-hero').classList.toggle('gold-skin', selectedSkin && rank >= 3);
   el('#hero-options').innerHTML = HERO_KEYS.map(hero => {
@@ -209,7 +228,7 @@ function setModal(modal: typeof activeModal): void {
     const canvas = document.querySelector<HTMLCanvasElement>('#game canvas');
     if (canvas) {
       canvas.tabIndex = 0;
-      canvas.setAttribute('aria-label', 'Game field. Drag to move, or use W A S D or arrow keys. Press Space for your special ability.');
+      canvas.setAttribute('aria-label', 'Game field. Drag to move, or use W A S D or arrow keys. Press Space for your special ability, keys 1 through 3 for weapon commands, and F to mark nearby terrain.');
       canvas.focus({ preventScroll: true });
     }
     return;
@@ -222,6 +241,18 @@ function setModal(modal: typeof activeModal): void {
 
 const minimap = el<HTMLCanvasElement>('#minimap');
 const minimapContext = minimap.getContext('2d');
+const mapArtFiles = {
+  waylight: 'waylight.webp', seedheart: 'seedheart.webp', stag: 'briar-stag-v1.webp',
+  pump: 'coolant-pump.webp', coolant: 'coolant-spring.webp', forge: 'forge-core.webp',
+  moonflame: 'moonflame.webp', bloom: 'mist-bloom.webp', altar: 'moon-altar.webp',
+  shrine: 'reliquary.webp', relic: 'fox-relic.webp', gate: 'grove-gate.webp',
+  ward: 'root-totem.webp', vent: 'ember-vent.webp', bramble: 'bramble-field.webp',
+  ore: 'ember-ore.webp', moonstone: 'moonstone.webp',
+};
+const mapArt = Object.fromEntries(Object.entries(mapArtFiles).map(([kind, file]) => {
+  const image = new Image(); image.src = `${import.meta.env.BASE_URL}art/${file}`;
+  return [kind, image];
+})) as Record<string, HTMLImageElement>;
 function drawMinimap(hud: HudState): void {
   if (!minimapContext) return;
   const ctx = minimapContext;
@@ -242,6 +273,18 @@ function drawMinimap(hud: HudState): void {
     if (!object.active && object.kind !== 'gate') continue;
     const p = point(object.x, object.y);
     ctx.save(); ctx.translate(p.x, p.y);
+    const mission = object.active && object.kind === hud.objectiveName;
+    const icon = mapArt[object.kind];
+    if (icon?.complete && icon.naturalWidth > 0) {
+      const size = mission ? 24 : object.kind === 'gate' ? 15 : object.kind === 'shrine' || object.kind === 'relic' ? 13 : 16;
+      if (mission) {
+        ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2);
+        ctx.fillStyle = '#173a35'; ctx.fill(); ctx.strokeStyle = '#fff1bf'; ctx.lineWidth = 2; ctx.stroke();
+      }
+      ctx.drawImage(icon, -size / 2, -size / 2, size, size);
+      ctx.restore();
+      continue;
+    }
     ctx.fillStyle = { ward: '#ffe2a3', waylight: '#fff0b1', seedheart: '#b9f1a8', stag: '#ffce78', pump: '#9ae8ec', coolant: '#a3fff0',
       forge: '#ffae68', altar: '#d9c2ff', moonflame: '#d6b7ff',
       shrine: '#dca5f1', relic: '#ffca83', gate: object.active ? '#a5e8dc' : '#6b8782',
@@ -279,8 +322,16 @@ function drawMinimap(hud: HudState): void {
   }
   for (const enemy of hud.map.enemies) {
     const p = point(enemy.x, enemy.y);
-    ctx.beginPath(); ctx.arc(p.x, p.y, enemy.kind === 'boss' || enemy.kind === 'gatekeeper' ? 3.5 : 2, 0, Math.PI * 2);
-    ctx.fillStyle = enemy.kind === 'boss' || enemy.kind === 'gatekeeper' ? '#ff9b62' : '#ed7773'; ctx.fill();
+    ctx.beginPath();
+    if (enemy.kind === 'thornback') ctx.ellipse(p.x, p.y, 4.5, 3, 0, 0, Math.PI * 2);
+    else ctx.arc(p.x, p.y, enemy.kind === 'boss' || enemy.kind === 'gatekeeper' ? 3.5 : 2, 0, Math.PI * 2);
+    ctx.fillStyle = enemy.kind === 'thornback' ? '#ffcf7f'
+      : enemy.kind === 'boss' || enemy.kind === 'gatekeeper' ? '#ff9b62' : '#ed7773'; ctx.fill();
+    if (enemy.kind === 'thornback') {
+      ctx.strokeStyle = '#ffecb5'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(p.x - 4, p.y - 2); ctx.lineTo(p.x - 6, p.y - 5);
+      ctx.moveTo(p.x + 4, p.y - 2); ctx.lineTo(p.x + 6, p.y - 5); ctx.stroke();
+    }
   }
   const hero = point(hud.map.x, hud.map.y);
   ctx.beginPath(); ctx.arc(hero.x, hero.y, 5.5, 0, Math.PI * 2);
@@ -331,6 +382,16 @@ function updateHud(hud: HudState): void {
     forge: hud.coolantCarryRemaining > 0 ? 'DELIVER' : 'DESTROY', moonflame: 'PURSUIT', bloom: 'PURGE', altar: 'RITUAL',
     boss: 'BOSS', gate: 'ESCAPE', hold: 'SURVIVE', ward: 'DESTROY' }[missionKind] ?? 'MISSION';
   el('#mission-type').textContent = `${REGIONS[hud.region].short} · ${missionMode}`;
+  const missionHint = {
+    waylight: 'Stay close; clear its path.', seedheart: 'Hold the ring; defeat nearby foes.',
+    stag: 'Strike, then pursue each retreat.', pump: 'Stand in the ring; expose the forge.',
+    coolant: 'Fill the flask at the spring.', forge: hud.coolantCarryRemaining > 0 ? 'Race to the forge before it warms.' : 'Break the exposed core.',
+    moonflame: 'Catch three sparks across the fen.', bloom: 'Destroy blooms to open the rite.',
+    altar: hud.ritualActive ? 'Defeat foes beside the altar.' : 'Break the altar to begin the rite.',
+    boss: 'Dodge its marks; use your commands.', gate: 'Cross the portal to continue.',
+    hold: 'Survive until the guardian arrives.', ward: 'Destroy the marked totems.',
+  }[missionKind] ?? 'Follow the marked objective.';
+  if (el('#mission-hint').textContent !== missionHint) el('#mission-hint').textContent = missionHint;
   el('#mission-card').className = `mission-card ${missionKind}`;
   el<HTMLElement>('#mission-progress').style.width = `${Math.max(0, Math.min(100, hud.objectiveProgress))}%`;
   const objectiveArt = hud.objectiveName ? {
@@ -342,6 +403,7 @@ function updateHud(hud: HudState): void {
   if (el<HTMLImageElement>('#objective-art').src !== new URL(objectiveSrc, location.href).href)
     el<HTMLImageElement>('#objective-art').src = objectiveSrc;
   const traySignature = `${hud.weaponSlots}|${hud.focusedWeapon}|${hud.weapons.map(weapon => `${weapon.id}:${weapon.rank}:${weapon.path ?? ''}`).join(',')}`;
+  el('.loadout-heading span').textContent = `${hud.weapons.length} EQUIPPED · TAP TO FIRE`;
   const cue = el('#resonance-cue');
   show('#resonance-cue', !!hud.commandChain && hud.possibleResonances.length > 0);
   if (hud.commandChain && hud.possibleResonances.length) {
@@ -352,13 +414,13 @@ function updateHud(hud: HudState): void {
   if (traySignature !== weaponTraySignature) {
     weaponTraySignature = traySignature;
     el('#weapon-tray').classList.toggle('full', hud.weapons.length >= 3);
-    el('#weapon-tray').innerHTML = Array.from({ length: 3 }, (_, index) => {
+    el('#weapon-tray').classList.toggle('two', hud.weapons.length === 2 && hud.weaponSlots === 2);
+    el('#weapon-tray').innerHTML = Array.from({ length: hud.weaponSlots }, (_, index) => {
       const weapon = hud.weapons[index];
-      if (!weapon) return `<div class="weapon-slot empty ${index >= hud.weaponSlots ? 'locked' : ''}"><small>SLOT ${index + 1}</small><span>${index >= hud.weaponSlots ? 'LOCKED' : 'FIND WEAPON'}</span></div>`;
-      const info = WEAPON_INFO[weapon.id];
+      if (!weapon) return `<div class="weapon-slot empty"><small>SLOT ${index + 1} · OPEN</small><span>FIND A WEAPON</span></div>`;
       const focused = weapon.id === hud.focusedWeapon;
       const pathName = weapon.path ? WEAPON_PATH_INFO[weapon.id][weapon.path].name : null;
-      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. Tap to fire and focus slot ${index + 1}, rank ${weapon.rank}${pathName ? `, ${pathName} technique` : ''}"><small>${focused ? 'FOCUS' : `SLOT ${index + 1}`} · ${['I', 'II', 'III'][weapon.rank - 1]}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id]}</span><div class="slot-detail"><em>${pathName ?? WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0</strong></div><b class="command-status" data-command="${weapon.id}">TAP TO ${WEAPON_COMMAND[weapon.id].slotName}</b><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
+      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. Tap to fire and focus slot ${index + 1}, rank ${weapon.rank}${pathName ? `, ${pathName} technique` : ''}"><small>SLOT ${index + 1} · ${focused ? 'FOCUSED' : 'AUTO'}</small><span class="weapon-identity"><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id].toUpperCase()} · ${['I', 'II', 'III'][weapon.rank - 1]}</span><div class="slot-detail"><em>${pathName ?? WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0 DMG</strong></div><b class="command-status" data-command="${weapon.id}">${WEAPON_COMMAND[weapon.id].slotName} · READY</b><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
     }).join('');
   }
   for (const weapon of hud.weapons) {
@@ -366,13 +428,13 @@ function updateHud(hud: HudState): void {
     const commandRemaining = weapon.commandCooldown ?? 0;
     charge.style.width = `${Math.max(0, Math.min(100, (1 - commandRemaining / 8) * 100))}%`;
     el(`[data-command="${weapon.id}"]`).textContent = commandRemaining <= 0
-      ? `TAP TO ${WEAPON_COMMAND[weapon.id].slotName}` : `${WEAPON_COMMAND[weapon.id].slotName} · ${Math.ceil(commandRemaining)}s`;
+      ? `${WEAPON_COMMAND[weapon.id].slotName} · READY` : `${WEAPON_COMMAND[weapon.id].slotName} · ${Math.ceil(commandRemaining)}s`;
     const button = el<HTMLButtonElement>(`[data-focus="${weapon.id}"]`);
     const label = `${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. ${commandRemaining <= 0
       ? 'Ready to fire' : `Recharges in ${Math.ceil(commandRemaining)} seconds`}. Tap to focus slot ${hud.weapons.indexOf(weapon) + 1}, rank ${weapon.rank}`;
     if (button.getAttribute('aria-label') !== label) button.setAttribute('aria-label', label);
     el(`[data-focus="${weapon.id}"]`).classList.toggle('ready', commandRemaining <= 0);
-    el(`[data-weapon-damage="${weapon.id}"]`).textContent = compactDamage(hud.weaponDamage[weapon.id]);
+    el(`[data-weapon-damage="${weapon.id}"]`).textContent = `${compactDamage(hud.weaponDamage[weapon.id])} DMG`;
   }
   show('#boss-bar', hud.bossHp !== null);
   el('#boss-name').textContent = hud.region === 2 ? 'THE BRIAR KING' : 'GATE SENTINEL';
@@ -414,6 +476,7 @@ function onUpgrade(options: Upgrade[]): void {
 function onEnd(result: RunResult): void {
   const earned = seedsForRun(result.kills, result.won);
   progress = addRunToProgress(progress, result.kills, result.seconds, result.won, result.hero, result.region);
+  selectedContract = contractOrder[progress.mastery[result.hero] % contractOrder.length];
   saveProgress(progress);
   el('#result-icon').textContent = result.won ? '❧' : '✦';
   el('#result-eyebrow').textContent = result.won ? 'THE FOREST IS SAFE' : 'THE GROVE REMEMBERS';
@@ -433,6 +496,8 @@ function onEnd(result: RunResult): void {
   el('#result-blessings').textContent = String(result.metrics.blessings);
   el('#result-lances-evaded').textContent = String(result.metrics.lancesEvaded ?? 0);
   el('#result-lance-hits').textContent = String(result.metrics.lanceHits ?? 0);
+  el('#result-charges-evaded').textContent = String(result.metrics.chargesEvaded ?? 0);
+  el('#result-charge-hits').textContent = String(result.metrics.chargeHits ?? 0);
   el('#result-hazards').textContent = String(result.metrics.hazards);
   el('#result-terrain').textContent = String(result.metrics.terrain ?? 0);
   el('#result-resonances').textContent = String(result.metrics.resonances ?? 0);
@@ -462,8 +527,10 @@ function startRun(): void {
   const available = (Object.keys(WEAPON_INFO) as Weapon[]).filter(weapon => availableWeapon(progress, weapon));
   const localSeed = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
     ? Number(new URLSearchParams(location.search).get('seed')) : undefined;
+  const randomSeed = (Math.random() * 0xffffffff) >>> 0 || 1;
+  const contractSeed = seedForVergeContract(randomSeed, selectedContract);
   scene.beginRun(selectedHero, selectedWeapon, rank, available, progress.reducedEffects, selectedSkin, progress.autoSpecialEnabled,
-    selectedSupport, localSeed || undefined);
+    selectedSupport, localSeed || contractSeed);
   setModal(null);
 }
 el('#start-button').addEventListener('click', startRun);
@@ -510,6 +577,10 @@ document.addEventListener('visibilitychange', () => {
   if (activeModal === null) { scene.setPaused(true); setModal('pause'); }
 });
 window.addEventListener('keydown', event => {
+  if (activeModal === null && ['1', '2', '3'].includes(event.key)) {
+    const weapon = currentHud?.weapons[Number(event.key) - 1];
+    if (weapon) { event.preventDefault(); scene.focusWeapon(weapon.id); }
+  }
   if (event.key === 'Tab' && activeModal !== null && activeModal !== 'menu') {
     const dialog = el(`#${activeModal}`);
     const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'));
@@ -530,7 +601,7 @@ if (new URLSearchParams(location.search).has('debug')) {
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const controls = document.createElement('div');
     controls.className = 'debug-controls';
-    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="growth">GROWTH CARD</button><button data-debug="build">MAX BUILD</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="terrain">INSPECT FIELD</button><button data-debug="mark-field">TARGET FIELD</button><button data-debug="clear-terrain">CLEAR FIELD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="wisp">WISP LANCE</button><button data-debug="heal">HEAL</button>';
+    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="growth">GROWTH CARD</button><button data-debug="build">MAX BUILD</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="terrain">INSPECT FIELD</button><button data-debug="mark-field">TARGET FIELD</button><button data-debug="clear-terrain">CLEAR FIELD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="wisp">WISP LANCE</button><button data-debug="thornback">THORNBACK CHARGE</button><button data-debug="sidestep">SIDESTEP CHARGE</button><button data-debug="heal">HEAL</button>';
     el('#ui').append(controls);
     controls.querySelectorAll<HTMLButtonElement>('button').forEach(button => button.addEventListener('click', () => {
       if (button.dataset.debug === 'pilot') {
@@ -549,7 +620,9 @@ if (new URLSearchParams(location.search).has('debug')) {
       if (button.dataset.debug === 'advance') scene.debugAdvanceRegion();
       if (button.dataset.debug === 'boss') scene.debugSummonBoss();
     if (button.dataset.debug === 'mark') scene.debugMarkBoss();
-    if (button.dataset.debug === 'wisp') scene.debugMarkWisp();
+      if (button.dataset.debug === 'wisp') scene.debugMarkWisp();
+      if (button.dataset.debug === 'thornback') scene.debugSummonThornback();
+      if (button.dataset.debug === 'sidestep') scene.debugSidestepThornback();
       if (button.dataset.debug === 'heal') scene.debugHeal();
     }));
   }

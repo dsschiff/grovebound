@@ -7,6 +7,15 @@ export function vergeMission(seed: number): 'waylight' | 'seedheart' | 'stag' {
   return seed % 2 === 0 ? 'seedheart' : 'waylight';
 }
 
+export type VergeContract = ReturnType<typeof vergeMission>;
+
+export function seedForVergeContract(seed: number, contract: VergeContract): number {
+  const base = seed >>> 0 || 1;
+  if (contract === 'stag') return (base | 0x18) >>> 0;
+  if (contract === 'seedheart') return (base & ~0x19) >>> 0 || 2;
+  return ((base & ~0x18) | 1) >>> 0;
+}
+
 export function quarryMission(seed: number): 'coolantRun' | 'forgeAssault' {
   return seed & 2 ? 'coolantRun' : 'forgeAssault';
 }
