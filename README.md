@@ -4,13 +4,13 @@ A portrait-first wilderness roguelite for short phone sessions. [Play the curren
 
 [All games](https://dsschiff.github.io/games/) provides a public landing page for Grovebound and future projects.
 
-Drag on the field to move, or use WASD/arrow keys. Basic weapons attack automatically. Tap the large special button, or press Space, to use a hero ability. Pause at any time; the browser saves the run and offers Resume after a reload. Progress stays on this browser and does not sync between devices.
+Drag on the field to move, or use WASD/arrow keys. Basic weapons attack automatically. Tap an equipped weapon slot to focus it for 25% more damage while your other weapons deal 10% less. Tap the large special button, or press Space, to use a hero ability. Pause at any time; the browser saves the run and offers Resume after a reload. Progress stays on this browser and does not sync between devices.
 
 ## The run
 
-Cross Verdant Verge, Ember Quarry, and Moonfen. Each region has two attackable wardstones; breaking both and surviving until the gate encounter opens the path forward. A two-part optional shrine chain rewards a Glowfox companion or another temporary weapon slot. Ordinary attacks prioritize nearby enemies, then active objects. Follow the floating arrow to the next required ward, optional shrine, or gate. The Briar King has three escalating phases in Moonfen.
+Cross Verdant Verge, Ember Quarry, and Moonfen. Break two root totems in the Verge, stand in the coolant pump's ring for four cumulative seconds to expose the Quarry forge, and clear Moonfen's slowing mist blooms to unseal the moon altar. Survive until each guardian appears to open the path forward. A two-part optional shrine chain rewards a Glowfox companion, an extra weapon slot, or a focused weapon rank. Ordinary attacks prioritize nearby enemies, then attackable objects. Follow the floating arrow to the next required objective, optional shrine, or gate. The Briar King has three escalating phases in Moonfen.
 
-Speed, regeneration, attack, defense, maximum health, and reach can be upgraded through pickups and level choices. Axe and staff can gain wider splash; darts and the bow favor single targets. Three heroes have different starting stats and specials. Run rewards unlock the Ranger and Ember, while per-hero mastery adds choices, a small health bonus, a golden hero and weapon kit, a second weapon slot, and optional automatic specials. Seeds from the original release and a purchased Thorn Dart are preserved.
+Speed, regeneration, attack, defense, maximum health, and reach can be upgraded through pickups and level choices. Axe and staff can gain wider splash; darts and the bow favor single targets. A new run has two weapon slots and can find all four weapons; mastery or a relic opens a third slot. Three heroes have different starting stats and specials. Run rewards unlock the Ranger and Ember, while per-hero mastery adds choices, a small health bonus, a golden hero and weapon kit, an early third weapon slot, and optional automatic specials. Seeds from the original release and a purchased Thorn Dart are preserved.
 
 ## Develop and publish
 
@@ -23,7 +23,7 @@ npm test
 npm run build
 ```
 
-The dev server prints a local address. `?debug=1` displays FPS; on localhost only, it also shows stage controls for QA. Original SVG artwork lives in `public/art`; matching PNGs are Phaser textures. `scripts/generate-heroes.py` regenerates the Ranger and Ember vectors and PNGs from the Warden design using CairoSVG.
+The dev server prints a local address. `?debug=1` displays FPS; on localhost only, it also shows stage controls for QA. Optimized transparent WebP characters and world objects live in `public/art`, with SVG weapon icons. The earlier SVG/PNG art remains in the repository as a reference.
 
 GitHub Pages serves committed `docs/` on `main`. For a Pages build in PowerShell:
 

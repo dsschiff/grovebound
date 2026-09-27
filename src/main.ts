@@ -11,6 +11,9 @@ import { soundFx } from './game/audio';
 import './style.css';
 
 const art = (name: string) => `${import.meta.env.BASE_URL}art/${name}.svg`;
+const heroArt = (hero: Hero) => `${import.meta.env.BASE_URL}art/${hero}-v2.webp`;
+const enemyArt = (name: string) => `${import.meta.env.BASE_URL}art/${name}-v2.webp`;
+const weaponArt = (weapon: Weapon) => `${import.meta.env.BASE_URL}art/weapon-${weapon}.svg`;
 let progress = readProgress();
 let selectedHero: Hero = 'warden';
 let selectedWeapon: Weapon = 'axe';
@@ -21,6 +24,7 @@ let currentHud: HudState | null = null;
 let activeModal: 'menu' | 'upgrade' | 'pause' | 'result' | null = 'menu';
 let toastTimer = 0;
 let debugPilot = false;
+let weaponTraySignature = '';
 
 const root = document.querySelector<HTMLDivElement>('#app')!;
 root.innerHTML = `
@@ -29,7 +33,7 @@ root.innerHTML = `
     <div id="hud" class="hud hidden">
       <div class="top-line">
         <div class="crest"><span class="crest-leaf">❧</span><span>GROVEBOUND</span></div>
-        <div class="clock-wrap"><span id="timer">0:00</span><small id="objective" aria-live="polite">VERDANT VERGE</small></div>
+        <div class="clock-wrap"><span id="timer">0:00</span><small id="timer-heading">RUN TIME · REGION 1/3</small><small id="stage-timer">GUARDIAN READY IN 2:55</small><small id="objective" aria-live="polite">BREAK ROOT TOTEMS</small></div>
         <button id="pause-button" class="icon-button" aria-label="Pause game">Ⅱ</button>
       </div>
       <div class="vitals">
@@ -40,21 +44,20 @@ root.innerHTML = `
       <div class="minimap-frame" aria-hidden="true"><canvas id="minimap" width="120" height="120"></canvas></div>
       <div id="boss-bar" class="boss-bar hidden"><span id="boss-name">GATE SENTINEL</span><div class="bar"><div id="boss-fill"></div></div></div>
       <button id="special-button" class="special-button" aria-label="Use special ability"><span class="special-icon">✹</span><strong id="special-label">WHIRLWIND</strong><small id="special-cooldown">READY</small></button>
-      <div class="hud-bottom"><div id="stats" class="stats-strip"></div><div class="bottom-line"><span id="kills">0 VANQUISHED</span><span id="ability-name">AXE CLEAVE</span></div></div>
+      <div class="hud-bottom"><div id="weapon-tray" class="weapon-tray" role="group" aria-label="Weapon loadout"></div><div id="stats" class="stats-strip"></div><div class="bottom-line"><span id="kills">0 VANQUISHED</span><span id="ability-name">FOCUS YOUR WEAPON</span></div></div>
     </div>
 
     <div id="menu" class="screen menu-screen">
       <div class="menu-content">
         <div class="overline"><span class="overline-rule"></span> A POCKET FOREST ADVENTURE <span class="overline-rule"></span></div>
         <h1>GROVE<span>BOUND</span></h1>
-        <p class="subtitle">Break the wards. Cross three wild regions. Face the Briar King.</p>
+        <p class="subtitle">Break roots. Shut down the forge. Clear the mist. Face the Briar King.</p>
         <div class="hero-stage" aria-hidden="true">
           <div class="hero-halo"></div>
           <img class="stage-tree left" src="${art('tree')}" alt="" />
           <img class="stage-tree right" src="${art('tree')}" alt="" />
-          <img class="stage-enemy" src="${art('gnarl')}" alt="" />
-          <img id="stage-hero" class="stage-hero" src="${art('warden')}" alt="" />
-          <img class="stage-axe" src="${art('axe')}" alt="" />
+          <img class="stage-enemy" src="${enemyArt('gnarl')}" alt="" />
+          <img id="stage-hero" class="stage-hero" src="${heroArt('warden')}" alt="" />
           <div class="stage-ground"></div>
         </div>
         <div class="ability-panel">
@@ -96,7 +99,7 @@ root.innerHTML = `
       <div class="result-grid"><div><strong id="result-kills">0</strong><span>VANQUISHED</span></div><div><strong id="result-time">0:00</strong><span>SURVIVED</span></div><div><strong id="result-level">1</strong><span>LEVEL</span></div></div>
       <div class="run-breakdown"><div class="breakdown-title">YOUR JOURNEY</div>
         <div class="breakdown-row"><span>FOE DAMAGE</span><strong id="result-damage">0</strong><span>DAMAGE TAKEN</span><strong id="result-taken">0</strong></div>
-        <div class="breakdown-row"><span>OBJECT DAMAGE</span><strong id="result-object-damage">0</strong><span>WARDS BROKEN</span><strong id="result-wards">0</strong></div>
+        <div class="breakdown-row"><span>OBJECT DAMAGE</span><strong id="result-object-damage">0</strong><span>OBJECTIVES CLEARED</span><strong id="result-wards">0</strong></div>
         <div class="breakdown-row"><span>STAT CACHES</span><strong id="result-caches">0</strong><span>BLESSINGS</span><strong id="result-blessings">0</strong></div>
         <div class="hazard-tally"><span>HAZARDS CLEARED</span><strong id="result-hazards">0</strong></div>
         <div id="result-regions" class="region-times"></div>
@@ -129,12 +132,12 @@ function refreshMenu(): void {
   el('#mastery-next').textContent = rank < 5
     ? `NEXT MASTERY: ${['GLOWFOX CHOICE', '+5 STARTING HP', 'GOLDEN HERO + WEAPON', 'SECOND WEAPON SLOT', 'AUTO SPECIAL'][rank]}`
     : 'MASTERY COMPLETE · AUTO SPECIAL AVAILABLE';
-  el<HTMLImageElement>('#stage-hero').src = art(selectedHero);
+  el<HTMLImageElement>('#stage-hero').src = heroArt(selectedHero);
   el<HTMLImageElement>('#stage-hero').classList.toggle('gold-skin', selectedSkin && rank >= 3);
   el('#hero-options').innerHTML = HERO_KEYS.map(hero => {
     const unlocked = availableHero(progress, hero);
     const hint = unlocked ? HERO_INFO[hero].title : hero === 'ranger' ? 'Clear the first region' : 'Win a full run';
-    return `<button class="hero-option ${hero === selectedHero ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-hero="${hero}" ${unlocked ? '' : 'disabled'}><img src="${art(hero)}" alt=""/><span><strong>${HERO_INFO[hero].name}</strong><small>${hint}</small></span></button>`;
+    return `<button class="hero-option ${hero === selectedHero ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-hero="${hero}" ${unlocked ? '' : 'disabled'}><img src="${heroArt(hero)}" alt=""/><span><strong>${HERO_INFO[hero].name}</strong><small>${hint}</small></span></button>`;
   }).join('');
   el('#hero-options').querySelectorAll<HTMLButtonElement>('[data-hero]').forEach(button => button.addEventListener('click', () => {
     selectedHero = button.dataset.hero as Hero;
@@ -146,7 +149,7 @@ function refreshMenu(): void {
   el('#weapon-options').innerHTML = (Object.keys(WEAPON_INFO) as Weapon[]).map(weapon => {
     const unlocked = availableWeapon(progress, weapon);
     const info = WEAPON_INFO[weapon];
-    return `<button class="weapon-option ${weapon === selectedWeapon ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-weapon="${weapon}" ${unlocked ? '' : 'disabled'}><span>${info.icon}</span><small>${info.name}</small></button>`;
+    return `<button class="weapon-option ${weapon === selectedWeapon ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-weapon="${weapon}" ${unlocked ? '' : 'disabled'}><img src="${weaponArt(weapon)}" alt=""/><small>${info.name}</small></button>`;
   }).join('');
   el('#weapon-options').querySelectorAll<HTMLButtonElement>('[data-weapon]').forEach(button => button.addEventListener('click', () => {
     selectedWeapon = button.dataset.weapon as Weapon; refreshMenu();
@@ -209,12 +212,24 @@ function drawMinimap(hud: HudState): void {
   for (const object of hud.map.objects) {
     if (!object.active && object.kind !== 'gate') continue;
     const p = point(object.x, object.y);
-    ctx.beginPath(); ctx.arc(p.x, p.y, object.kind === 'gate' ? 6 : 4.5, 0, Math.PI * 2);
-    ctx.fillStyle = object.kind === 'ward' ? '#ffe2a3' : object.kind === 'shrine' ? '#dca5f1'
-      : object.kind === 'relic' ? '#ffca83' : object.kind === 'vent' ? '#ff965d'
-        : object.kind === 'bloom' ? '#a8d9ef' : object.active ? '#a5e8dc' : '#6b8782';
-    ctx.fill();
-    ctx.strokeStyle = '#173a35'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.save(); ctx.translate(p.x, p.y);
+    ctx.fillStyle = { ward: '#ffe2a3', pump: '#9ae8ec', forge: '#ffae68', altar: '#d9c2ff',
+      shrine: '#dca5f1', relic: '#ffca83', gate: object.active ? '#a5e8dc' : '#6b8782',
+      vent: '#ff965d', bloom: '#a8d9ef' }[object.kind];
+    ctx.strokeStyle = '#173a35'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    if (object.kind === 'ward') { ctx.moveTo(0, -5); ctx.lineTo(5, 0); ctx.lineTo(0, 5); ctx.lineTo(-5, 0); ctx.closePath(); }
+    else if (object.kind === 'forge') ctx.rect(-5, -5, 10, 10);
+    else if (object.kind === 'bloom') {
+      for (const [x, y] of [[0, -3], [3, 0], [0, 3], [-3, 0]]) { ctx.moveTo(x + 2.5, y); ctx.arc(x, y, 2.5, 0, Math.PI * 2); }
+    } else ctx.arc(0, 0, object.kind === 'gate' ? 6 : 4.5, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    if (object.kind === 'pump') { ctx.beginPath(); ctx.arc(0, 0, 2, 0, Math.PI * 2); ctx.fillStyle = '#173a35'; ctx.fill(); }
+    if (object.kind === 'altar') { ctx.beginPath(); ctx.arc(1, -1, 2.5, 0, Math.PI * 2); ctx.fillStyle = '#173a35'; ctx.fill(); }
+    if (object.active && object.kind === hud.objectiveName) {
+      ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.strokeStyle = '#fff3c8'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    ctx.restore();
   }
   for (const enemy of hud.map.enemies) {
     const p = point(enemy.x, enemy.y);
@@ -238,11 +253,34 @@ function updateHud(hud: HudState): void {
   el<HTMLElement>('#health-fill').style.width = `${Math.max(0, hud.health / hud.maxHealth * 100)}%`;
   el<HTMLElement>('#xp-fill').style.width = `${Math.max(0, hud.xp / hud.xpNeeded * 100)}%`;
   el('#kills').textContent = `${hud.kills} VANQUISHED`;
-  el('#ability-name').textContent = hud.weapons.map(weapon => WEAPON_INFO[weapon.id].name.toUpperCase()).join(' + ');
+  el('#ability-name').textContent = hud.weapons.length > 1 ? 'TAP SLOT · FOCUS +25%' : 'FIND ANOTHER WEAPON';
   el('#timer').textContent = formatTime(hud.seconds);
   const region = REGIONS[hud.region];
-  const objective = hud.wardsLeft > 0 ? `${region.short} · ${hud.wardsLeft} ${hud.wardsLeft === 1 ? 'WARD' : 'WARDS'}` : hud.gateOpen ? `${region.short} · ENTER GATE` : `${region.short} · HOLD GATE`;
+  el('#timer-heading').textContent = `RUN TIME · REGION ${hud.region + 1}/3`;
+  const gateCountdown = Math.max(0, region.duration - hud.stageSeconds);
+  el('#stage-timer').textContent = hud.gateOpen ? 'PORTAL OPEN' : hud.bossHp !== null ? 'GUARDIAN FIGHT'
+    : gateCountdown > 0 ? `GUARDIAN READY IN ${formatTime(gateCountdown)}`
+      : hud.objectivesLeft > 0 ? 'GUARDIAN WAITS FOR OBJECTIVES' : 'GUARDIAN ARRIVING';
+  const task = { ward: 'BREAK ROOT TOTEMS', pump: 'DRAIN COOLANT PUMP', forge: 'BREAK FORGE CORE',
+    bloom: 'CLEAR MIST BLOOMS', altar: 'BREAK MOON ALTAR' }[hud.objectiveName ?? ''] ?? 'CLEAR OBJECTIVES';
+  const objective = hud.objectivesLeft > 0 ? hud.objectiveName === 'pump'
+    ? `STAND IN PUMP RING · ${hud.stepProgress}/4s` : `${task} · ${hud.stepTargetsLeft} LEFT`
+    : hud.gateOpen ? 'ENTER THE PORTAL' : hud.bossHp !== null ? 'DEFEAT THE GUARDIAN' : 'HOLD FOR THE GUARDIAN';
   if (el('#objective').textContent !== objective) el('#objective').textContent = objective;
+  const traySignature = `${hud.weaponSlots}|${hud.focusedWeapon}|${hud.weapons.map(weapon => `${weapon.id}:${weapon.rank}`).join(',')}`;
+  if (traySignature !== weaponTraySignature) {
+    weaponTraySignature = traySignature;
+    el('#weapon-tray').innerHTML = Array.from({ length: 3 }, (_, index) => {
+      const weapon = hud.weapons[index];
+      if (!weapon) return `<div class="weapon-slot empty ${index >= hud.weaponSlots ? 'locked' : ''}"><small>SLOT ${index + 1}</small><span>${index >= hud.weaponSlots ? 'LOCKED' : 'OPEN'}</span></div>`;
+      const info = WEAPON_INFO[weapon.id];
+      return `<button class="weapon-slot equipped ${weapon.id === hud.focusedWeapon ? 'focused' : ''}" data-focus="${weapon.id}" aria-label="Focus ${info.name}, rank ${weapon.rank}. Focus adds 25 percent damage to this weapon and reduces other weapons by 10 percent"><small>SLOT ${index + 1} · RANK ${weapon.rank}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${info.name}</span><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
+    }).join('');
+  }
+  for (const weapon of hud.weapons) {
+    const charge = el<HTMLElement>(`[data-charge="${weapon.id}"]`);
+    charge.style.width = `${Math.max(0, Math.min(100, (1 - weapon.cooldown / WEAPON_INFO[weapon.id].cooldown) * 100))}%`;
+  }
   show('#boss-bar', hud.bossHp !== null);
   el('#boss-name').textContent = hud.region === 2 ? 'THE BRIAR KING' : 'GATE SENTINEL';
   if (hud.bossHp !== null && hud.bossMaxHp) el<HTMLElement>('#boss-fill').style.width = `${Math.max(0, hud.bossHp / hud.bossMaxHp * 100)}%`;
@@ -263,7 +301,8 @@ function onUpgrade(options: Upgrade[]): void {
   cards.innerHTML = options.map((choice, index) => {
     const info = scene.upgradeInfo(choice);
     const type = choice.startsWith('weapon:') ? 'weapon' : choice;
-    return `<button class="upgrade-card ${type}" data-index="${index}"><span class="upgrade-icon">${info.icon}</span><span class="upgrade-text"><strong>${info.name}</strong><small>${info.description}</small></span><span class="upgrade-arrow">➜</span></button>`;
+    const icon = choice.startsWith('weapon:') ? `<img src="${weaponArt(choice.slice(7) as Weapon)}" alt=""/>` : info.icon;
+    return `<button class="upgrade-card ${type}" data-index="${index}"><span class="upgrade-icon">${icon}</span><span class="upgrade-text"><strong>${info.name}</strong><small>${info.description}</small></span><span class="upgrade-arrow">➜</span></button>`;
   }).join('');
   cards.querySelectorAll<HTMLButtonElement>('[data-index]').forEach(card => card.addEventListener('click', () => {
     scene.chooseUpgrade(options[Number(card.dataset.index)]); setModal(null);
@@ -315,7 +354,7 @@ game = new Phaser.Game({
 
 function startRun(): void {
   const rank = masteryRank(progress.mastery[selectedHero]);
-  const available = (Object.keys(WEAPON_INFO) as Weapon[]).filter(weapon => availableWeapon(progress, weapon));
+  const available = Object.keys(WEAPON_INFO) as Weapon[];
   scene.beginRun(selectedHero, selectedWeapon, rank, available, progress.reducedEffects, selectedSkin, progress.autoSpecialEnabled);
   setModal(null);
 }
@@ -352,6 +391,10 @@ el('#pause-button').addEventListener('click', () => {
 el('#resume-button').addEventListener('click', () => { scene.setPaused(false); setModal(null); });
 el('#quit-button').addEventListener('click', () => { scene.endRunEarly(); refreshMenu(); setModal('menu'); });
 el('#special-button').addEventListener('click', () => scene.castSpecial());
+el('#weapon-tray').addEventListener('click', event => {
+  const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-focus]');
+  if (button) scene.focusWeapon(button.dataset.focus as Weapon);
+});
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden || !scene.isRunning()) return;
   scene.saveSnapshot();

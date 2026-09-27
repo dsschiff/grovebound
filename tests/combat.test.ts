@@ -42,5 +42,7 @@ describe('combat and objective rules', () => {
     expect(choices).not.toContain('weapon:axe');
     expect(choices).not.toContain('weapon:thorns');
     expect(choices).not.toContain('pet');
+    const openSlot = { ...pool, slots: 2 };
+    expect(pickUpgradeChoices(openSlot, new Rng(123))).toContain('weapon:thorns');
   });
 });

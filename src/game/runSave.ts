@@ -8,7 +8,7 @@ export interface EnemySave {
   bossStrike?: { cooldown: number; windup: number; x: number; y: number; radius: number };
 }
 export interface ObjectSave {
-  kind: 'ward' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom';
+  kind: 'ward' | 'pump' | 'forge' | 'altar' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom';
   x: number; y: number; hp: number; maxHp: number; active: boolean;
 }
 export interface RunMetrics {
@@ -25,6 +25,7 @@ export interface RunSnapshot {
   seed: number; rngState: number; hero: Hero; skin: boolean;
   unlockedWeapons: Weapon[]; masteryRank: number;
   weapons: { id: Weapon; rank: number; cooldown: number }[];
+  focusedWeapon?: Weapon;
   weaponSlots: number; splashBonus: number; pet: boolean; petClock: number;
   autoSpecial: boolean; specialCooldown: number; reducedEffects: boolean;
   stats: Stats; health: number; xp: number; level: number; kills: number;
@@ -53,6 +54,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || !finite(run.masteryRank, 0, 5)
     || !Array.isArray(run.weapons) || run.weapons.length < 1 || run.weapons.length > 3
     || !run.weapons.every(weapon => WEAPONS.includes(weapon.id) && finite(weapon.rank, 1, 3) && finite(weapon.cooldown, -5, 20))
+    || (run.focusedWeapon !== undefined && !run.weapons.some(weapon => weapon.id === run.focusedWeapon))
     || !finite(run.weaponSlots, 1, 3) || !finite(run.splashBonus, 0, 100)
     || typeof run.pet !== 'boolean' || !finite(run.petClock, -5, 20)
     || typeof run.autoSpecial !== 'boolean' || !finite(run.specialCooldown, -5, 30)
@@ -78,7 +80,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
         && finite(enemy.bossStrike.x, 0, 1800) && finite(enemy.bossStrike.y, 0, 1800)
         && finite(enemy.bossStrike.radius, 60, 200))))
     || !Array.isArray(run.objects) || run.objects.length > 10 || !run.objects.every(object =>
-      ['ward', 'shrine', 'relic', 'gate', 'vent', 'bloom'].includes(object.kind) && finite(object.x, 0, 1800)
+      ['ward', 'pump', 'forge', 'altar', 'shrine', 'relic', 'gate', 'vent', 'bloom'].includes(object.kind) && finite(object.x, 0, 1800)
       && finite(object.y, 0, 1800) && finite(object.hp, 0, 10000) && finite(object.maxHp, 0, 10000)
       && typeof object.active === 'boolean')
     || !Array.isArray(run.orbs) || run.orbs.length > 100 || !run.orbs.every(orb =>
@@ -89,7 +91,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
   if (metrics !== undefined && (typeof metrics !== 'object' || metrics === null
     || !finite(metrics.foeDamage) || !finite(metrics.objectDamage)
     || !finite(metrics.damageTaken) || !finite(metrics.caches) || !finite(metrics.blessings)
-    || !finite(metrics.wards, 0, 6)
+    || !finite(metrics.wards, 0, 8)
     || (metrics.hazards !== undefined && !finite(metrics.hazards, 0, 4))
     || !Array.isArray(metrics.regionSeconds)
     || metrics.regionSeconds.length !== 3

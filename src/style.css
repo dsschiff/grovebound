@@ -60,3 +60,27 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .hub-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px}
 .hazard-tally{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #91ac8750;padding:7px 0 4px;color:#cbd9bf;font-size:8px;font-weight:800;letter-spacing:.05em}
 .hazard-tally strong{color:#fff0c7;font-size:11px}
+
+/* Distinct objective pacing and a visible, touchable weapon loadout. */
+.clock-wrap{min-width:156px;max-width:190px}
+.clock-wrap #timer-heading{color:#f5df9d;font-size:8px}
+.clock-wrap #stage-timer{color:#bdf0d2;font-size:9px}
+.clock-wrap #objective{color:#fff0c5;font-size:8px;line-height:1.15;max-width:190px}
+.vitals{top:calc(max(13px,env(safe-area-inset-top)) + 73px)}
+.boss-bar{top:calc(max(13px,env(safe-area-inset-top)) + 125px)}
+.minimap-frame{top:calc(max(13px,env(safe-area-inset-top)) + 156px)}
+.weapon-tray{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;width:min(330px,calc(100% - 102px));margin-bottom:7px}
+.weapon-slot{position:relative;min-width:0;min-height:53px;padding:5px 5px 9px;overflow:hidden;text-align:left;color:#f8edcf;background:#153b34e8;border:1px solid #a3bc9c91;border-radius:9px;box-shadow:0 3px 9px #0928209c}
+.weapon-slot.equipped{pointer-events:auto}
+.weapon-slot.focused{background:#3a5d43f2;border-color:#ffdd88;box-shadow:inset 0 0 0 1px #ffdd8880,0 3px 9px #0928209c}
+.weapon-slot small{display:block;color:#bed6bc;font-size:7px;font-weight:800;letter-spacing:.06em;white-space:nowrap}
+.weapon-slot span{display:flex;align-items:center;gap:2px;margin-top:2px;min-width:0;font-size:8px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.weapon-slot img{width:22px;height:22px;flex:none}
+.weapon-slot.empty span{justify-content:center;margin-top:9px;color:#b1b6a0;font-size:9px;letter-spacing:.08em}
+.weapon-slot.locked{opacity:.55}
+.weapon-charge{position:absolute;left:0;bottom:0;height:3px;background:#f6d58b;transition:width .1s linear}
+.hero-option{min-height:96px}
+.hero-option img{width:58px;height:60px}
+.weapon-option img{width:27px;height:27px}
+.upgrade-icon img{width:34px;height:34px}
+@media(max-height:760px){.hero-option{min-height:78px}.hero-option img{height:45px;width:47px}}

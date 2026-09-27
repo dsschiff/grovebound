@@ -71,6 +71,15 @@ export function pickUpgradeChoices(pool: UpgradePool, rng: Rng): Upgrade[] {
   if (pool.masteryRank >= 1 && !pool.pet) choices.push('pet');
   if (pool.level >= 8 && pool.slots === 2 && rng.next() < 0.15) choices.push('wildArsenal');
   const selected: Upgrade[] = [];
+  if (pool.weapons.length < pool.slots) {
+    const newWeapons = choices.filter(choice => choice.startsWith('weapon:')
+      && !pool.weapons.some(weapon => weapon.id === choice.slice(7)));
+    if (newWeapons.length > 0) {
+      const choice = newWeapons[rng.between(0, newWeapons.length - 1)];
+      selected.push(choice);
+      choices.splice(choices.indexOf(choice), 1);
+    }
+  }
   while (selected.length < 3 && choices.length > 0) selected.push(choices.splice(rng.between(0, choices.length - 1), 1)[0]);
   return selected;
 }

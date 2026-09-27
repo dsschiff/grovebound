@@ -91,6 +91,10 @@ describe('run progression', () => {
       metrics: { ...emptyRunMetrics(), foeDamage: 120, caches: 2, regionSeconds: [70, null, null] },
     };
     expect(parseRunSnapshot(JSON.parse(JSON.stringify(snapshot)))).toEqual(snapshot);
+    const loadout = { ...snapshot, weapons: [{ id: 'axe' as const, rank: 1, cooldown: 0.3 },
+      { id: 'bow' as const, rank: 2, cooldown: 0.1 }], weaponSlots: 2, focusedWeapon: 'bow' as const };
+    expect(parseRunSnapshot(loadout)?.focusedWeapon).toBe('bow');
+    expect(parseRunSnapshot({ ...loadout, focusedWeapon: 'staff' })).toBeNull();
     const { metrics: _legacyMetrics, ...legacy } = snapshot;
     expect(parseRunSnapshot(legacy)?.metrics).toEqual(emptyRunMetrics());
     const burning = { ...snapshot, enemies: [{ ...snapshot.enemies[0], burnRemaining: 2.5, burnTickClock: 0.4, burnDamage: 6 }] };
@@ -106,6 +110,9 @@ describe('run progression', () => {
     const withHazards = { ...snapshot, objects: [{ kind: 'vent', x: 850, y: 780, hp: 20, maxHp: 180, active: true }],
       metrics: { ...snapshot.metrics, hazards: 2 } };
     expect(parseRunSnapshot(withHazards)?.metrics.hazards).toBe(2);
+    const newObjective = { ...snapshot, region: 1, objects: [{ kind: 'pump', x: 850, y: 780, hp: 20, maxHp: 240, active: true },
+      { kind: 'forge', x: 1100, y: 950, hp: 320, maxHp: 320, active: false }] };
+    expect(parseRunSnapshot(newObjective)?.objects[1].kind).toBe('forge');
     expect(parseRunSnapshot({ ...withHazards, metrics: { ...withHazards.metrics, hazards: -1 } })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, metrics: { ...snapshot.metrics, foeDamage: -1 } })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, health: 1000 })).toBeNull();
