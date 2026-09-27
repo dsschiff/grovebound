@@ -8,16 +8,17 @@ export interface EnemySave {
   bossStrike?: { cooldown: number; windup: number; x: number; y: number; radius: number };
 }
 export interface ObjectSave {
-  kind: 'ward' | 'pump' | 'forge' | 'altar' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom';
+  kind: 'ward' | 'pump' | 'forge' | 'altar' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
+    | 'bramble' | 'ore' | 'moonstone';
   x: number; y: number; hp: number; maxHp: number; active: boolean;
 }
 export interface RunMetrics {
   foeDamage: number; objectDamage: number; damageTaken: number;
-  caches: number; blessings: number; wards: number; hazards: number;
+  caches: number; blessings: number; wards: number; hazards: number; terrain?: number;
   regionSeconds: [number | null, number | null, number | null];
 }
 export function emptyRunMetrics(): RunMetrics {
-  return { foeDamage: 0, objectDamage: 0, damageTaken: 0, caches: 0, blessings: 0, wards: 0, hazards: 0,
+  return { foeDamage: 0, objectDamage: 0, damageTaken: 0, caches: 0, blessings: 0, wards: 0, hazards: 0, terrain: 0,
     regionSeconds: [null, null, null] };
 }
 export interface RunSnapshot {
@@ -79,8 +80,8 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
         && finite(enemy.bossStrike.cooldown, 0, 10) && finite(enemy.bossStrike.windup, 0, 2)
         && finite(enemy.bossStrike.x, 0, 1800) && finite(enemy.bossStrike.y, 0, 1800)
         && finite(enemy.bossStrike.radius, 60, 200))))
-    || !Array.isArray(run.objects) || run.objects.length > 10 || !run.objects.every(object =>
-      ['ward', 'pump', 'forge', 'altar', 'shrine', 'relic', 'gate', 'vent', 'bloom'].includes(object.kind) && finite(object.x, 0, 1800)
+    || !Array.isArray(run.objects) || run.objects.length > 12 || !run.objects.every(object =>
+      ['ward', 'pump', 'forge', 'altar', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
       && finite(object.y, 0, 1800) && finite(object.hp, 0, 10000) && finite(object.maxHp, 0, 10000)
       && typeof object.active === 'boolean')
     || !Array.isArray(run.orbs) || run.orbs.length > 100 || !run.orbs.every(orb =>
@@ -93,10 +94,11 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || !finite(metrics.damageTaken) || !finite(metrics.caches) || !finite(metrics.blessings)
     || !finite(metrics.wards, 0, 8)
     || (metrics.hazards !== undefined && !finite(metrics.hazards, 0, 4))
+    || (metrics.terrain !== undefined && !finite(metrics.terrain, 0, 6))
     || !Array.isArray(metrics.regionSeconds)
     || metrics.regionSeconds.length !== 3
     || !metrics.regionSeconds.every(seconds => seconds === null || finite(seconds)))) return null;
-  return { ...run, metrics: metrics ? { ...metrics, hazards: metrics.hazards ?? 0 } : emptyRunMetrics() } as RunSnapshot;
+  return { ...run, metrics: metrics ? { ...metrics, hazards: metrics.hazards ?? 0, terrain: metrics.terrain ?? 0 } : emptyRunMetrics() } as RunSnapshot;
 }
 
 export function readRunSnapshot(): RunSnapshot | null {

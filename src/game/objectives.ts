@@ -23,5 +23,6 @@ export function objectiveName(kind: ObjectSave['kind']): string {
     ward: 'ROOT TOTEM', pump: 'COOLANT PUMP', forge: 'FORGE CORE',
     altar: 'MOON ALTAR', bloom: 'MIST BLOOM', vent: 'EMBER VENT',
     shrine: 'SHRINE', relic: 'RELIC', gate: 'GATE',
+    bramble: 'BRAMBLES', ore: 'EMBER ORE', moonstone: 'MOONSTONE',
   }[kind];
 }

@@ -102,6 +102,7 @@ root.innerHTML = `
         <div class="breakdown-row"><span>OBJECT DAMAGE</span><strong id="result-object-damage">0</strong><span>OBJECTIVES CLEARED</span><strong id="result-wards">0</strong></div>
         <div class="breakdown-row"><span>STAT CACHES</span><strong id="result-caches">0</strong><span>BLESSINGS</span><strong id="result-blessings">0</strong></div>
         <div class="hazard-tally"><span>HAZARDS CLEARED</span><strong id="result-hazards">0</strong></div>
+        <div class="hazard-tally"><span>TERRAIN CLEARED</span><strong id="result-terrain">0</strong></div>
         <div id="result-regions" class="region-times"></div>
       </div>
       <div class="reward-line"><span>SEEDS EARNED</span><strong id="result-seeds">+2 ✦</strong></div>
@@ -215,11 +216,12 @@ function drawMinimap(hud: HudState): void {
     ctx.save(); ctx.translate(p.x, p.y);
     ctx.fillStyle = { ward: '#ffe2a3', pump: '#9ae8ec', forge: '#ffae68', altar: '#d9c2ff',
       shrine: '#dca5f1', relic: '#ffca83', gate: object.active ? '#a5e8dc' : '#6b8782',
-      vent: '#ff965d', bloom: '#a8d9ef' }[object.kind];
+      vent: '#ff965d', bloom: '#a8d9ef', bramble: '#b8e898', ore: '#ffb16b', moonstone: '#c4adff' }[object.kind];
     ctx.strokeStyle = '#173a35'; ctx.lineWidth = 1.5;
     ctx.beginPath();
     if (object.kind === 'ward') { ctx.moveTo(0, -5); ctx.lineTo(5, 0); ctx.lineTo(0, 5); ctx.lineTo(-5, 0); ctx.closePath(); }
-    else if (object.kind === 'forge') ctx.rect(-5, -5, 10, 10);
+    else if (object.kind === 'forge' || object.kind === 'ore') ctx.rect(-5, -5, 10, 10);
+    else if (object.kind === 'moonstone') { ctx.moveTo(0, -6); ctx.lineTo(5, 3); ctx.lineTo(0, 6); ctx.lineTo(-5, 3); ctx.closePath(); }
     else if (object.kind === 'bloom') {
       for (const [x, y] of [[0, -3], [3, 0], [0, 3], [-3, 0]]) { ctx.moveTo(x + 2.5, y); ctx.arc(x, y, 2.5, 0, Math.PI * 2); }
     } else ctx.arc(0, 0, object.kind === 'gate' ? 6 : 4.5, 0, Math.PI * 2);
@@ -253,7 +255,8 @@ function updateHud(hud: HudState): void {
   el<HTMLElement>('#health-fill').style.width = `${Math.max(0, hud.health / hud.maxHealth * 100)}%`;
   el<HTMLElement>('#xp-fill').style.width = `${Math.max(0, hud.xp / hud.xpNeeded * 100)}%`;
   el('#kills').textContent = `${hud.kills} VANQUISHED`;
-  el('#ability-name').textContent = hud.weapons.length > 1 ? 'TAP SLOT · FOCUS +25%' : 'FIND ANOTHER WEAPON';
+  el('#ability-name').textContent = hud.terrainHint
+    ?? (hud.weapons.length > 1 ? 'TAP SLOT · FOCUS +25%' : 'FIND ANOTHER WEAPON');
   el('#timer').textContent = formatTime(hud.seconds);
   const region = REGIONS[hud.region];
   el('#timer-heading').textContent = `RUN TIME · REGION ${hud.region + 1}/3`;
@@ -337,6 +340,7 @@ function onEnd(result: RunResult): void {
   el('#result-caches').textContent = String(result.metrics.caches);
   el('#result-blessings').textContent = String(result.metrics.blessings);
   el('#result-hazards').textContent = String(result.metrics.hazards);
+  el('#result-terrain').textContent = String(result.metrics.terrain ?? 0);
   el('#result-regions').innerHTML = REGIONS.map((region, index) => `<div><span>${region.short}</span><strong>${result.metrics.regionSeconds[index] === null ? '—' : formatTime(result.metrics.regionSeconds[index]!)}</strong></div>`).join('');
   el('#result-seeds').textContent = `+${earned} ✦`;
   window.setTimeout(() => setModal('result'), 430);
@@ -421,7 +425,7 @@ if (new URLSearchParams(location.search).has('debug')) {
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const controls = document.createElement('div');
     controls.className = 'debug-controls';
-    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="heal">HEAL</button>';
+    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="terrain">INSPECT FIELD</button><button data-debug="clear-terrain">CLEAR FIELD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="heal">HEAL</button>';
     el('#ui').append(controls);
     controls.querySelectorAll<HTMLButtonElement>('button').forEach(button => button.addEventListener('click', () => {
       if (button.dataset.debug === 'pilot') {
@@ -432,6 +436,8 @@ if (new URLSearchParams(location.search).has('debug')) {
       if (button.dataset.debug === 'approach') scene.debugApproachObjective();
       if (button.dataset.debug === 'hazard') scene.debugApproachHazard();
       if (button.dataset.debug === 'shatter') scene.debugShatterHazard();
+      if (button.dataset.debug === 'terrain') scene.debugInspectTerrain();
+      if (button.dataset.debug === 'clear-terrain') scene.debugClearTerrain();
       if (button.dataset.debug === 'advance') scene.debugAdvanceRegion();
       if (button.dataset.debug === 'boss') scene.debugSummonBoss();
       if (button.dataset.debug === 'mark') scene.debugMarkBoss();

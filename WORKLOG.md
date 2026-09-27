@@ -1,5 +1,13 @@
 # Grovebound worklog
 
+## 2026-09-26 — Tactical terrain fields
+
+- Added two deterministic optional fields to each region: Verge brambles slow the hero and nearby foes, Quarry ore reduces damage dealt to nearby foes, and Moonfen moonstones hasten nearby foes. Their illustrated props, colored rings, field labels, minimap marks, and nearby HUD hints show the effect before the player commits to a fight.
+- Fields can be destroyed to remove their effect and reveal a region-matched stat cache. The result screen records fields cleared. Active/cleared state and the new metric survive run snapshots; old snapshots load with zero fields cleared.
+- Local browser checks at 390 × 844 showed TANGLED inside brambles, armor and haste rings around foes in the other two fields, and the Moonstone clear event revealing a Far Reach cache. Unit tests cover deterministic placement, active/inactive effects, and old-save migration.
+- A fresh mastery-2 Ember pilot won on the ordinary timer in 10:37 without stage skips or healing controls. Region splits were 3:00, 3:31, and 4:04. It cleared all seven required objectives, five optional terrain fields, and four hazards, then defeated the Briar King. The result recorded 444 kills, 22,410 foe damage, 3,755 object damage, 79 damage taken, and eight seeds. Browser error logs were empty. At 320 × 568, the expanded result panel remained scrollable. This validates one automated route, not human difficulty or Android performance.
+- Twenty Vitest cases and the Pages production build passed. The staged site is 2,087,767 bytes, below the 5 MB initial-transfer target.
+
 ## 2026-09-26 — Expansion started
 
 - Baseline: playable shell at commit `60abfba`, public GitHub Pages, one hero and forest arena.
