@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { nextObjective, objectiveKinds, objectivesLeft } from '../src/game/objectives';
+import { advanceSeedheart, nextObjective, objectiveKinds, objectivesLeft, vergeMission } from '../src/game/objectives';
 
 describe('region objectives', () => {
   it('uses the escorted waylight instead of repeated ward attacks in a new Verge run', () => {
@@ -8,6 +8,19 @@ describe('region objectives', () => {
     expect(nextObjective(0, waylight)?.kind).toBe('waylight');
     waylight[0].hp = 0;
     expect(objectivesLeft(0, waylight)).toBe(0);
+  });
+  it('alternates the Verge mission and only charges the Seedheart while the ring is defended', () => {
+    expect(vergeMission(2)).toBe('seedheart');
+    expect(vergeMission(3)).toBe('waylight');
+    const heart = [{ kind: 'seedheart' as const, x: 500, y: 500, hp: 15, active: true }];
+    expect(objectiveKinds(0, heart)).toEqual(['seedheart']);
+    expect(nextObjective(0, heart)?.kind).toBe('seedheart');
+    expect(advanceSeedheart(15, 2, true, false)).toBe(13);
+    expect(advanceSeedheart(13, 2, false, false)).toBe(13);
+    expect(advanceSeedheart(13, 2, true, true)).toBe(13);
+    expect(advanceSeedheart(1, 2, true, false)).toBe(0);
+    heart[0].hp = 0;
+    expect(objectivesLeft(0, heart)).toBe(0);
   });
   it('opens Quarry forge only after the coolant pump', () => {
     const objects = [

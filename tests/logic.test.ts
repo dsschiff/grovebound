@@ -94,6 +94,18 @@ describe('run progression', () => {
     const loadout = { ...snapshot, weapons: [{ id: 'axe' as const, rank: 1, cooldown: 0.3 },
       { id: 'bow' as const, rank: 2, cooldown: 0.1 }], weaponSlots: 2, focusedWeapon: 'bow' as const };
     expect(parseRunSnapshot(loadout)?.focusedWeapon).toBe('bow');
+    const technique = { ...loadout, weapons: [{ id: 'axe' as const, rank: 2, cooldown: 0.3, path: 'a' as const },
+      { id: 'bow' as const, rank: 2, cooldown: 0.1 }],
+    choosing: true, upgradeOptions: ['path:bow:a' as const, 'path:bow:b' as const, 'attack' as const] };
+    expect(parseRunSnapshot(technique)?.weapons[0].path).toBe('a');
+    expect(parseRunSnapshot(technique)?.upgradeOptions).toContain('path:bow:b');
+    const commanded = { ...technique, weapons: [{ ...technique.weapons[0], commandCooldown: 4.5 }, technique.weapons[1]],
+      objects: [{ kind: 'seedheart' as const, x: 620, y: 740, hp: 8.5, maxHp: 15, active: true }] };
+    expect(parseRunSnapshot(commanded)?.weapons[0].commandCooldown).toBe(4.5);
+    expect(parseRunSnapshot(commanded)?.objects[0].kind).toBe('seedheart');
+    expect(parseRunSnapshot({ ...commanded, weapons: [{ ...commanded.weapons[0], commandCooldown: 9 }] })).toBeNull();
+    expect(parseRunSnapshot({ ...technique, weapons: [{ ...technique.weapons[0], rank: 1 }] })).toBeNull();
+    expect(parseRunSnapshot({ ...technique, upgradeOptions: ['path:bow:c'] })).toBeNull();
     expect(parseRunSnapshot({ ...loadout, focusedWeapon: 'staff' })).toBeNull();
     const { metrics: _legacyMetrics, ...legacy } = snapshot;
     expect(parseRunSnapshot(legacy)?.metrics).toEqual(emptyRunMetrics());

@@ -81,6 +81,9 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .weapon-slot.locked{opacity:.55}
 .weapon-charge{position:absolute;left:0;bottom:0;height:3px;background:#f6d58b;transition:width .1s linear}
 .weapon-slot .slot-detail{display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0;margin-top:2px;color:#d7e7bd;font-size:7px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.weapon-slot .command-status{display:block;margin-top:3px;color:#9bc8b1;font-size:8px;letter-spacing:.07em}
+.weapon-slot.ready .command-status{color:#ffe7a1;text-shadow:0 0 8px #f6cf86}
+.weapon-slot.ready{border-color:#e7d28b}
 .slot-detail em{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:normal}
 .slot-detail strong{flex:none;color:#ffdf9b;font-size:8px;font-variant-numeric:tabular-nums}
 .weapon-report-title{border-top:1px solid #91ac8750;margin-top:7px;padding-top:9px}
@@ -109,6 +112,20 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .objective-status{display:flex;align-items:center;justify-content:center;gap:4px;min-height:25px;margin-top:1px}
 .objective-status img{width:26px;height:26px;object-fit:contain;filter:drop-shadow(0 1px 3px #102d299c)}
 .clock-wrap .objective-status #objective{display:block;max-width:155px;margin:0;color:#fff0c5;font-size:8px;line-height:1.15;text-align:left}
+.mission-card{position:absolute;top:calc(max(13px,env(safe-area-inset-top)) + 154px);left:12px;display:flex;align-items:center;gap:7px;width:min(210px,calc(100% - 147px));min-height:62px;padding:6px;background:linear-gradient(135deg,#183e37ed,#0d302fe8);border:1px solid #f3d68aa8;border-radius:12px;box-shadow:0 7px 19px #0a2a27a8;color:#fff1d0;text-shadow:0 2px 4px #102e2a}
+.mission-card img{width:47px;height:47px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 5px #0b2929)}
+.mission-copy{min-width:0;flex:1}
+.mission-copy small{display:block;color:#f4d58c;font-size:8px;font-weight:800;letter-spacing:.12em}
+.mission-copy strong{display:block;margin:3px 0 5px;font-size:9px;line-height:1.15;letter-spacing:.03em}
+.mission-track{height:5px;border-radius:5px;background:#0a282c;border:1px solid #e9ddb569;overflow:hidden}
+.mission-track i{display:block;height:100%;width:0;background:#ffe59d;box-shadow:0 0 8px #ffecad;transition:width .16s linear}
+.mission-card.pump{border-color:#91dce2}.mission-card.pump .mission-track i{background:#a8f4f1}
+.mission-card.seedheart{border-color:#bcf1a5}.mission-card.seedheart .mission-track i{background:#bcf1a5}
+.mission-card.forge{border-color:#ffb374}.mission-card.forge .mission-track i{background:#ffb271}
+.mission-card.bloom{border-color:#a8dced}.mission-card.bloom .mission-track i{background:#b1e3ed}
+.mission-card.altar{border-color:#d5b9fa}.mission-card.altar .mission-track i{background:#dfc1ff}
+.mission-card.boss{border-color:#f39b80}.mission-card.boss .mission-track i{background:#f79c82}
+.mission-card.gate{border-color:#e5e5a6}
 @media(max-width:365px){
   .vitals{top:calc(max(13px,env(safe-area-inset-top)) + 87px)}
   .weapon-tray{width:calc(100% - 94px);grid-template-columns:minmax(0,1fr) minmax(0,1fr) 42px}

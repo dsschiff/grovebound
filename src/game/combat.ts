@@ -1,4 +1,4 @@
-import { STAT_KEYS, WEAPON_INFO, canUpgradeStat, type Stat, type Stats, type Upgrade, type Weapon, type Rng } from './logic';
+import { STAT_KEYS, WEAPON_INFO, canUpgradeStat, type Stat, type Stats, type Upgrade, type Weapon, type WeaponPath, type Rng } from './logic';
 
 export interface Point { x: number; y: number }
 
@@ -30,6 +30,25 @@ export function bowCriticalChance(rank: number): number { return rank >= 3 ? 0.4
 export function staffBurn(rank: number, damage: number): { seconds: number; tickDamage: number } {
   return { seconds: rank >= 3 ? 5 : rank >= 2 ? 4 : 3,
     tickDamage: Math.max(3, Math.round(damage * (rank >= 3 ? 0.34 : rank >= 2 ? 0.29 : 0.24))) };
+}
+
+export interface WeaponPathEffects {
+  splash: number; eliteMultiplier: number; split: number; rootSeconds: number;
+  pierce: number; flareRadius: number; burnSeconds: number; healOnBurnKill: number;
+}
+
+export function weaponPathEffects(id: Weapon, path?: WeaponPath): WeaponPathEffects {
+  const effects: WeaponPathEffects = { splash: 0, eliteMultiplier: 1, split: 0, rootSeconds: 0,
+    pierce: 0, flareRadius: 0, burnSeconds: 0, healOnBurnKill: 0 };
+  if (id === 'axe' && path === 'a') effects.splash = 42;
+  if (id === 'axe' && path === 'b') effects.eliteMultiplier = 1.65;
+  if (id === 'thorns' && path === 'a') effects.split = 0.65;
+  if (id === 'thorns' && path === 'b') effects.rootSeconds = 2;
+  if (id === 'bow' && path === 'a') effects.flareRadius = 95;
+  if (id === 'bow' && path === 'b') effects.pierce = 2;
+  if (id === 'staff' && path === 'a') { effects.splash = 30; effects.burnSeconds = 2; }
+  if (id === 'staff' && path === 'b') effects.healOnBurnKill = 4;
+  return effects;
 }
 export function pierceTargets(origin: Point, first: Point, range: number, candidates: Point[], count: number): number[] {
   const firstDistance = Math.hypot(first.x - origin.x, first.y - origin.y);
@@ -68,7 +87,7 @@ export function shouldSpawnGuardian(wardsLeft: number, stageSeconds: number, dur
 
 export interface UpgradePool {
   stats: Stats;
-  weapons: { id: Weapon; rank: number }[];
+  weapons: { id: Weapon; rank: number; path?: 'a' | 'b' }[];
   unlockedWeapons: Weapon[];
   slots: number;
   splashBonus: number;
@@ -86,7 +105,8 @@ export function pickUpgradeChoices(pool: UpgradePool, rng: Rng): Upgrade[] {
   if (pool.weapons.some(weapon => WEAPON_INFO[weapon.id].splash > 0) && pool.splashBonus < 80) choices.push('splash');
   if (pool.masteryRank >= 1 && !pool.pet) choices.push('pet');
   if (pool.level >= 8 && pool.slots === 2 && rng.next() < 0.15) choices.push('wildArsenal');
-  const selected: Upgrade[] = [];
+  const fork = pool.weapons.find(weapon => weapon.rank >= 2 && !weapon.path);
+  const selected: Upgrade[] = fork ? [`path:${fork.id}:a`, `path:${fork.id}:b`] : [];
   if (pool.weapons.length < pool.slots) {
     const newWeapons = choices.filter(choice => choice.startsWith('weapon:')
       && !pool.weapons.some(weapon => weapon.id === choice.slice(7)));

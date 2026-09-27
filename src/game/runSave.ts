@@ -1,4 +1,4 @@
-import type { Hero, Stat, Stats, Upgrade, Weapon } from './logic';
+import type { Hero, Stat, Stats, Upgrade, Weapon, WeaponPath } from './logic';
 import type { WispLanceState } from './wispLance';
 
 export const RUN_SAVE_KEY = 'grovebound-run-v1';
@@ -11,7 +11,7 @@ export interface EnemySave {
   wispLance?: WispLanceState;
 }
 export interface ObjectSave {
-  kind: 'ward' | 'waylight' | 'pump' | 'forge' | 'altar' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
+  kind: 'ward' | 'waylight' | 'seedheart' | 'pump' | 'forge' | 'altar' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
     | 'bramble' | 'ore' | 'moonstone';
   x: number; y: number; hp: number; maxHp: number; active: boolean;
 }
@@ -35,7 +35,7 @@ export interface RunSnapshot {
   version: 1;
   seed: number; rngState: number; hero: Hero; skin: boolean;
   unlockedWeapons: Weapon[]; masteryRank: number;
-  weapons: { id: Weapon; rank: number; cooldown: number }[];
+  weapons: { id: Weapon; rank: number; cooldown: number; path?: WeaponPath; commandCooldown?: number }[];
   focusedWeapon?: Weapon;
   weaponSlots: number; splashBonus: number; pet: boolean; petClock: number;
   autoSpecial: boolean; specialCooldown: number; reducedEffects: boolean;
@@ -57,7 +57,8 @@ const finite = (value: unknown, min = 0, max = 100000): value is number =>
 const HEROES = ['warden', 'ranger', 'ember'];
 const WEAPONS = ['axe', 'thorns', 'bow', 'staff'];
 const STATS = ['speed', 'regen', 'attack', 'defense', 'maxHealth', 'reach'];
-const UPGRADES = [...STATS, 'splash', 'pet', 'wildArsenal', ...WEAPONS.map(id => `weapon:${id}`)];
+const UPGRADES = [...STATS, 'splash', 'pet', 'wildArsenal', ...WEAPONS.map(id => `weapon:${id}`),
+  ...WEAPONS.flatMap(id => ['a', 'b'].map(path => `path:${id}:${path}`))];
 
 export function parseRunSnapshot(value: unknown): RunSnapshot | null {
   if (typeof value !== 'object' || value === null) return null;
@@ -67,7 +68,9 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || !Array.isArray(run.unlockedWeapons) || !run.unlockedWeapons.every(weapon => WEAPONS.includes(weapon))
     || !finite(run.masteryRank, 0, 5)
     || !Array.isArray(run.weapons) || run.weapons.length < 1 || run.weapons.length > 3
-    || !run.weapons.every(weapon => WEAPONS.includes(weapon.id) && finite(weapon.rank, 1, 3) && finite(weapon.cooldown, -5, 20))
+    || !run.weapons.every(weapon => WEAPONS.includes(weapon.id) && finite(weapon.rank, 1, 3) && finite(weapon.cooldown, -5, 20)
+      && (weapon.commandCooldown === undefined || finite(weapon.commandCooldown, 0, 8))
+      && (weapon.path === undefined || (weapon.rank >= 2 && ['a', 'b'].includes(weapon.path))))
     || (run.focusedWeapon !== undefined && !run.weapons.some(weapon => weapon.id === run.focusedWeapon))
     || !finite(run.weaponSlots, 1, 3) || !finite(run.splashBonus, 0, 100)
     || typeof run.pet !== 'boolean' || !finite(run.petClock, -5, 20)
@@ -105,7 +108,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || (run.moonflowRemaining !== undefined && !finite(run.moonflowRemaining, 0, 8))
     || (run.markedFieldIndex !== undefined && !finite(run.markedFieldIndex, 0, 11))
     || !Array.isArray(run.objects) || run.objects.length > 12 || !run.objects.every(object =>
-      ['ward', 'waylight', 'pump', 'forge', 'altar', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
+      ['ward', 'waylight', 'seedheart', 'pump', 'forge', 'altar', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
       && finite(object.y, 0, 1800) && finite(object.hp, 0, 10000) && finite(object.maxHp, 0, 10000)
       && typeof object.active === 'boolean')
     || !Array.isArray(run.orbs) || run.orbs.length > 100 || !run.orbs.every(orb =>

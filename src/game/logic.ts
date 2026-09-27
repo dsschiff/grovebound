@@ -1,8 +1,9 @@
 export type Stat = 'speed' | 'regen' | 'attack' | 'defense' | 'maxHealth' | 'reach';
 export type Weapon = 'axe' | 'thorns' | 'bow' | 'staff';
+export type WeaponPath = 'a' | 'b';
 export type Ability = Weapon;
 export type Hero = 'warden' | 'ranger' | 'ember';
-export type Upgrade = Stat | 'splash' | 'pet' | 'wildArsenal' | `weapon:${Weapon}`;
+export type Upgrade = Stat | 'splash' | 'pet' | 'wildArsenal' | `weapon:${Weapon}` | `path:${Weapon}:${WeaponPath}`;
 
 export interface Stats {
   speed: number;
@@ -48,6 +49,24 @@ export const WEAPON_RANKS: Record<Weapon, [string, string, string]> = {
 };
 export const WEAPON_FOCUS: Record<Weapon, string> = {
   axe: 'Wider cleave', thorns: '+1 pierce', bow: 'Faster fire + crit', staff: 'Wider, longer burn',
+};
+export const WEAPON_PATH_INFO: Record<Weapon, Record<WeaponPath, { name: string; trait: string; description: string }>> = {
+  axe: {
+    a: { name: 'Storm Arc', trait: 'Wider sweep', description: 'Cleave reaches farther around its target' },
+    b: { name: 'Breaker Edge', trait: 'Elite breaker', description: 'Deal 65% more damage to brutes and guardians' },
+  },
+  thorns: {
+    a: { name: 'Split Dart', trait: 'Forked shot', description: 'A dart also strikes a nearby off-line foe' },
+    b: { name: 'Rootbind', trait: 'Roots foes', description: 'Dart hits root foes for two seconds' },
+  },
+  bow: {
+    a: { name: 'Flare Arrow', trait: 'Crit blast', description: 'Critical hits explode into nearby foes' },
+    b: { name: 'Sunlance', trait: 'Piercing ray', description: 'Arrows pierce up to two foes in a line' },
+  },
+  staff: {
+    a: { name: 'Wildfire', trait: 'Wide burn', description: 'Fireburst grows wider and burns longer' },
+    b: { name: 'Ash Feast', trait: 'Burn heal', description: 'Defeating a burning foe restores four health' },
+  },
 };
 export const WEAPON_RANK_UPGRADES: Record<Weapon, [string, string]> = {
   axe: ['Cleave reaches a wider cluster', 'Cleave knocks back smaller foes'],

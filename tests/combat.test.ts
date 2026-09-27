@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { bossPhaseFor, bowCriticalChance, chooseAutoTarget, pickUpgradeChoices, pierceTarget, pierceTargets,
-  ricochetTarget, shouldSpawnGuardian, staffBurn, thornPierceCount, weaponDamage, weaponSplash } from '../src/game/combat';
+  ricochetTarget, shouldSpawnGuardian, staffBurn, thornPierceCount, weaponDamage, weaponPathEffects, weaponSplash } from '../src/game/combat';
 import { BASE_STATS, Rng } from '../src/game/logic';
 
 describe('combat and objective rules', () => {
@@ -62,5 +62,25 @@ describe('combat and objective rules', () => {
     expect(rankOptions.some(choice => !choice.startsWith('weapon:'))).toBe(true);
     const expanding = { ...building, weapons: [{ id: 'axe' as const, rank: 1 }], slots: 2 };
     expect(pickUpgradeChoices(expanding, new Rng(123))).toEqual(expect.arrayContaining(['weapon:axe', 'weapon:thorns']));
+  });
+
+  it('offers both techniques together once a weapon reaches rank II, then retires the fork', () => {
+    const pool = { stats: { ...BASE_STATS }, weapons: [{ id: 'bow' as const, rank: 2 }],
+      unlockedWeapons: ['bow' as const], slots: 1, splashBonus: 0, pet: false, masteryRank: 0, level: 5 };
+    const fork = pickUpgradeChoices(pool, new Rng(17));
+    expect(fork).toEqual(expect.arrayContaining(['path:bow:a', 'path:bow:b']));
+    const chosen = pickUpgradeChoices({ ...pool, weapons: [{ id: 'bow' as const, rank: 2, path: 'a' as const }] }, new Rng(17));
+    expect(chosen.some(choice => choice.startsWith('path:'))).toBe(false);
+  });
+
+  it('gives crowd and focused techniques different combat effects', () => {
+    expect(weaponPathEffects('axe', 'a').splash).toBeGreaterThan(0);
+    expect(weaponPathEffects('axe', 'b').eliteMultiplier).toBeGreaterThan(1);
+    expect(weaponPathEffects('thorns', 'a').split).toBeGreaterThan(0);
+    expect(weaponPathEffects('thorns', 'b').rootSeconds).toBeGreaterThan(0);
+    expect(weaponPathEffects('bow', 'a').flareRadius).toBeGreaterThan(0);
+    expect(weaponPathEffects('bow', 'b').pierce).toBeGreaterThan(0);
+    expect(weaponPathEffects('staff', 'a').burnSeconds).toBeGreaterThan(0);
+    expect(weaponPathEffects('staff', 'b').healOnBurnKill).toBeGreaterThan(0);
   });
 });

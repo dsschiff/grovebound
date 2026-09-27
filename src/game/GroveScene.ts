@@ -1,20 +1,20 @@
 import Phaser from 'phaser';
 import {
-  HERO_INFO, REGIONS, STAT_INFO, STAT_KEYS, WEAPON_INFO, WEAPON_RANKS, WEAPON_RANK_UPGRADES, Rng, baseStatsFor, damageAfterDefense,
+  HERO_INFO, REGIONS, STAT_INFO, STAT_KEYS, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS, WEAPON_RANK_UPGRADES, Rng, baseStatsFor, damageAfterDefense,
   generateRegionLayout, upgradeStat, xpToNextLevel,
-  type Hero, type Stat, type Stats, type Upgrade, type Weapon,
+  type Hero, type Stat, type Stats, type Upgrade, type Weapon, type WeaponPath,
 } from './logic';
 import { clearRunSnapshot, emptyRunMetrics, emptyWeaponDamage, saveRunSnapshot, type EnemySave, type ObjectSave, type RunMetrics, type RunSnapshot } from './runSave';
 import { soundFx } from './audio';
 import { bossPhaseFor, bowCriticalChance, chooseAutoTarget, pickUpgradeChoices, pierceTargets, ricochetTarget,
-  shouldSpawnGuardian, staffBurn, thornPierceCount, weaponDamage, weaponSplash } from './combat';
+  shouldSpawnGuardian, staffBurn, thornPierceCount, weaponDamage, weaponPathEffects, weaponSplash } from './combat';
 import { pilotDirection } from './pilot';
 import { hazardSites, ventPhase, type VentPhase } from './hazards';
 import { enemyFieldModifiers, terrainRupture, terrainSites, type TerrainKind } from './terrain';
 import { BOSS_STRIKE_WINDUP, bossStrikeCooldown, bossStrikeRadius, bossStrikeTarget, insideBossStrike, type BossStrikeState } from './bossStrike';
 import { WISP_LANCE_WIDTH, WISP_LANCE_WINDUP, insideWispLance, waveInterval, wildSurge,
   wispLanceCooldown, wispLanceDamage, wispLanceTarget, type WispLanceState } from './wispLance';
-import { nextObjective, objectiveName, objectivesLeft } from './objectives';
+import { advanceSeedheart, nextObjective, objectiveName, objectivesLeft, vergeMission } from './objectives';
 import { advanceWaylight, waylightProgress } from './waylight';
 
 const WORLD = 1800;
@@ -31,7 +31,7 @@ interface Enemy {
 interface WorldObject { view: Phaser.GameObjects.Container; label: Phaser.GameObjects.Text; kind: ObjectKind; x: number; y: number; hp: number; maxHp: number; active: boolean; ring?: Phaser.GameObjects.Arc; hazardPhase?: VentPhase }
 interface Orb { view: Phaser.GameObjects.Container; x: number; y: number; value: number }
 interface Cache { view: Phaser.GameObjects.Container; x: number; y: number; stat: Stat }
-interface EquippedWeapon { id: Weapon; rank: number; cooldown: number }
+interface EquippedWeapon { id: Weapon; rank: number; cooldown: number; path?: WeaponPath; commandCooldown?: number }
 
 export interface HudState {
   health: number; maxHealth: number; level: number; xp: number; xpNeeded: number;
@@ -39,7 +39,7 @@ export interface HudState {
   stats: Stats; bossHp: number | null; bossMaxHp: number | null;
   weapons: EquippedWeapon[]; weaponSlots: number; focusedWeapon: Weapon; weaponDamage: Record<Weapon, number>;
   special: string; specialCooldown: number;
-  objectivesLeft: number; stepTargetsLeft: number; stepProgress: number; objectiveName: string | null;
+  objectivesLeft: number; stepTargetsLeft: number; stepProgress: number; objectiveProgress: number; objectiveName: string | null;
   ritualActive: boolean;
   surge: boolean;
   moonflowRemaining: number;
@@ -126,7 +126,7 @@ export class GroveScene extends Phaser.Scene {
   preload(): void {
     const base = import.meta.env.BASE_URL;
     this.load.image('tree', `${base}art/tree.png`);
-    for (const key of ['warden-v3', 'ranger-v3', 'ember-v3', 'waylight', 'root-totem', 'coolant-pump', 'forge-core',
+    for (const key of ['warden-v4', 'ranger-v4', 'ember-v4', 'waylight', 'seedheart', 'root-totem', 'coolant-pump', 'forge-core',
       'moon-altar', 'mist-bloom', 'ember-vent', 'grove-gate', 'reliquary', 'fox-relic',
       'gnarl-v2', 'wisp-v2', 'brute-v2', 'briar-king-v2', 'bramble-field', 'ember-ore', 'moonstone']) {
       this.load.image(key, `${base}art/${key}.webp`);
@@ -135,7 +135,7 @@ export class GroveScene extends Phaser.Scene {
 
   create(): void {
     this.cameras.main.setBounds(0, 0, WORLD, WORLD);
-    this.hero = this.add.image(900, 900, 'warden-v3').setDisplaySize(93, 116).setDepth(5);
+    this.hero = this.add.image(900, 900, 'warden-v4').setDisplaySize(104, 104).setDepth(5);
     this.nav = this.add.text(900, 820, '', { fontFamily: 'Arial, sans-serif', fontSize: '14px', color: '#fff0bc', stroke: '#18372d', strokeThickness: 4 }).setOrigin(0.5).setDepth(12);
     this.petView = this.add.circle(900, 900, 9, 0xffe4a3).setStrokeStyle(3, 0x446c60).setDepth(7).setVisible(false);
     this.bars = this.add.graphics().setDepth(9);
@@ -172,7 +172,7 @@ export class GroveScene extends Phaser.Scene {
     this.xp = 0; this.level = 1; this.kills = 0; this.seconds = 0; this.region = 0;
     this.attackPose = 0; this.slowed = false;
     this.choosing = false; this.pausedByUser = false; this.upgradeOptions = [];
-    this.hero.setTexture(`${hero}-v3`).setTint(skin ? 0xf3d28a : 0xffffff).setPosition(900, 900).setAlpha(1).setDisplaySize(93, 116);
+    this.hero.setTexture(`${hero}-v4`).setTint(skin ? 0xf3d28a : 0xffffff).setPosition(900, 900).setAlpha(1).setDisplaySize(104, 104);
     this.startRegion();
     this.spawnCache('attack', 1050, 835);
     this.running = true;
@@ -201,12 +201,12 @@ export class GroveScene extends Phaser.Scene {
     this.attackPose = 0; this.slowed = false;
     this.gatekeeperSpawned = snapshot.gatekeeperSpawned; this.bossSpawned = snapshot.bossSpawned;
     this.choosing = snapshot.choosing; this.upgradeOptions = [...snapshot.upgradeOptions];
-    this.hero.setTexture(`${this.heroId}-v3`).setTint(this.skin ? 0xf3d28a : 0xffffff)
-      .setPosition(snapshot.x, snapshot.y).setAlpha(1).setDisplaySize(93, 116);
+    this.hero.setTexture(`${this.heroId}-v4`).setTint(this.skin ? 0xf3d28a : 0xffffff)
+      .setPosition(snapshot.x, snapshot.y).setAlpha(1).setDisplaySize(104, 104);
     this.waylightAmbush = snapshot.waylightAmbush ?? false;
     this.ritualClock = snapshot.ritualClock ?? 0;
     this.moonflowRemaining = snapshot.moonflowRemaining ?? 0;
-    this.drawRegion();
+    this.drawRegion(snapshot.objects.some(object => object.kind === 'waylight'));
     snapshot.objects.forEach(object => this.spawnObject(object.kind, object.x, object.y, object.hp, object.maxHp, object.active));
     if (snapshot.markedFieldIndex !== undefined) {
       const field = this.objects[snapshot.markedFieldIndex];
@@ -235,6 +235,10 @@ export class GroveScene extends Phaser.Scene {
       const equipped = this.weapons.find(item => item.id === weapon);
       if (equipped) equipped.rank = Math.min(3, equipped.rank + 1);
       else if (this.weapons.length < this.weaponSlots) this.weapons.push({ id: weapon, rank: 1, cooldown: 0 });
+    } else if (choice.startsWith('path:')) {
+      const [, id, path] = choice.split(':') as ['path', Weapon, WeaponPath];
+      const equipped = this.weapons.find(item => item.id === id);
+      if (equipped && equipped.rank >= 2 && !equipped.path) equipped.path = path;
     } else if (choice === 'splash') this.splashBonus = Math.min(80, this.splashBonus + 20);
     else if (choice === 'pet') { this.pet = true; this.petView.setVisible(true); }
     else if (choice === 'wildArsenal') this.weaponSlots = 3;
@@ -246,15 +250,27 @@ export class GroveScene extends Phaser.Scene {
   }
 
   focusWeapon(weapon: Weapon): void {
-    if (!this.running || !this.weapons.some(item => item.id === weapon)) return;
+    if (!this.running || this.choosing || this.pausedByUser) return;
+    const equipped = this.weapons.find(item => item.id === weapon);
+    if (!equipped) return;
     this.focusedWeapon = weapon;
-    const rank = this.weapons.find(item => item.id === weapon)!.rank;
-    this.callbacks.onEvent(`${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · ${WEAPON_RANKS[weapon][rank - 1].toUpperCase()} · SPECIALIZED ATTACK`);
+    if ((equipped.commandCooldown ?? 0) <= 0 && this.autoAttack(equipped, true)) {
+      equipped.commandCooldown = 8;
+      this.callbacks.onEvent(`${WEAPON_INFO[weapon].name.toUpperCase()} COMMAND · ${equipped.path ? WEAPON_PATH_INFO[weapon][equipped.path].name.toUpperCase() : 'CHARGED STRIKE'}`);
+    } else this.callbacks.onEvent((equipped.commandCooldown ?? 0) > 0
+      ? `${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · ${Math.ceil(equipped.commandCooldown ?? 0)}s TO CHARGE`
+      : `${WEAPON_INFO[weapon].name.toUpperCase()} FOCUSED · MOVE INTO RANGE TO FIRE`);
     this.publishHud(); this.saveSnapshot();
   }
 
   upgradeInfo(choice: Upgrade): { name: string; icon: string; color: string; description: string } {
     if (STAT_KEYS.includes(choice as Stat)) return STAT_INFO[choice as Stat];
+    if (choice.startsWith('path:')) {
+      const [, id, path] = choice.split(':') as ['path', Weapon, WeaponPath];
+      const info = WEAPON_PATH_INFO[id][path];
+      return { name: info.name, icon: WEAPON_INFO[id].icon, color: WEAPON_INFO[id].color,
+        description: `${WEAPON_INFO[id].name} technique · ${info.description}` };
+    }
     if (choice.startsWith('weapon:')) {
       const weapon = choice.slice(7) as Weapon;
       const info = WEAPON_INFO[weapon];
@@ -350,7 +366,7 @@ export class GroveScene extends Phaser.Scene {
     for (let i = 0; i < 8; i++) {
       const target = this.nextRequiredObjective();
       if (!target) break;
-      if (target.kind === 'pump' || target.kind === 'waylight' || target.kind === 'altar' && target.maxHp <= 6) {
+      if (target.kind === 'pump' || target.kind === 'waylight' || target.kind === 'seedheart' || target.kind === 'altar' && target.maxHp <= 6) {
         target.hp = 0; this.completeObject(target);
       }
       else this.hitObject(target, target.hp);
@@ -425,7 +441,7 @@ export class GroveScene extends Phaser.Scene {
     const reach = Math.max(...this.weapons.map(weapon => WEAPON_INFO[weapon.id].range)) * this.stats.reach;
     const direction = pilotDirection({ player: { x: this.hero.x, y: this.hero.y }, target,
       desiredDistance: enteringGate || gathering || (target === objective && (objective.kind === 'pump'
-        || objective.kind === 'waylight' || objective.kind === 'altar' && objective.maxHp <= 6))
+        || objective.kind === 'waylight' || objective.kind === 'seedheart' || objective.kind === 'altar' && objective.maxHp <= 6))
         ? 0 : Math.min(210, reach * 0.7),
       enemies: this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })),
       orbitSign: this.seed % 2 ? 1 : -1, avoidance: enteringGate ? 0.1 : gathering ? 0.35 : 1 });
@@ -506,6 +522,7 @@ export class GroveScene extends Phaser.Scene {
       if (field) this.toggleFieldMark(field);
     }
     for (const weapon of this.weapons) {
+      weapon.commandCooldown = Math.max(0, (weapon.commandCooldown ?? 0) - dt);
       weapon.cooldown -= dt;
       if (weapon.cooldown <= 0) this.autoAttack(weapon);
     }
@@ -535,7 +552,10 @@ export class GroveScene extends Phaser.Scene {
     let wardIndex = 0;
     for (const clearing of layout.clearings) {
       if (clearing.kind === 'ward') {
-        if (this.region === 0 && wardIndex === 0) this.spawnObject('waylight', clearing.x, clearing.y, 1, 1, true);
+        if (this.region === 0 && wardIndex === 0) {
+          if (vergeMission(this.seed) === 'seedheart') this.spawnObject('seedheart', clearing.x, clearing.y, 15, 15, true);
+          else this.spawnObject('waylight', clearing.x, clearing.y, 1, 1, true);
+        }
         else if (this.region === 1) this.spawnObject(wardIndex === 0 ? 'pump' : 'forge', clearing.x, clearing.y,
           wardIndex === 0 ? 240 : 320, wardIndex === 0 ? 240 : 320, wardIndex === 0);
         else if (wardIndex === 0) this.spawnObject('altar', clearing.x, clearing.y, 6, 6, false);
@@ -558,7 +578,7 @@ export class GroveScene extends Phaser.Scene {
     this.callbacks.onEvent(`REGION ${this.region + 1}: ${REGIONS[this.region].name.toUpperCase()}`);
   }
 
-  private drawRegion(): void {
+  private drawRegion(escort = vergeMission(this.seed) === 'waylight'): void {
     for (const decoration of this.decorations) decoration.destroy();
     this.decorations = [];
     const theme = REGIONS[this.region];
@@ -566,7 +586,7 @@ export class GroveScene extends Phaser.Scene {
     const rng = new Rng((this.seed ^ Math.imul(this.region + 1, 7919)) >>> 0);
     const layout = generateRegionLayout(this.seed, this.region);
     const waypoints = layout.clearings.filter(clearing => clearing.kind === 'ward');
-    this.waylightRoute = this.region === 0 && waypoints.length > 1
+    this.waylightRoute = this.region === 0 && escort && waypoints.length > 1
       ? { start: { x: waypoints[0].x, y: waypoints[0].y }, goal: { x: waypoints[1].x, y: waypoints[1].y } } : null;
     const ground = this.add.graphics().setDepth(-10);
     ground.fillStyle(theme.floor).fillRect(0, 0, WORLD, WORLD);
@@ -796,7 +816,10 @@ export class GroveScene extends Phaser.Scene {
   private updateEnemies(dt: number): void {
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const enemy = this.enemies[i];
+      const wasTangled = enemy.tangleRemaining > 0;
       enemy.tangleRemaining = Math.max(0, enemy.tangleRemaining - dt);
+      if (wasTangled && enemy.tangleRemaining === 0) enemy.sprite.setTint(enemy.burnRemaining > 0 ? 0xffae72
+        : enemy.kind === 'gatekeeper' ? 0xf1bd8d : this.region === 2 && enemy.kind === 'wisp' ? 0xb2e4e6 : 0xffffff);
       if (enemy.burnRemaining > 0) {
         enemy.burnRemaining = Math.max(0, enemy.burnRemaining - dt);
         enemy.burnTickClock -= dt;
@@ -929,12 +952,13 @@ export class GroveScene extends Phaser.Scene {
     if (this.health <= 0) this.finish(false);
   }
 
-  private autoAttack(weapon: EquippedWeapon): void {
+  private autoAttack(weapon: EquippedWeapon, commanded = false): boolean {
     const info = WEAPON_INFO[weapon.id];
+    const path = weaponPathEffects(weapon.id, weapon.path);
     const focused = this.focusedWeapon === weapon.id;
-    const range = info.range * this.stats.reach;
+    const range = info.range * this.stats.reach * (commanded ? 1.38 : 1);
     const targetObjects = this.objects.filter(candidate => candidate.active && candidate.hp > 0
-      && candidate.kind !== 'pump' && candidate.kind !== 'waylight'
+      && candidate.kind !== 'pump' && candidate.kind !== 'waylight' && candidate.kind !== 'seedheart'
       && !(candidate.kind === 'altar' && candidate.maxHp <= 6));
     const markedIndex = this.markedField?.active && this.markedField.hp > 0
       && this.distance(this.hero.x, this.hero.y, this.markedField.x, this.markedField.y) < range
@@ -944,26 +968,36 @@ export class GroveScene extends Phaser.Scene {
         this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })), targetObjects);
     const target: Enemy | null = selection?.kind === 'enemy' ? this.enemies[selection.index] : null;
     const object: WorldObject | null = selection?.kind === 'object' ? targetObjects[selection.index] : null;
-    if (!target && !object) { weapon.cooldown = 0.12; return; }
+    if (!target && !object) { if (!commanded) weapon.cooldown = 0.12; return false; }
     weapon.cooldown = info.cooldown * (focused && weapon.id === 'bow' ? 0.78 : 1);
     soundFx.play(weapon.id === 'axe' ? 'swing' : weapon.id === 'thorns' ? 'dart' : weapon.id === 'bow' ? 'bow' : 'staff');
     this.attackPose = 0.16;
     const x = target?.sprite.x ?? object!.x; const y = target?.sprite.y ?? object!.y;
     const angle = Phaser.Math.Angle.Between(this.hero.x, this.hero.y, x, y);
-    const critical = weapon.id === 'bow' && this.random.next() < bowCriticalChance(weapon.rank) + (focused ? 0.12 : 0);
+    const critical = weapon.id === 'bow' && (commanded || this.random.next() < bowCriticalChance(weapon.rank) + (focused ? 0.12 : 0));
     const focusBonus = this.weapons.length < 2 ? 1 : this.focusedWeapon === weapon.id ? 1.25 : 0.9;
-    const damage = Math.round(weaponDamage(this.stats.attack, weapon.id, weapon.rank) * focusBonus * (critical ? 1.7 : 1));
-    const otherEnemies = target && weapon.id === 'thorns' ? this.enemies.filter(enemy => enemy !== target) : [];
-    const pierced = target && weapon.id === 'thorns'
+    const damage = Math.round(weaponDamage(this.stats.attack, weapon.id, weapon.rank) * focusBonus * (critical ? 1.7 : 1) * (commanded ? 2 : 1));
+    if (commanded) {
+      const pulse = this.add.circle(this.hero.x, this.hero.y, 23, Phaser.Display.Color.HexStringToColor(info.color).color, 0.18)
+        .setStrokeStyle(5, Phaser.Display.Color.HexStringToColor(info.color).color, 0.9).setDepth(7);
+      this.tweens.add({ targets: pulse, scale: 3.8, alpha: 0, duration: this.reducedEffects ? 150 : 330,
+        onComplete: () => pulse.destroy() });
+      this.floatText(`${info.name.toUpperCase()}!`, this.hero.x, this.hero.y - 72, info.color);
+      this.attackPose = 0.3;
+    }
+    const otherEnemies = target && (weapon.id === 'thorns' || path.pierce > 0)
+      ? this.enemies.filter(enemy => enemy !== target) : [];
+    const pierced = target && (weapon.id === 'thorns' || path.pierce > 0)
       ? pierceTargets({ x: this.hero.x, y: this.hero.y }, { x, y }, range,
-        otherEnemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })), thornPierceCount(weapon.rank) + (focused ? 1 : 0))
+        otherEnemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })),
+        weapon.id === 'thorns' ? thornPierceCount(weapon.rank) + (focused ? 1 : 0) + (commanded ? 2 : 0) : path.pierce + (commanded ? 2 : 0))
         .map(index => otherEnemies[index]) : [];
     if (weapon.id === 'axe') {
       const slash = this.add.graphics().setDepth(8);
-      const radius = 57 + this.splashBonus * 0.35 + (weapon.rank >= 2 ? 14 : 0) + (focused ? 22 : 0);
-      slash.lineStyle(24, 0xffe2ab, 0.14).beginPath()
+      const radius = 57 + this.splashBonus * 0.35 + (weapon.rank >= 2 ? 14 : 0) + (focused ? 22 : 0) + path.splash * 0.5 + (commanded ? 30 : 0);
+      slash.lineStyle(24, weapon.path === 'a' ? 0xcdf7dc : 0xffe2ab, 0.14).beginPath()
         .arc(this.hero.x, this.hero.y, radius, angle - 0.8, angle + 0.8).strokePath();
-      slash.lineStyle(7, 0xfff0c4, 0.9).beginPath()
+      slash.lineStyle(7, weapon.path === 'a' ? 0xe2ffeb : weapon.path === 'b' ? 0xffbd9a : 0xfff0c4, 0.9).beginPath()
         .arc(this.hero.x, this.hero.y, radius + 6, angle - 0.8, angle + 0.8).strokePath();
       this.tweens.add({ targets: slash, alpha: 0, duration: 190, onComplete: () => slash.destroy() });
     } else if (weapon.id === 'thorns') {
@@ -974,26 +1008,32 @@ export class GroveScene extends Phaser.Scene {
     } else if (weapon.id === 'bow') {
       const arrow = this.add.rectangle(this.hero.x, this.hero.y, 35, critical ? 7 : 4,
         critical ? 0xfff2b8 : this.skin ? 0xffd37a : 0xffd489).setRotation(angle).setDepth(8);
-      this.tweens.add({ targets: arrow, x, y, alpha: 0, duration: 165, onComplete: () => arrow.destroy() });
+      this.tweens.add({ targets: arrow, x: pierced.at(-1)?.sprite.x ?? x, y: pierced.at(-1)?.sprite.y ?? y,
+        alpha: 0, duration: 165, onComplete: () => arrow.destroy() });
     } else {
       const orb = this.add.circle(this.hero.x, this.hero.y, 12, this.skin ? 0xffd37a : 0xff9d65)
         .setStrokeStyle(3, 0xffe2a7, 0.9).setDepth(8);
       this.tweens.add({ targets: orb, x, y, alpha: 0, duration: 190, onComplete: () => orb.destroy() });
       if (!this.reducedEffects) {
         const flare = this.add.circle(x, y, 12, 0xffb376, 0.22).setStrokeStyle(3, 0xffc58c, 0.7).setDepth(7);
-        this.tweens.add({ targets: flare, scale: 4, alpha: 0, duration: 310, onComplete: () => flare.destroy() });
+        this.tweens.add({ targets: flare, scale: weapon.path === 'a' ? 5 : 4, alpha: 0,
+          duration: 310, onComplete: () => flare.destroy() });
       }
     }
     if (target) {
       const splash = weaponSplash(weapon.id, this.splashBonus, weapon.rank)
-        + (focused && (weapon.id === 'axe' || weapon.id === 'staff') ? weapon.id === 'axe' ? 22 : 25 : 0);
+        + (focused && (weapon.id === 'axe' || weapon.id === 'staff') ? weapon.id === 'axe' ? 22 : 25 : 0)
+        + path.splash + (commanded && (weapon.id === 'axe' || weapon.id === 'staff') ? 45 : 0);
       const victims = splash > 0 ? this.enemies.filter(enemy => this.distance(enemy.sprite.x, enemy.sprite.y, x, y) < splash) : [target];
       for (const enemy of victims) {
-        this.hitEnemy(enemy, damage, false, weapon.id);
-        if (!this.running) return;
+        const elite = enemy.kind === 'brute' || enemy.kind === 'gatekeeper' || enemy.kind === 'boss';
+        this.hitEnemy(enemy, Math.round(damage * (elite ? path.eliteMultiplier : 1)), false, weapon.id);
+        if (!this.running) return true;
+        if (elite && path.eliteMultiplier > 1 && enemy === target) this.floatText('BREAKER', x, y - 58, '#ffc49b');
+        if (path.rootSeconds > 0) this.entangleEnemy(enemy, path.rootSeconds);
         if (weapon.id === 'staff') {
           const burn = staffBurn(weapon.rank, damage);
-          this.ignite(enemy, burn.seconds + (focused ? 1 : 0), burn.tickDamage, weapon.id);
+          this.ignite(enemy, burn.seconds + (focused ? 1 : 0) + path.burnSeconds, burn.tickDamage, weapon.id);
         }
         if (weapon.id === 'axe' && weapon.rank >= 3 && this.enemies.includes(enemy)
           && enemy.kind !== 'boss' && enemy.kind !== 'gatekeeper') {
@@ -1003,11 +1043,27 @@ export class GroveScene extends Phaser.Scene {
         }
       }
       for (const [index, enemy] of pierced.entries()) {
-        this.hitEnemy(enemy, Math.round(damage * (weapon.rank >= 3 ? 0.8 : weapon.rank >= 2 ? 0.72 : 0.65) ** (index + 1)), false, weapon.id);
-        if (!this.running) return;
+        const falloff = weapon.id === 'bow' ? 0.7 : weapon.rank >= 3 ? 0.8 : weapon.rank >= 2 ? 0.72 : 0.65;
+        this.hitEnemy(enemy, Math.round(damage * falloff ** (index + 1)), false, weapon.id);
+        if (!this.running) return true;
+        if (path.rootSeconds > 0) this.entangleEnemy(enemy, path.rootSeconds);
       }
       if (pierced.length > 0 && weapon.rank >= 2 && !this.reducedEffects) {
-        this.floatText(`PIERCE ×${pierced.length}`, x, y - 63, '#c9f3aa');
+        this.floatText(`${weapon.id === 'bow' ? 'SUNLANCE' : 'PIERCE'} ×${pierced.length}`,
+          x, y - 63, weapon.id === 'bow' ? '#fff0ae' : '#c9f3aa');
+      }
+      if (weapon.id === 'bow' && path.pierce > 0 && pierced.length > 0 && !this.reducedEffects)
+        this.trail(x, y, pierced.at(-1)!.sprite.x, pierced.at(-1)!.sprite.y, 0xffefad);
+      if (weapon.id === 'thorns' && path.split > 0) {
+        const candidates = this.enemies.filter(enemy => enemy !== target && !pierced.includes(enemy));
+        const splitIndex = ricochetTarget({ x, y }, candidates.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })), 175);
+        if (splitIndex !== null) {
+          const split = candidates[splitIndex];
+          if (!this.reducedEffects) this.trail(x, y, split.sprite.x, split.sprite.y, 0xbaf19b);
+          this.hitEnemy(split, Math.round(damage * path.split), false, weapon.id);
+          if (!this.running) return true;
+          this.floatText('SPLIT', split.sprite.x, split.sprite.y - 50, '#c9f3aa');
+        }
       }
       if (weapon.id === 'bow' && weapon.rank >= 3) {
         const others = this.enemies.filter(enemy => enemy !== target);
@@ -1016,12 +1072,25 @@ export class GroveScene extends Phaser.Scene {
           const bounce = others[ricochet];
           if (!this.reducedEffects) this.trail(x, y, bounce.sprite.x, bounce.sprite.y, 0xffe1a5);
           this.hitEnemy(bounce, Math.round(damage * 0.5), false, weapon.id);
-          if (!this.running) return;
+          if (!this.running) return true;
           if (!this.reducedEffects) this.floatText('RICOCHET', bounce.sprite.x, bounce.sprite.y - 52, '#ffe3a3');
         }
       }
+      if (weapon.id === 'bow' && path.flareRadius > 0 && critical) {
+        const flare = this.add.circle(x, y, 18, 0xffd280, 0.24)
+          .setStrokeStyle(5, 0xfff0b4, 0.95).setDepth(7);
+        this.tweens.add({ targets: flare, scale: path.flareRadius / 18, alpha: 0,
+          duration: this.reducedEffects ? 150 : 300, onComplete: () => flare.destroy() });
+        for (const enemy of [...this.enemies]) {
+          if (enemy !== target && this.distance(enemy.sprite.x, enemy.sprite.y, x, y) < path.flareRadius) {
+            this.hitEnemy(enemy, Math.round(damage * 0.55), false, weapon.id);
+            if (!this.running) return true;
+          }
+        }
+        this.floatText('FLARE', x, y - 68, '#fff0af');
+      }
       if (splash > 0) {
-        for (const nearby of this.objects.filter(item => item.active && item.hp > 0 && item.kind !== 'waylight'
+        for (const nearby of this.objects.filter(item => item.active && item.hp > 0 && item.kind !== 'waylight' && item.kind !== 'seedheart'
           && !(item.kind === 'altar' && item.maxHp <= 6)
           && this.distance(item.x, item.y, x, y) < splash)) {
           this.hitObject(nearby, damage);
@@ -1030,6 +1099,7 @@ export class GroveScene extends Phaser.Scene {
     } else if (object) this.hitObject(object, damage);
     if (critical) this.floatText('CRITICAL!', x, y - 61, '#fff1a7');
     if (!this.reducedEffects) this.burst(x, y, info.color, 3);
+    return true;
   }
 
   private hitEnemy(enemy: Enemy, damage: number, quiet = false, source?: Weapon): void {
@@ -1047,6 +1117,7 @@ export class GroveScene extends Phaser.Scene {
     enemy.sprite.setTint(0xffd6a0);
     this.time.delayedCall(90, () => {
       if (enemy.sprite.active) enemy.sprite.setTint(enemy.burnRemaining > 0 ? 0xffae72
+        : enemy.tangleRemaining > 0 ? 0xb9ed9f
         : enemy.kind === 'gatekeeper' ? 0xf1bd8d
           : this.region === 2 && enemy.kind === 'wisp' ? 0xb2e4e6 : 0xffffff);
     });
@@ -1056,6 +1127,12 @@ export class GroveScene extends Phaser.Scene {
     }
     this.flushDamage(enemy);
     const x = enemy.sprite.x; const y = enemy.sprite.y;
+    const ashHeal = weaponPathEffects('staff', this.weapons.find(item => item.id === 'staff')?.path).healOnBurnKill;
+    if (ashHeal > 0 && enemy.burnRemaining > 0 && this.health < this.stats.maxHealth) {
+      const restored = Math.min(ashHeal, this.stats.maxHealth - this.health);
+      this.health += restored;
+      this.floatText(`+${Math.ceil(restored)} ASH`, this.hero.x, this.hero.y - 67, '#f9c8a5');
+    }
     enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.sprite.destroy(); this.enemies.splice(this.enemies.indexOf(enemy), 1);
     this.kills++;
     const rite = this.objects.find(object => object.kind === 'altar' && object.active && object.hp > 0 && object.maxHp <= 6);
@@ -1083,6 +1160,23 @@ export class GroveScene extends Phaser.Scene {
     if (!this.reducedEffects) this.burst(enemy.sprite.x, enemy.sprite.y, '#ff9a58', 2);
   }
 
+  private entangleEnemy(enemy: Enemy, seconds: number): void {
+    if (!this.enemies.includes(enemy)) return;
+    const fresh = enemy.tangleRemaining <= 0;
+    enemy.tangleRemaining = Math.max(enemy.tangleRemaining, seconds);
+    if (enemy.lance) {
+      enemy.lance.marker?.destroy(); enemy.lance.marker = undefined;
+      enemy.lance.windup = 0;
+      enemy.lance.cooldown = Math.max(enemy.lance.cooldown, seconds);
+    }
+    enemy.sprite.setTint(0xb9ed9f);
+    if (fresh && !this.reducedEffects) {
+      const ring = this.add.circle(enemy.sprite.x, enemy.sprite.y, enemy.radius + 11, 0xb9ed9f, 0.1)
+        .setStrokeStyle(3, 0xc9f5ac, 0.86).setDepth(7);
+      this.tweens.add({ targets: ring, scale: 1.35, alpha: 0, duration: 350, onComplete: () => ring.destroy() });
+    }
+  }
+
   private flushDamage(enemy: Enemy): void {
     if (enemy.pendingDamage <= 0) return;
     this.floatText(String(enemy.pendingDamage), enemy.sprite.x, enemy.sprite.y - (enemy.kind === 'boss' ? 78 : 39), '#fff1b1');
@@ -1106,12 +1200,13 @@ export class GroveScene extends Phaser.Scene {
 
   private spawnObject(kind: ObjectKind, x: number, y: number, hp: number, maxHp: number, active: boolean): void {
     const texture: Record<ObjectKind, string> = {
-      ward: 'root-totem', waylight: 'waylight', pump: 'coolant-pump', forge: 'forge-core', altar: 'moon-altar',
+      ward: 'root-totem', waylight: 'waylight', seedheart: 'seedheart', pump: 'coolant-pump', forge: 'forge-core', altar: 'moon-altar',
       shrine: 'reliquary', relic: 'fox-relic', gate: 'grove-gate', vent: 'ember-vent', bloom: 'mist-bloom',
       bramble: 'bramble-field', ore: 'ember-ore', moonstone: 'moonstone',
     };
     const fieldStyles: Partial<Record<ObjectKind, { radius: number; color: number; fill: number; stroke: number }>> = {
       pump: { radius: 110, color: 0x8ddfe0, fill: 0.09, stroke: 0.75 },
+      seedheart: { radius: 150, color: 0xb8f3a0, fill: 0.08, stroke: 0.8 },
       vent: { radius: 120, color: 0xff9a55, fill: 0.035, stroke: 0.28 },
       bloom: { radius: 116, color: 0x8dc9d1, fill: 0.075, stroke: 0.62 },
       bramble: { radius: 105, color: 0x8ec477, fill: 0.08, stroke: 0.55 },
@@ -1125,13 +1220,14 @@ export class GroveScene extends Phaser.Scene {
       .setStrokeStyle(3, field.color, field.stroke).setVisible(active) : undefined;
     const base = this.add.ellipse(0, 21, kind === 'gate' ? 125 : 70, 27, 0x132f2c, kind === 'waylight' ? 0.2 : 0.55);
     const size = kind === 'gate' ? 134 : kind === 'forge' || kind === 'altar' || kind === 'moonstone' ? 110
-      : kind === 'bramble' ? 125 : kind === 'ore' ? 116 : kind === 'relic' ? 83 : kind === 'waylight' ? 104 : 98;
+      : kind === 'bramble' ? 125 : kind === 'ore' ? 116 : kind === 'seedheart' ? 122 : kind === 'relic' ? 83 : kind === 'waylight' ? 104 : 98;
     const image = this.add.image(0, kind === 'gate' ? -14 : -8, texture[kind]).setDisplaySize(size, size);
     const terrainLabel: Partial<Record<ObjectKind, string>> = {
       bramble: 'BRAMBLES · SLOW', ore: 'ORE · FOE ARMOR', moonstone: 'MOONSTONE · HASTE',
     };
     const label = this.add.text(0, kind === 'gate' ? 61 : 49,
       kind === 'waylight' && active ? 'STAY CLOSE · GUIDE ME'
+        : kind === 'seedheart' && active ? `DEFEND · ${Math.ceil(maxHp - hp)}/${maxHp}s`
         : kind === 'altar' && active && maxHp <= 6 ? `MOON RITE · ${maxHp - hp}/${maxHp}`
         : kind === 'pump' && active ? `DRAIN PUMP · ${Math.floor((1 - hp / maxHp) * 4)}/4s`
         : active ? terrainLabel[kind] ?? objectiveName(kind) : `${objectiveName(kind)} · SEALED`, {
@@ -1143,7 +1239,7 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private hitObject(object: WorldObject, damage: number): void {
-    if (!object.active || object.hp <= 0 || object.kind === 'pump' || object.kind === 'waylight'
+    if (!object.active || object.hp <= 0 || object.kind === 'pump' || object.kind === 'waylight' || object.kind === 'seedheart'
       || object.kind === 'altar' && object.maxHp <= 6) return;
     this.metrics.objectDamage += Math.min(damage, object.hp);
     object.hp = Math.max(0, object.hp - damage);
@@ -1164,9 +1260,10 @@ export class GroveScene extends Phaser.Scene {
     }
     object.active = false; object.view.setAlpha(0.15); object.ring?.setVisible(false);
     this.burst(object.x, object.y, object.kind === 'ward' ? '#c7e2a7' : '#f6d597', 16);
-    if (object.kind === 'ward' || object.kind === 'waylight' || object.kind === 'pump' || object.kind === 'forge' || object.kind === 'altar') {
+    if (object.kind === 'ward' || object.kind === 'waylight' || object.kind === 'seedheart' || object.kind === 'pump' || object.kind === 'forge' || object.kind === 'altar') {
       this.metrics.wards++;
       if (object.kind === 'waylight') this.callbacks.onEvent('WAYLIGHT HOME — THE GROVE IS SAFE');
+      else if (object.kind === 'seedheart') this.callbacks.onEvent('SEEDHEART AWAKENED — THE GROVE IS SAFE');
       else if (object.kind === 'pump') {
         const forge = this.objects.find(item => item.kind === 'forge' && item.hp > 0);
         if (forge) { forge.active = true; forge.view.setAlpha(1); forge.label.setText(objectiveName('forge')); }
@@ -1221,16 +1318,11 @@ export class GroveScene extends Phaser.Scene {
       this.moonflowRemaining = Math.max(this.moonflowRemaining, effect.moonflowSeconds);
       this.floatText('SPEED +28% · 6s', this.hero.x, this.hero.y - 69, '#d9cbff');
     }
+    for (const weapon of this.weapons) weapon.commandCooldown = 0;
+    this.floatText('COMMANDS READY', this.hero.x, this.hero.y - 86, '#fff1b8');
     for (const enemy of [...this.enemies]) {
       if (!this.enemies.includes(enemy) || this.distance(enemy.sprite.x, enemy.sprite.y, object.x, object.y) > effect.radius) continue;
-      if (effect.tangleSeconds > 0) {
-        enemy.tangleRemaining = Math.max(enemy.tangleRemaining, effect.tangleSeconds);
-        if (enemy.lance) {
-          enemy.lance.marker?.destroy(); enemy.lance.marker = undefined;
-          enemy.lance.windup = 0;
-          enemy.lance.cooldown = Math.max(enemy.lance.cooldown, effect.tangleSeconds);
-        }
-      }
+      if (effect.tangleSeconds > 0) this.entangleEnemy(enemy, effect.tangleSeconds);
       this.hitEnemy(enemy, effect.damage, true);
       if (!this.running) break;
     }
@@ -1266,6 +1358,27 @@ export class GroveScene extends Phaser.Scene {
         this.callbacks.onEvent('AMBUSH — DEFEND THE WAYLIGHT'); this.saveSnapshot();
       }
       if (result.arrived) this.completeObject(waylight);
+    }
+    const seedheart = this.objects.find(object => object.kind === 'seedheart' && object.active && object.hp > 0);
+    if (seedheart && dt > 0) {
+      const close = this.distance(this.hero.x, this.hero.y, seedheart.x, seedheart.y) < 150;
+      const threatened = this.enemies.some(enemy => this.distance(enemy.sprite.x, enemy.sprite.y, seedheart.x, seedheart.y) < 150);
+      seedheart.hp = advanceSeedheart(seedheart.hp, dt, close, threatened);
+      const progress = Math.min(15, Math.floor(seedheart.maxHp - seedheart.hp));
+      const label = threatened ? 'CLEAR FOES · CHARGE PAUSED' : close ? `SEEDHEART · ${progress}/15s` : 'STAND IN RING · DEFEND';
+      if (seedheart.label.text !== label) seedheart.label.setText(label);
+      if (!this.waylightAmbush && seedheart.hp <= 7.5) {
+        this.waylightAmbush = true;
+        for (let i = 0; i < 4; i++) {
+          const angle = i * Math.PI / 2;
+          this.spawnEnemy(i === 3 ? 'wisp' : 'gnarl', {
+            x: Phaser.Math.Clamp(seedheart.x + Math.cos(angle) * 205, 45, WORLD - 45),
+            y: Phaser.Math.Clamp(seedheart.y + Math.sin(angle) * 205, 45, WORLD - 45),
+          });
+        }
+        this.callbacks.onEvent('SEEDHEART AMBUSH — CLEAR FOES TO KEEP CHARGING'); this.saveSnapshot();
+      }
+      if (seedheart.hp <= 0) this.completeObject(seedheart);
     }
     const pump = this.objects.find(object => object.kind === 'pump' && object.active && object.hp > 0);
     const rite = this.objects.find(object => object.kind === 'altar' && object.active && object.hp > 0 && object.maxHp <= 6);
@@ -1465,12 +1578,20 @@ export class GroveScene extends Phaser.Scene {
       surge: wildSurge(this.region, this.stageSeconds, REGIONS[this.region].duration),
       moonflowRemaining: this.moonflowRemaining,
       stepTargetsLeft: this.objects.filter(object => object.kind === currentObjective?.kind && object.hp > 0).length,
-      stepProgress: currentObjective?.kind === 'pump'
+      stepProgress: currentObjective?.kind === 'seedheart'
+        ? Math.min(15, Math.floor(currentObjective.maxHp - currentObjective.hp))
+        : currentObjective?.kind === 'pump'
         ? Math.min(4, Math.floor((1 - currentObjective.hp / currentObjective.maxHp) * 4))
         : currentObjective?.kind === 'waylight' && this.waylightRoute
           ? Math.round(waylightProgress(this.waylightRoute.start, this.waylightRoute.goal, currentObjective) * 100)
           : currentObjective?.kind === 'altar' && currentObjective.maxHp <= 6
             ? currentObjective.maxHp - currentObjective.hp : 0,
+      objectiveProgress: currentObjective?.kind === 'waylight' && this.waylightRoute
+        ? waylightProgress(this.waylightRoute.start, this.waylightRoute.goal, currentObjective) * 100
+        : currentObjective?.kind === 'bloom' ? (2 - this.objects.filter(object => object.kind === 'bloom' && object.hp > 0).length) * 50
+          : currentObjective ? Math.max(0, 100 * (1 - currentObjective.hp / Math.max(1, currentObjective.maxHp)))
+            : boss?.maxHp ? 100 * (1 - boss.hp / boss.maxHp)
+              : Math.min(100, this.stageSeconds / REGIONS[this.region].duration * 100),
       terrainHint: nearbyTerrain ? terrainRupture(nearbyTerrain.kind as TerrainKind).hint : null,
       markedFieldName: this.markedField?.active ? objectiveName(this.markedField.kind) : null,
       gateOpen: this.objects.some(object => object.kind === 'gate' && object.active), hero: this.heroId,

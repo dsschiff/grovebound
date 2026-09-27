@@ -1,5 +1,13 @@
 # Grovebound worklog
 
+## 2026-09-27 — Weapon commands, mission variety, and character art
+
+- Tapping a weapon slot now fires a visibly charged attack at a target in range and focuses that slot. Each weapon has an independent eight-second command recharge shown in the tray. Commands have longer reach and double damage while retaining axe splash, thorn pierce, Sunbow critical fire, or staff burn. Terrain fields now refill all commands when broken, giving their tactical burst a useful follow-up.
+- Rank-II weapons now offer a paired technique fork. Axe chooses broader Storm Arc or elite-focused Breaker Edge; thorns choose Split Dart or Rootbind; Sunbow chooses Flare Arrow or Sunlance; staff chooses Wildfire or Ash Feast. Each branch changes combat behavior and survives local run resume.
+- Verdant Verge now alternates by run seed between the Waylight escort and a Seedheart defense. The Seedheart needs 15 seconds of guarded ring time, pauses when foes enter its ring, and draws a halfway ambush. The mission card uses distinct art, action labels, and progress; the run clock separately states when the guardian arrives. The three playable heroes received brighter, more legible illustrated silhouettes. The four new WebP assets total 163 KB and preserve transparency.
+- Browser QA at 390 × 844 verified an immediate Sunbow command, its recharge countdown, the paired Storm Arc / Breaker Edge choice, and a Seedheart mission that completed at normal speed. At 320 × 568, the mission card, minimap, two equipped slots, and special remained visible. A Seedheart run resumed after reload into its saved upgrade choice. Ranger and Ember portraits rendered in the camp. No browser errors were reported in those checks.
+- Thirty-one Vitest cases and the Pages production build passed. The staged site is 2,410,595 bytes, below the 5 MB transfer target. The full-run pilot and live Pages release are recorded below once verified.
+
 ## 2026-09-26 — Weapon rank identities and damage report
 
 - Ranks now change each weapon's behavior instead of only increasing its damage. Axe cleaves widen and rank III pushes smaller foes; thorn darts gain a second then third aligned pierce; Sunbow critical chance rises before shots gain a nearby ricochet; Ember Staff gains a longer, stronger burn and a wider blast. The rank damage multiplier was reduced to keep these added hits from stacking on top of the former full rank bonus.

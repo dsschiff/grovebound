@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { GroveScene, type HudState, type RunResult } from './game/GroveScene';
 import {
-  HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_FOCUS, WEAPON_INFO, WEAPON_RANKS,
+  HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_FOCUS, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS,
   addRunToProgress, availableHero, availableWeapon, masteryRank, readProgress,
   saveProgress, seedsForRun, unlockThorns,
   type Hero, type Upgrade, type Weapon,
@@ -11,7 +11,7 @@ import { soundFx } from './game/audio';
 import './style.css';
 
 const art = (name: string) => `${import.meta.env.BASE_URL}art/${name}.svg`;
-const heroArt = (hero: Hero) => `${import.meta.env.BASE_URL}art/${hero}-v3.webp`;
+const heroArt = (hero: Hero) => `${import.meta.env.BASE_URL}art/${hero}-v4.webp`;
 const enemyArt = (name: string) => `${import.meta.env.BASE_URL}art/${name}-v2.webp`;
 const weaponArt = (weapon: Weapon) => `${import.meta.env.BASE_URL}art/weapon-${weapon}-v2.webp`;
 const weaponHudName: Record<Weapon, string> = { axe: 'Axe', thorns: 'Thorns', bow: 'Sunbow', staff: 'Ember' };
@@ -35,7 +35,7 @@ root.innerHTML = `
     <div id="hud" class="hud hidden">
       <div class="top-line">
         <div class="crest"><span class="crest-leaf">❧</span><span>GROVEBOUND</span></div>
-        <div class="clock-wrap"><span id="timer">0:00</span><small id="timer-heading">RUN TIME · REGION 1/3</small><small id="stage-timer">GUARDIAN READY IN 2:55</small><div class="objective-status"><img id="objective-art" src="${import.meta.env.BASE_URL}art/waylight.webp" alt=""/><small id="objective" aria-live="polite">GUIDE THE WAYLIGHT</small></div></div>
+        <div class="clock-wrap"><span id="timer">0:00</span><small id="timer-heading">RUN TIME · REGION 1/3</small><small id="stage-timer">GUARDIAN IN 2:55</small></div>
         <button id="pause-button" class="icon-button" aria-label="Pause game">Ⅱ</button>
       </div>
       <div class="vitals">
@@ -43,6 +43,7 @@ root.innerHTML = `
         <div class="bar health-bar"><div id="health-fill"></div></div>
         <div class="bar xp-bar"><div id="xp-fill"></div></div>
       </div>
+      <div id="mission-card" class="mission-card waylight"><img id="objective-art" src="${import.meta.env.BASE_URL}art/waylight.webp" alt=""/><div class="mission-copy"><small id="mission-type">ESCORT</small><strong id="objective" aria-live="polite">STAY NEAR THE MOTH</strong><div class="mission-track"><i id="mission-progress"></i></div></div></div>
       <div class="minimap-frame" aria-hidden="true"><canvas id="minimap" width="120" height="120"></canvas></div>
       <div id="boss-bar" class="boss-bar hidden"><span id="boss-name">GATE SENTINEL</span><div class="bar"><div id="boss-fill"></div></div></div>
       <button id="special-button" class="special-button" aria-label="Use special ability"><span class="special-icon">✹</span><strong id="special-label">WHIRLWIND</strong><small id="special-cooldown">READY</small></button>
@@ -53,7 +54,7 @@ root.innerHTML = `
       <div class="menu-content">
         <div class="overline"><span class="overline-rule"></span> A POCKET FOREST ADVENTURE <span class="overline-rule"></span></div>
         <h1>GROVE<span>BOUND</span></h1>
-        <p class="subtitle">Guide a waylight. Shut down the forge. Clear the mist. Face the Briar King.</p>
+        <p class="subtitle">Guide a waylight or defend a seedheart. Shut down the forge. Face the Briar King.</p>
         <div class="hero-stage" aria-hidden="true">
           <div class="hero-halo"></div>
           <img class="stage-tree left" src="${art('tree')}" alt="" />
@@ -78,7 +79,7 @@ root.innerHTML = `
         <div class="setting-pair"><label class="setting-row"><input id="reduced-effects" type="checkbox" /> Reduced effects</label><label class="setting-row"><input id="muted" type="checkbox" /> Mute sound</label><label id="auto-special-row" class="setting-row hidden"><input id="auto-special" type="checkbox" /> Auto special</label></div>
         <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span>➜</span></button>
         <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span>➜</span></button>
-        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP A FIELD TO TARGET ITS BURST<br />KEYBOARD: WASD/ARROWS TO MOVE <span>✧</span> SPACE SPECIAL <span>✧</span> F TARGET</p>
+        <p class="instruction">DRAG TO MOVE <span>✧</span> AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP WEAPON SLOTS TO FIRE A CHARGED ATTACK · TAP FIELDS TO BURST<br />KEYBOARD: WASD/ARROWS TO MOVE <span>✧</span> SPACE SPECIAL <span>✧</span> F TARGET</p>
         <div class="best-line" id="best-line"></div>
         <a class="hub-link" href="https://dsschiff.github.io/games/">ALL GAMES ↗</a>
       </div>
@@ -233,13 +234,18 @@ function drawMinimap(hud: HudState): void {
     if (!object.active && object.kind !== 'gate') continue;
     const p = point(object.x, object.y);
     ctx.save(); ctx.translate(p.x, p.y);
-    ctx.fillStyle = { ward: '#ffe2a3', waylight: '#fff0b1', pump: '#9ae8ec', forge: '#ffae68', altar: '#d9c2ff',
+    ctx.fillStyle = { ward: '#ffe2a3', waylight: '#fff0b1', seedheart: '#b9f1a8', pump: '#9ae8ec', forge: '#ffae68', altar: '#d9c2ff',
       shrine: '#dca5f1', relic: '#ffca83', gate: object.active ? '#a5e8dc' : '#6b8782',
       vent: '#ff965d', bloom: '#a8d9ef', bramble: '#b8e898', ore: '#ffb16b', moonstone: '#c4adff' }[object.kind];
     ctx.strokeStyle = '#173a35'; ctx.lineWidth = 1.5;
     ctx.beginPath();
     if (object.kind === 'ward') { ctx.moveTo(0, -5); ctx.lineTo(5, 0); ctx.lineTo(0, 5); ctx.lineTo(-5, 0); ctx.closePath(); }
-    else if (object.kind === 'waylight') { ctx.arc(0, 0, 6, 0, Math.PI * 2); }
+    else if (object.kind === 'waylight') {
+      ctx.ellipse(-3, -1, 3, 4, -.5, 0, Math.PI * 2); ctx.moveTo(6, -1); ctx.ellipse(3, -1, 3, 4, .5, 0, Math.PI * 2);
+    }
+    else if (object.kind === 'seedheart') {
+      for (const [x, y] of [[-3, -3], [3, -3], [-3, 3], [3, 3]]) { ctx.moveTo(x + 3, y); ctx.arc(x, y, 3, 0, Math.PI * 2); }
+    }
     else if (object.kind === 'forge' || object.kind === 'ore') ctx.rect(-5, -5, 10, 10);
     else if (object.kind === 'moonstone') { ctx.moveTo(0, -6); ctx.lineTo(5, 3); ctx.lineTo(0, 6); ctx.lineTo(-5, 3); ctx.closePath(); }
     else if (object.kind === 'bloom') {
@@ -286,24 +292,31 @@ function updateHud(hud: HudState): void {
   el('#timer-heading').classList.toggle('surge', hud.surge);
   const gateCountdown = Math.max(0, region.duration - hud.stageSeconds);
   el('#stage-timer').textContent = hud.gateOpen ? 'PORTAL OPEN' : hud.bossHp !== null ? 'GUARDIAN FIGHT'
-    : gateCountdown > 0 ? `GUARDIAN READY IN ${formatTime(gateCountdown)}`
+    : gateCountdown > 0 ? `GUARDIAN IN ${formatTime(gateCountdown)}`
       : hud.objectivesLeft > 0 ? 'GUARDIAN WAITS FOR OBJECTIVES' : 'GUARDIAN ARRIVING';
-  const task = { ward: 'BREAK ROOT TOTEMS', waylight: 'GUIDE THE WAYLIGHT', pump: 'DRAIN COOLANT PUMP', forge: 'BREAK FORGE CORE',
+  const task = { ward: 'BREAK ROOT TOTEMS', waylight: 'GUIDE THE WAYLIGHT', seedheart: 'DEFEND THE SEEDHEART', pump: 'DRAIN COOLANT PUMP', forge: 'BREAK FORGE CORE',
     bloom: 'CLEAR MIST BLOOMS', altar: hud.ritualActive ? 'COMPLETE THE MOON RITE' : 'BREAK MOON ALTAR' }[hud.objectiveName ?? ''] ?? 'CLEAR OBJECTIVES';
-  const objective = hud.objectivesLeft > 0 ? hud.objectiveName === 'pump'
+  const objective = hud.objectivesLeft > 0 ? hud.objectiveName === 'seedheart'
+    ? `GUARD THE RING · ${hud.stepProgress}/15s` : hud.objectiveName === 'pump'
     ? `STAND IN PUMP RING · ${hud.stepProgress}/4s` : hud.objectiveName === 'waylight'
       ? `STAY NEAR THE MOTH · ${hud.stepProgress}% HOME` : hud.ritualActive
         ? `DEFEAT FOES BY ALTAR · ${hud.stepProgress}/6` : `${task} · ${hud.stepTargetsLeft} LEFT`
     : hud.gateOpen ? 'ENTER THE PORTAL' : hud.bossHp !== null ? 'DEFEAT THE GUARDIAN' : 'HOLD FOR THE GUARDIAN';
   if (el('#objective').textContent !== objective) el('#objective').textContent = objective;
+  const missionKind = hud.objectiveName ?? (hud.bossHp !== null ? 'boss' : hud.gateOpen ? 'gate' : 'hold');
+  const missionMode = { waylight: 'ESCORT', seedheart: 'DEFEND', pump: 'CHANNEL', forge: 'DESTROY', bloom: 'PURGE', altar: 'RITUAL',
+    boss: 'BOSS', gate: 'ESCAPE', hold: 'SURVIVE', ward: 'DESTROY' }[missionKind] ?? 'MISSION';
+  el('#mission-type').textContent = `${REGIONS[hud.region].short} · ${missionMode}`;
+  el('#mission-card').className = `mission-card ${missionKind}`;
+  el<HTMLElement>('#mission-progress').style.width = `${Math.max(0, Math.min(100, hud.objectiveProgress))}%`;
   const objectiveArt = hud.objectiveName ? {
-    ward: 'root-totem.webp', waylight: 'waylight.webp', pump: 'coolant-pump.webp', forge: 'forge-core.webp',
+    ward: 'root-totem.webp', waylight: 'waylight.webp', seedheart: 'seedheart.webp', pump: 'coolant-pump.webp', forge: 'forge-core.webp',
     bloom: 'mist-bloom.webp', altar: 'moon-altar.webp',
   }[hud.objectiveName] : hud.bossHp !== null ? 'briar-king-v2.webp' : 'grove-gate.webp';
   const objectiveSrc = `${import.meta.env.BASE_URL}art/${objectiveArt ?? 'grove-gate.webp'}`;
   if (el<HTMLImageElement>('#objective-art').src !== new URL(objectiveSrc, location.href).href)
     el<HTMLImageElement>('#objective-art').src = objectiveSrc;
-  const traySignature = `${hud.weaponSlots}|${hud.focusedWeapon}|${hud.weapons.map(weapon => `${weapon.id}:${weapon.rank}`).join(',')}`;
+  const traySignature = `${hud.weaponSlots}|${hud.focusedWeapon}|${hud.weapons.map(weapon => `${weapon.id}:${weapon.rank}:${weapon.path ?? ''}`).join(',')}`;
   if (traySignature !== weaponTraySignature) {
     weaponTraySignature = traySignature;
     el('#weapon-tray').classList.toggle('full', hud.weapons.length >= 3);
@@ -312,13 +325,16 @@ function updateHud(hud: HudState): void {
       if (!weapon) return `<div class="weapon-slot empty ${index >= hud.weaponSlots ? 'locked' : ''}"><small>SLOT ${index + 1}</small><span>${index >= hud.weaponSlots ? 'LOCKED' : 'FIND WEAPON'}</span></div>`;
       const info = WEAPON_INFO[weapon.id];
       const focused = weapon.id === hud.focusedWeapon;
-      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="Focus ${info.name}, slot ${index + 1}, rank ${weapon.rank}. Focus trait: ${WEAPON_FOCUS[weapon.id]}. Focus adds 25 percent damage and changes this weapon's attack"><small>${focused ? 'FOCUSED' : `SLOT ${index + 1}`} · RANK ${weapon.rank}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id]}</span><div class="slot-detail"><em>${focused ? WEAPON_FOCUS[weapon.id] : WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0</strong></div><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
+      const pathName = weapon.path ? WEAPON_PATH_INFO[weapon.id][weapon.path].name : null;
+      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="Fire ${info.name} command and focus slot ${index + 1}, rank ${weapon.rank}${pathName ? `, ${pathName} technique` : ''}"><small>${focused ? 'FOCUS' : `SLOT ${index + 1}`} · ${['I', 'II', 'III'][weapon.rank - 1]}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id]}</span><div class="slot-detail"><em>${pathName ?? WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0</strong></div><b class="command-status" data-command="${weapon.id}">READY · TAP</b><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
     }).join('');
   }
   for (const weapon of hud.weapons) {
     const charge = el<HTMLElement>(`[data-charge="${weapon.id}"]`);
-    const effectiveCooldown = WEAPON_INFO[weapon.id].cooldown * (weapon.id === 'bow' && weapon.id === hud.focusedWeapon ? 0.78 : 1);
-    charge.style.width = `${Math.max(0, Math.min(100, (1 - weapon.cooldown / effectiveCooldown) * 100))}%`;
+    const commandRemaining = weapon.commandCooldown ?? 0;
+    charge.style.width = `${Math.max(0, Math.min(100, (1 - commandRemaining / 8) * 100))}%`;
+    el(`[data-command="${weapon.id}"]`).textContent = commandRemaining <= 0 ? 'READY · TAP' : `CHARGE ${Math.ceil(commandRemaining)}s`;
+    el(`[data-focus="${weapon.id}"]`).classList.toggle('ready', commandRemaining <= 0);
     el(`[data-weapon-damage="${weapon.id}"]`).textContent = compactDamage(hud.weaponDamage[weapon.id]);
   }
   show('#boss-bar', hud.bossHp !== null);
@@ -340,8 +356,9 @@ function onUpgrade(options: Upgrade[]): void {
   const cards = el('#upgrade-cards');
   cards.innerHTML = options.map((choice, index) => {
     const info = scene.upgradeInfo(choice);
-    const type = choice.startsWith('weapon:') ? 'weapon' : choice;
-    const icon = choice.startsWith('weapon:') ? `<img src="${weaponArt(choice.slice(7) as Weapon)}" alt=""/>` : info.icon;
+    const weaponChoice = choice.startsWith('weapon:') || choice.startsWith('path:');
+    const type = weaponChoice ? 'weapon' : choice;
+    const icon = weaponChoice ? `<img src="${weaponArt((choice.startsWith('path:') ? choice.split(':')[1] : choice.slice(7)) as Weapon)}" alt=""/>` : info.icon;
     return `<button class="upgrade-card ${type}" data-index="${index}"><span class="upgrade-icon">${icon}</span><span class="upgrade-text"><strong>${info.name}</strong><small>${info.description}</small></span><span class="upgrade-arrow">➜</span></button>`;
   }).join('');
   cards.querySelectorAll<HTMLButtonElement>('[data-index]').forEach(card => card.addEventListener('click', () => {
@@ -349,7 +366,8 @@ function onUpgrade(options: Upgrade[]): void {
   }));
   setModal('upgrade');
   if (debugPilot) {
-    const preferred: Upgrade[] = ['weapon:axe', 'weapon:staff', 'weapon:bow', 'attack', 'regen',
+    const preferred: Upgrade[] = ['path:axe:a', 'path:bow:b', 'path:staff:a', 'path:thorns:b',
+      'weapon:axe', 'weapon:staff', 'weapon:bow', 'attack', 'regen',
       'maxHealth', 'defense', 'reach', 'splash', 'pet', 'speed', 'weapon:thorns', 'wildArsenal'];
     scene.chooseUpgrade(preferred.find(choice => options.includes(choice)) ?? options[0]);
     setModal(null);

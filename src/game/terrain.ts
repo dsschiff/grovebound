@@ -8,11 +8,11 @@ export interface TerrainRupture { radius: number; damage: number; tangleSeconds:
 
 export function terrainRupture(kind: TerrainKind): TerrainRupture {
   if (kind === 'bramble') return { radius: 205, damage: 15, tangleSeconds: 4, moonflowSeconds: 0,
-    name: 'ROOT SNARE', hint: 'TAP BRAMBLES · ROOT NEARBY FOES' };
+    name: 'ROOT SNARE', hint: 'TAP BRAMBLES · ROOT FOES + REFILL COMMANDS' };
   if (kind === 'ore') return { radius: 220, damage: 80, tangleSeconds: 0, moonflowSeconds: 0,
-    name: 'ORE BLAST', hint: 'TAP ORE · BLAST NEARBY FOES' };
+    name: 'ORE BLAST', hint: 'TAP ORE · BLAST FOES + REFILL COMMANDS' };
   return { radius: 230, damage: 45, tangleSeconds: 0, moonflowSeconds: 6,
-    name: 'MOONFLOW', hint: 'TAP MOONSTONE · BLAST + SPEED' };
+    name: 'MOONFLOW', hint: 'TAP MOONSTONE · BLAST + SPEED + REFILL' };
 }
 
 export function enemyFieldModifiers(x: number, y: number, fields: TerrainField[]): { speed: number; damageTaken: number } {
