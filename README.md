@@ -12,6 +12,8 @@ Cross Verdant Verge, Ember Quarry, and Moonfen. Break two root totems in the Ver
 
 Speed, regeneration, attack, defense, maximum health, and reach can be upgraded through pickups and level choices. Axe and staff can gain wider splash; darts and the bow favor single targets. A new run has two weapon slots and can find all four weapons; mastery or a relic opens a third slot. Three heroes have different starting stats and specials. Run rewards unlock the Ranger and Ember, while per-hero mastery adds choices, a small health bonus, a golden hero and weapon kit, an early third weapon slot, and optional automatic specials. Seeds from the original release and a purchased Thorn Dart are preserved.
 
+Weapon ranks now change behavior as well as damage. The axe grows a wider cleave and eventually knocks back smaller foes; thorns pierce farther through a line; the Sunbow gains critical chance and a ricochet; the staff spreads a longer, stronger burn over a wider blast. Upgrade choices reliably include current weapon ranks while they can still grow. Each card names the next effect, each loadout slot shows its current trait and foe damage this run, and the result screen compares weapon damage with special and companion damage.
+
 Each region also has two optional terrain fields that change nearby fights: Verge brambles slow you and enemies, Quarry ore protects enemies, and Moonfen moonstones hasten them. Attack a field to clear its effect and reveal a stat cache. The HUD names the effect when you approach, and the minimap marks each field separately.
 
 ## Develop and publish

@@ -79,6 +79,15 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .weapon-slot.empty span{justify-content:center;margin-top:9px;color:#b1b6a0;font-size:9px;letter-spacing:.08em}
 .weapon-slot.locked{opacity:.55}
 .weapon-charge{position:absolute;left:0;bottom:0;height:3px;background:#f6d58b;transition:width .1s linear}
+.weapon-slot .slot-detail{display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0;margin-top:2px;color:#d7e7bd;font-size:7px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.slot-detail em{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:normal}
+.slot-detail strong{flex:none;color:#ffdf9b;font-size:8px;font-variant-numeric:tabular-nums}
+.weapon-report-title{border-top:1px solid #91ac8750;margin-top:7px;padding-top:9px}
+.weapon-report{display:grid;gap:6px;margin-bottom:9px}
+.weapon-report-row{display:grid;grid-template-columns:17px 78px 1fr auto;gap:5px;align-items:center;color:#e8ecd0;font-size:8px;font-weight:800}
+.weapon-report-row img{width:16px;height:16px}.weapon-report-row strong{font-size:10px;color:#ffe5a7;font-variant-numeric:tabular-nums}
+.weapon-report-track{height:5px;border-radius:5px;background:#0c2928;overflow:hidden}.weapon-report-track i{display:block;height:100%;border-radius:5px}
+.weapon-report-row.other{display:flex;justify-content:space-between;padding:2px 0 0;color:#b9d2b9}
 .hero-option{min-height:96px}
 .hero-option img{width:58px;height:60px}
 .weapon-option img{width:27px;height:27px}

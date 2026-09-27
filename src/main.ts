@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
 import { GroveScene, type HudState, type RunResult } from './game/GroveScene';
 import {
-  HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_INFO,
+  HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_INFO, WEAPON_RANKS,
   addRunToProgress, availableHero, availableWeapon, masteryRank, readProgress,
   saveProgress, seedsForRun, unlockThorns,
   type Hero, type Upgrade, type Weapon,
 } from './game/logic';
-import { readRunSnapshot } from './game/runSave';
+import { emptyWeaponDamage, readRunSnapshot } from './game/runSave';
 import { soundFx } from './game/audio';
 import './style.css';
 
@@ -103,6 +103,7 @@ root.innerHTML = `
         <div class="breakdown-row"><span>STAT CACHES</span><strong id="result-caches">0</strong><span>BLESSINGS</span><strong id="result-blessings">0</strong></div>
         <div class="hazard-tally"><span>HAZARDS CLEARED</span><strong id="result-hazards">0</strong></div>
         <div class="hazard-tally"><span>TERRAIN CLEARED</span><strong id="result-terrain">0</strong></div>
+        <div class="breakdown-title weapon-report-title">WEAPON DAMAGE</div><div id="result-weapons" class="weapon-report"></div>
         <div id="result-regions" class="region-times"></div>
       </div>
       <div class="reward-line"><span>SEEDS EARNED</span><strong id="result-seeds">+2 ✦</strong></div>
@@ -118,6 +119,9 @@ function show(selector: string, visible: boolean): void { el(selector).classList
 function formatTime(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
+function compactDamage(value: number): string {
+  return value >= 1000 ? `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}K` : String(Math.round(value));
+}
 function notify(message: string): void {
   const toast = el('#toast'); toast.textContent = message; show('#toast', true);
   window.clearTimeout(toastTimer);
@@ -131,7 +135,7 @@ function refreshMenu(): void {
   const rank = masteryRank(progress.mastery[selectedHero]);
   el('#mastery-label').textContent = `MASTERY ${rank}/5`;
   el('#mastery-next').textContent = rank < 5
-    ? `NEXT MASTERY: ${['GLOWFOX CHOICE', '+5 STARTING HP', 'GOLDEN HERO + WEAPON', 'SECOND WEAPON SLOT', 'AUTO SPECIAL'][rank]}`
+    ? `NEXT MASTERY: ${['GLOWFOX CHOICE', '+5 STARTING HP', 'GOLDEN HERO + WEAPON', 'THIRD WEAPON SLOT', 'AUTO SPECIAL'][rank]}`
     : 'MASTERY COMPLETE · AUTO SPECIAL AVAILABLE';
   el<HTMLImageElement>('#stage-hero').src = heroArt(selectedHero);
   el<HTMLImageElement>('#stage-hero').classList.toggle('gold-skin', selectedSkin && rank >= 3);
@@ -277,12 +281,13 @@ function updateHud(hud: HudState): void {
       const weapon = hud.weapons[index];
       if (!weapon) return `<div class="weapon-slot empty ${index >= hud.weaponSlots ? 'locked' : ''}"><small>SLOT ${index + 1}</small><span>${index >= hud.weaponSlots ? 'LOCKED' : 'OPEN'}</span></div>`;
       const info = WEAPON_INFO[weapon.id];
-      return `<button class="weapon-slot equipped ${weapon.id === hud.focusedWeapon ? 'focused' : ''}" data-focus="${weapon.id}" aria-label="Focus ${info.name}, rank ${weapon.rank}. Focus adds 25 percent damage to this weapon and reduces other weapons by 10 percent"><small>SLOT ${index + 1} · RANK ${weapon.rank}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${info.name}</span><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
+      return `<button class="weapon-slot equipped ${weapon.id === hud.focusedWeapon ? 'focused' : ''}" data-focus="${weapon.id}" aria-label="Focus ${info.name}, rank ${weapon.rank}, ${WEAPON_RANKS[weapon.id][weapon.rank - 1]}. Focus adds 25 percent damage to this weapon and reduces other weapons by 10 percent"><small>SLOT ${index + 1} · RANK ${weapon.rank}</small><span><img src="${weaponArt(weapon.id)}" alt=""/>${info.name}</span><div class="slot-detail"><em>${WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0</strong></div><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
     }).join('');
   }
   for (const weapon of hud.weapons) {
     const charge = el<HTMLElement>(`[data-charge="${weapon.id}"]`);
     charge.style.width = `${Math.max(0, Math.min(100, (1 - weapon.cooldown / WEAPON_INFO[weapon.id].cooldown) * 100))}%`;
+    el(`[data-weapon-damage="${weapon.id}"]`).textContent = compactDamage(hud.weaponDamage[weapon.id]);
   }
   show('#boss-bar', hud.bossHp !== null);
   el('#boss-name').textContent = hud.region === 2 ? 'THE BRIAR KING' : 'GATE SENTINEL';
@@ -341,6 +346,12 @@ function onEnd(result: RunResult): void {
   el('#result-blessings').textContent = String(result.metrics.blessings);
   el('#result-hazards').textContent = String(result.metrics.hazards);
   el('#result-terrain').textContent = String(result.metrics.terrain ?? 0);
+  const weaponDamage = result.metrics.weaponDamage ?? emptyWeaponDamage();
+  const highestWeapon = Math.max(1, ...result.weapons.map(weapon => weaponDamage[weapon]));
+  const rows = result.weapons.map(weapon => `<div class="weapon-report-row"><img src="${weaponArt(weapon)}" alt=""/><span>${WEAPON_INFO[weapon].name}</span><div class="weapon-report-track"><i style="width:${Math.max(2, weaponDamage[weapon] / highestWeapon * 100)}%;background:${WEAPON_INFO[weapon].color}"></i></div><strong>${Math.round(weaponDamage[weapon]).toLocaleString()}</strong></div>`);
+  const otherDamage = Math.max(0, result.metrics.foeDamage - Object.values(weaponDamage).reduce((total, value) => total + value, 0));
+  if (otherDamage > 0) rows.push(`<div class="weapon-report-row other"><span>SPECIAL + PET</span><strong>${Math.round(otherDamage).toLocaleString()}</strong></div>`);
+  el('#result-weapons').innerHTML = rows.join('');
   el('#result-regions').innerHTML = REGIONS.map((region, index) => `<div><span>${region.short}</span><strong>${result.metrics.regionSeconds[index] === null ? '—' : formatTime(result.metrics.regionSeconds[index]!)}</strong></div>`).join('');
   el('#result-seeds').textContent = `+${earned} ✦`;
   window.setTimeout(() => setModal('result'), 430);
@@ -425,7 +436,7 @@ if (new URLSearchParams(location.search).has('debug')) {
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const controls = document.createElement('div');
     controls.className = 'debug-controls';
-    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="terrain">INSPECT FIELD</button><button data-debug="clear-terrain">CLEAR FIELD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="heal">HEAL</button>';
+    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="growth">GROWTH CARD</button><button data-debug="build">MAX BUILD</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="terrain">INSPECT FIELD</button><button data-debug="clear-terrain">CLEAR FIELD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="heal">HEAL</button>';
     el('#ui').append(controls);
     controls.querySelectorAll<HTMLButtonElement>('button').forEach(button => button.addEventListener('click', () => {
       if (button.dataset.debug === 'pilot') {
@@ -434,6 +445,8 @@ if (new URLSearchParams(location.search).has('debug')) {
         button.textContent = debugPilot ? 'PILOT ON' : 'PILOT OFF';
       }
       if (button.dataset.debug === 'approach') scene.debugApproachObjective();
+      if (button.dataset.debug === 'growth') scene.debugOfferUpgrade();
+      if (button.dataset.debug === 'build') scene.debugMaxBuild();
       if (button.dataset.debug === 'hazard') scene.debugApproachHazard();
       if (button.dataset.debug === 'shatter') scene.debugShatterHazard();
       if (button.dataset.debug === 'terrain') scene.debugInspectTerrain();

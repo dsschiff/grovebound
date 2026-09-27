@@ -99,6 +99,9 @@ describe('run progression', () => {
     expect(parseRunSnapshot(legacy)?.metrics).toEqual(emptyRunMetrics());
     const burning = { ...snapshot, enemies: [{ ...snapshot.enemies[0], burnRemaining: 2.5, burnTickClock: 0.4, burnDamage: 6 }] };
     expect(parseRunSnapshot(burning)?.enemies[0].burnRemaining).toBe(2.5);
+    const creditedBurn = { ...snapshot, enemies: [{ ...burning.enemies[0], burnSource: 'staff' as const }] };
+    expect(parseRunSnapshot(creditedBurn)?.enemies[0].burnSource).toBe('staff');
+    expect(parseRunSnapshot({ ...creditedBurn, enemies: [{ ...creditedBurn.enemies[0], burnSource: 'poison' }] })).toBeNull();
     expect(parseRunSnapshot({ ...burning, enemies: [{ ...burning.enemies[0], burnDamage: -4 }] })).toBeNull();
     const boss = { ...snapshot, enemies: [{ kind: 'boss' as const, x: 900, y: 800, hp: 600, maxHp: 1150,
       phase: 2, bossStrike: { cooldown: 0, windup: 0.7, x: 930, y: 920, radius: 125 } }] };
@@ -115,6 +118,9 @@ describe('run progression', () => {
     expect(parseRunSnapshot(newObjective)?.objects[1].kind).toBe('forge');
     const { terrain: _oldTerrain, ...priorMetrics } = snapshot.metrics;
     expect(parseRunSnapshot({ ...snapshot, metrics: priorMetrics })?.metrics.terrain).toBe(0);
+    const { weaponDamage: _oldWeaponDamage, ...preWeaponMetrics } = snapshot.metrics;
+    expect(parseRunSnapshot({ ...snapshot, metrics: preWeaponMetrics })?.metrics.weaponDamage).toEqual(emptyRunMetrics().weaponDamage);
+    expect(parseRunSnapshot({ ...snapshot, metrics: { ...snapshot.metrics, weaponDamage: { axe: -1, thorns: 0, bow: 0, staff: 0 } } })).toBeNull();
     const terrainRun = { ...snapshot, region: 1, objects: [{ kind: 'ore', x: 850, y: 780, hp: 100, maxHp: 200, active: true }],
       metrics: { ...snapshot.metrics, terrain: 1 } };
     expect(parseRunSnapshot(terrainRun)?.metrics.terrain).toBe(1);

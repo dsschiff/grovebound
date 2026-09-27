@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { bossPhaseFor, chooseAutoTarget, pickUpgradeChoices, pierceTarget, shouldSpawnGuardian, weaponDamage, weaponSplash } from '../src/game/combat';
+import { bossPhaseFor, bowCriticalChance, chooseAutoTarget, pickUpgradeChoices, pierceTarget, pierceTargets,
+  ricochetTarget, shouldSpawnGuardian, staffBurn, thornPierceCount, weaponDamage, weaponSplash } from '../src/game/combat';
 import { BASE_STATS, Rng } from '../src/game/logic';
 
 describe('combat and objective rules', () => {
@@ -23,6 +24,16 @@ describe('combat and objective rules', () => {
     const candidates = [{ x: 40, y: 0 }, { x: 92, y: 23 }, { x: 85, y: 25 }, { x: 140, y: 1 }];
     expect(pierceTarget(origin, first, 200, candidates)).toBe(1);
     expect(pierceTarget(origin, first, 80, candidates)).toBeNull();
+    expect(pierceTargets(origin, first, 200, candidates, thornPierceCount(3))).toEqual([1, 3]);
+  });
+
+  it('makes weapon ranks change attack behavior', () => {
+    expect(weaponSplash('axe', 0, 3)).toBeGreaterThan(weaponSplash('axe', 0, 1));
+    expect(weaponSplash('staff', 0, 3)).toBeGreaterThan(weaponSplash('staff', 0, 2));
+    expect(bowCriticalChance(3)).toBeGreaterThan(bowCriticalChance(1));
+    expect(ricochetTarget({ x: 0, y: 0 }, [{ x: 180, y: 0 }, { x: 70, y: 0 }])).toBe(1);
+    expect(staffBurn(3, 100)).toEqual({ seconds: 5, tickDamage: 34 });
+    expect(staffBurn(3, 100).tickDamage).toBeGreaterThan(staffBurn(1, 100).tickDamage);
   });
 
   it('gates encounters on both ward completion and elapsed stage time', () => {
@@ -44,5 +55,12 @@ describe('combat and objective rules', () => {
     expect(choices).not.toContain('pet');
     const openSlot = { ...pool, slots: 2 };
     expect(pickUpgradeChoices(openSlot, new Rng(123))).toContain('weapon:thorns');
+    const building = { ...pool, weapons: [{ id: 'axe' as const, rank: 1 }, { id: 'thorns' as const, rank: 1 }], slots: 2 };
+    const rankOptions = pickUpgradeChoices(building, new Rng(123));
+    expect(rankOptions).toContain('weapon:axe');
+    expect(rankOptions).toContain('weapon:thorns');
+    expect(rankOptions.some(choice => !choice.startsWith('weapon:'))).toBe(true);
+    const expanding = { ...building, weapons: [{ id: 'axe' as const, rank: 1 }], slots: 2 };
+    expect(pickUpgradeChoices(expanding, new Rng(123))).toEqual(expect.arrayContaining(['weapon:axe', 'weapon:thorns']));
   });
 });

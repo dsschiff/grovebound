@@ -40,6 +40,19 @@ export const WEAPON_INFO: Record<Weapon, { name: string; icon: string; descripti
   staff: { name: 'Ember Staff', icon: '✹', description: 'Fireburst · burns survivors', range: 205, cooldown: 1.35, splash: 57, multiplier: 1.15, color: '#ffb37b' },
 };
 
+export const WEAPON_RANKS: Record<Weapon, [string, string, string]> = {
+  axe: ['Cleave', 'Wider cleave', 'Knockback'],
+  thorns: ['One pierce', 'Two pierces', 'Three pierces'],
+  bow: ['22% crit', '35% crit', 'Ricochet'],
+  staff: ['Burn 3s', 'Hotter burn', 'Firestorm'],
+};
+export const WEAPON_RANK_UPGRADES: Record<Weapon, [string, string]> = {
+  axe: ['Cleave reaches a wider cluster', 'Cleave knocks back smaller foes'],
+  thorns: ['Darts pierce two aligned foes', 'Darts pierce three aligned foes'],
+  bow: ['Critical chance rises to 35%', 'Shots ricochet to a nearby foe'],
+  staff: ['Burn lasts longer and hits harder', 'Fireburst widens; burn lasts 5 seconds'],
+};
+
 export const REGIONS = [
   { name: 'Verdant Verge', short: 'VERGE', floor: 0x376f55, clearing: 0x71916a, accent: 0xc8df9a, duration: 175 },
   { name: 'Ember Quarry', short: 'QUARRY', floor: 0x665449, clearing: 0xa18465, accent: 0xffc485, duration: 205 },
