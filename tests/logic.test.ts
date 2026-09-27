@@ -142,6 +142,14 @@ describe('run progression', () => {
     const newObjective = { ...snapshot, region: 1, objects: [{ kind: 'pump', x: 850, y: 780, hp: 20, maxHp: 240, active: true },
       { kind: 'forge', x: 1100, y: 950, hp: 320, maxHp: 320, active: false }] };
     expect(parseRunSnapshot(newObjective)?.objects[1].kind).toBe('forge');
+    const coolantRun = { ...snapshot, region: 1, coolantCarryRemaining: 4.5,
+      objects: [{ kind: 'coolant', x: 580, y: 700, hp: 0, maxHp: 2, active: false },
+        { kind: 'forge', x: 1100, y: 950, hp: 2, maxHp: 3, active: true }] };
+    expect(parseRunSnapshot(coolantRun)?.coolantCarryRemaining).toBe(4.5);
+    expect(parseRunSnapshot({ ...coolantRun, coolantCarryRemaining: 13 })).toBeNull();
+    const pursuit = { ...snapshot, region: 2,
+      objects: [{ kind: 'moonflame', x: 1200, y: 650, hp: 1, maxHp: 3, active: true }] };
+    expect(parseRunSnapshot(pursuit)?.objects[0].x).toBe(1200);
     const escorted = { ...snapshot, waylightAmbush: true,
       objects: [{ kind: 'waylight', x: 640, y: 760, hp: 1, maxHp: 1, active: true }] };
     expect(parseRunSnapshot(escorted)?.objects[0].x).toBe(640);

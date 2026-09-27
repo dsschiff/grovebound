@@ -54,7 +54,7 @@ root.innerHTML = `
       <div class="menu-content">
         <div class="overline"><span class="overline-rule"></span> A POCKET FOREST ADVENTURE <span class="overline-rule"></span></div>
         <h1>GROVE<span>BOUND</span></h1>
-        <p class="subtitle">Guide a waylight or defend a seedheart. Shut down the forge. Face the Briar King.</p>
+        <p class="subtitle">Escort, defend, deliver, or pursue across three changing regions. Face the Briar King.</p>
         <div class="hero-stage" aria-hidden="true">
           <div class="hero-halo"></div>
           <img class="stage-tree left" src="${art('tree')}" alt="" />
@@ -234,7 +234,8 @@ function drawMinimap(hud: HudState): void {
     if (!object.active && object.kind !== 'gate') continue;
     const p = point(object.x, object.y);
     ctx.save(); ctx.translate(p.x, p.y);
-    ctx.fillStyle = { ward: '#ffe2a3', waylight: '#fff0b1', seedheart: '#b9f1a8', pump: '#9ae8ec', forge: '#ffae68', altar: '#d9c2ff',
+    ctx.fillStyle = { ward: '#ffe2a3', waylight: '#fff0b1', seedheart: '#b9f1a8', pump: '#9ae8ec', coolant: '#a3fff0',
+      forge: '#ffae68', altar: '#d9c2ff', moonflame: '#d6b7ff',
       shrine: '#dca5f1', relic: '#ffca83', gate: object.active ? '#a5e8dc' : '#6b8782',
       vent: '#ff965d', bloom: '#a8d9ef', bramble: '#b8e898', ore: '#ffb16b', moonstone: '#c4adff' }[object.kind];
     ctx.strokeStyle = '#173a35'; ctx.lineWidth = 1.5;
@@ -246,6 +247,8 @@ function drawMinimap(hud: HudState): void {
     else if (object.kind === 'seedheart') {
       for (const [x, y] of [[-3, -3], [3, -3], [-3, 3], [3, 3]]) { ctx.moveTo(x + 3, y); ctx.arc(x, y, 3, 0, Math.PI * 2); }
     }
+    else if (object.kind === 'coolant') ctx.ellipse(0, 0, 6, 3, 0, 0, Math.PI * 2);
+    else if (object.kind === 'moonflame') ctx.ellipse(0, 0, 3, 6, -.6, 0, Math.PI * 2);
     else if (object.kind === 'forge' || object.kind === 'ore') ctx.rect(-5, -5, 10, 10);
     else if (object.kind === 'moonstone') { ctx.moveTo(0, -6); ctx.lineTo(5, 3); ctx.lineTo(0, 6); ctx.lineTo(-5, 3); ctx.closePath(); }
     else if (object.kind === 'bloom') {
@@ -294,23 +297,29 @@ function updateHud(hud: HudState): void {
   el('#stage-timer').textContent = hud.gateOpen ? 'PORTAL OPEN' : hud.bossHp !== null ? 'GUARDIAN FIGHT'
     : gateCountdown > 0 ? `GUARDIAN IN ${formatTime(gateCountdown)}`
       : hud.objectivesLeft > 0 ? 'GUARDIAN WAITS FOR OBJECTIVES' : 'GUARDIAN ARRIVING';
-  const task = { ward: 'BREAK ROOT TOTEMS', waylight: 'GUIDE THE WAYLIGHT', seedheart: 'DEFEND THE SEEDHEART', pump: 'DRAIN COOLANT PUMP', forge: 'BREAK FORGE CORE',
-    bloom: 'CLEAR MIST BLOOMS', altar: hud.ritualActive ? 'COMPLETE THE MOON RITE' : 'BREAK MOON ALTAR' }[hud.objectiveName ?? ''] ?? 'CLEAR OBJECTIVES';
+  const task = { ward: 'BREAK ROOT TOTEMS', waylight: 'GUIDE THE WAYLIGHT', seedheart: 'DEFEND THE SEEDHEART', pump: 'DRAIN COOLANT PUMP',
+    coolant: 'FILL A COOLANT FLASK', forge: hud.coolantCarryRemaining > 0 ? 'DELIVER COOLANT TO FORGE' : 'BREAK FORGE CORE',
+    moonflame: 'CHASE THE MOONFLAME', bloom: 'CLEAR MIST BLOOMS', altar: hud.ritualActive ? 'COMPLETE THE MOON RITE' : 'BREAK MOON ALTAR' }[hud.objectiveName ?? ''] ?? 'CLEAR OBJECTIVES';
   const objective = hud.objectivesLeft > 0 ? hud.objectiveName === 'seedheart'
     ? `GUARD THE RING · ${hud.stepProgress}/15s` : hud.objectiveName === 'pump'
     ? `STAND IN PUMP RING · ${hud.stepProgress}/4s` : hud.objectiveName === 'waylight'
-      ? `STAY NEAR THE MOTH · ${hud.stepProgress}% HOME` : hud.ritualActive
+      ? `STAY NEAR THE MOTH · ${hud.stepProgress}% HOME` : hud.objectiveName === 'coolant'
+        ? `FILL FLASK AT SPRING · ${hud.stepProgress}/2s` : hud.objectiveName === 'forge' && hud.coolantCarryRemaining > 0
+          ? `REACH FORGE · ${Math.ceil(hud.coolantCarryRemaining)}s · ${hud.stepProgress}/3` : hud.objectiveName === 'moonflame'
+            ? `CATCH THE MOVING FLAME · ${hud.stepProgress}/3` : hud.ritualActive
         ? `DEFEAT FOES BY ALTAR · ${hud.stepProgress}/6` : `${task} · ${hud.stepTargetsLeft} LEFT`
     : hud.gateOpen ? 'ENTER THE PORTAL' : hud.bossHp !== null ? 'DEFEAT THE GUARDIAN' : 'HOLD FOR THE GUARDIAN';
   if (el('#objective').textContent !== objective) el('#objective').textContent = objective;
   const missionKind = hud.objectiveName ?? (hud.bossHp !== null ? 'boss' : hud.gateOpen ? 'gate' : 'hold');
-  const missionMode = { waylight: 'ESCORT', seedheart: 'DEFEND', pump: 'CHANNEL', forge: 'DESTROY', bloom: 'PURGE', altar: 'RITUAL',
+  const missionMode = { waylight: 'ESCORT', seedheart: 'DEFEND', pump: 'CHANNEL', coolant: 'CHARGE',
+    forge: hud.coolantCarryRemaining > 0 ? 'DELIVER' : 'DESTROY', moonflame: 'PURSUIT', bloom: 'PURGE', altar: 'RITUAL',
     boss: 'BOSS', gate: 'ESCAPE', hold: 'SURVIVE', ward: 'DESTROY' }[missionKind] ?? 'MISSION';
   el('#mission-type').textContent = `${REGIONS[hud.region].short} · ${missionMode}`;
   el('#mission-card').className = `mission-card ${missionKind}`;
   el<HTMLElement>('#mission-progress').style.width = `${Math.max(0, Math.min(100, hud.objectiveProgress))}%`;
   const objectiveArt = hud.objectiveName ? {
-    ward: 'root-totem.webp', waylight: 'waylight.webp', seedheart: 'seedheart.webp', pump: 'coolant-pump.webp', forge: 'forge-core.webp',
+    ward: 'root-totem.webp', waylight: 'waylight.webp', seedheart: 'seedheart.webp', pump: 'coolant-pump.webp',
+    coolant: 'coolant-spring.webp', forge: 'forge-core.webp', moonflame: 'moonflame.webp',
     bloom: 'mist-bloom.webp', altar: 'moon-altar.webp',
   }[hud.objectiveName] : hud.bossHp !== null ? 'briar-king-v2.webp' : 'grove-gate.webp';
   const objectiveSrc = `${import.meta.env.BASE_URL}art/${objectiveArt ?? 'grove-gate.webp'}`;

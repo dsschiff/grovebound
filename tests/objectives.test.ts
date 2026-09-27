@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceSeedheart, nextObjective, objectiveKinds, objectivesLeft, vergeMission } from '../src/game/objectives';
+import { advanceSeedheart, moonMission, nextObjective, objectiveKinds, objectivesLeft, quarryMission, vergeMission } from '../src/game/objectives';
 
 describe('region objectives', () => {
   it('uses the escorted waylight instead of repeated ward attacks in a new Verge run', () => {
@@ -46,5 +46,36 @@ describe('region objectives', () => {
     objects[0].hp = 0; objects[1].hp = 0;
     expect(objectivesLeft(2, objects)).toBe(1);
     expect(objectiveKinds(2, [{ kind: 'ward', x: 100, y: 100, hp: 40, active: true }])).toEqual(['ward']);
+  });
+
+  it('varies region routes independently and follows the saved coolant state', () => {
+    expect(quarryMission(0)).toBe('forgeAssault');
+    expect(quarryMission(2)).toBe('coolantRun');
+    expect(moonMission(2)).toBe('altarRite');
+    expect(moonMission(4)).toBe('moonflame');
+    const objects = [
+      { kind: 'coolant' as const, x: 100, y: 100, hp: 2, active: true },
+      { kind: 'forge' as const, x: 500, y: 500, hp: 3, active: false },
+    ];
+    expect(objectiveKinds(1, objects)).toEqual(['coolant', 'forge']);
+    expect(objectivesLeft(1, objects)).toBe(1);
+    expect(nextObjective(1, objects)?.kind).toBe('coolant');
+    objects[0].hp = 0; objects[0].active = false; objects[1].active = true;
+    expect(nextObjective(1, objects)?.kind).toBe('forge');
+    objects[1].hp = 0;
+    expect(objectivesLeft(1, objects)).toBe(0);
+  });
+
+  it('tracks Moonflame pursuit as one moving objective while blooms stay optional hazards', () => {
+    const objects = [
+      { kind: 'moonflame' as const, x: 100, y: 100, hp: 3, active: true },
+      { kind: 'bloom' as const, x: 400, y: 400, hp: 200, active: true },
+    ];
+    expect(objectiveKinds(2, objects)).toEqual(['moonflame']);
+    expect(objectivesLeft(2, objects)).toBe(1);
+    objects[0].hp = 1; objects[0].x = 900;
+    expect(nextObjective(2, objects)?.x).toBe(900);
+    objects[0].hp = 0;
+    expect(objectivesLeft(2, objects)).toBe(0);
   });
 });

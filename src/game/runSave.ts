@@ -11,7 +11,7 @@ export interface EnemySave {
   wispLance?: WispLanceState;
 }
 export interface ObjectSave {
-  kind: 'ward' | 'waylight' | 'seedheart' | 'pump' | 'forge' | 'altar' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
+  kind: 'ward' | 'waylight' | 'seedheart' | 'pump' | 'coolant' | 'forge' | 'altar' | 'moonflame' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
     | 'bramble' | 'ore' | 'moonstone';
   x: number; y: number; hp: number; maxHp: number; active: boolean;
 }
@@ -45,6 +45,7 @@ export interface RunSnapshot {
   gatekeeperSpawned: boolean; bossSpawned: boolean; choosing: boolean; upgradeOptions: Upgrade[];
   waylightAmbush?: boolean;
   ritualClock?: number;
+  coolantCarryRemaining?: number;
   moonflowRemaining?: number; markedFieldIndex?: number;
   enemies: EnemySave[]; objects: ObjectSave[];
   orbs: { x: number; y: number; value: number }[];
@@ -105,10 +106,11 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
         && finite(enemy.wispLance.toX, 0, 1800) && finite(enemy.wispLance.toY, 0, 1800))))
     || (run.waylightAmbush !== undefined && typeof run.waylightAmbush !== 'boolean')
     || (run.ritualClock !== undefined && !finite(run.ritualClock, 0, 10))
+    || (run.coolantCarryRemaining !== undefined && !finite(run.coolantCarryRemaining, 0, 12))
     || (run.moonflowRemaining !== undefined && !finite(run.moonflowRemaining, 0, 8))
     || (run.markedFieldIndex !== undefined && !finite(run.markedFieldIndex, 0, 11))
     || !Array.isArray(run.objects) || run.objects.length > 12 || !run.objects.every(object =>
-      ['ward', 'waylight', 'seedheart', 'pump', 'forge', 'altar', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
+      ['ward', 'waylight', 'seedheart', 'pump', 'coolant', 'forge', 'altar', 'moonflame', 'shrine', 'relic', 'gate', 'vent', 'bloom', 'bramble', 'ore', 'moonstone'].includes(object.kind) && finite(object.x, 0, 1800)
       && finite(object.y, 0, 1800) && finite(object.hp, 0, 10000) && finite(object.maxHp, 0, 10000)
       && typeof object.active === 'boolean')
     || !Array.isArray(run.orbs) || run.orbs.length > 100 || !run.orbs.every(orb =>

@@ -120,6 +120,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .mission-track{height:5px;border-radius:5px;background:#0a282c;border:1px solid #e9ddb569;overflow:hidden}
 .mission-track i{display:block;height:100%;width:0;background:#ffe59d;box-shadow:0 0 8px #ffecad;transition:width .16s linear}
 .mission-card.pump{border-color:#91dce2}.mission-card.pump .mission-track i{background:#a8f4f1}
+.mission-card.coolant{border-color:#a3f7e9}.mission-card.coolant .mission-track i{background:#a3f7e9}
+.mission-card.moonflame{border-color:#d9b9ff}.mission-card.moonflame .mission-track i{background:#d9b9ff}
 .mission-card.seedheart{border-color:#bcf1a5}.mission-card.seedheart .mission-track i{background:#bcf1a5}
 .mission-card.forge{border-color:#ffb374}.mission-card.forge .mission-track i{background:#ffb271}
 .mission-card.bloom{border-color:#a8dced}.mission-card.bloom .mission-track i{background:#b1e3ed}
