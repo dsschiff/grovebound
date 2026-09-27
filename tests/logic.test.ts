@@ -44,8 +44,10 @@ describe('run progression', () => {
     expect(migrated.unlockedKits).toEqual(['breaker']);
     expect(parseProgress({ unlockedKits: ['conductor'], selectedKit: 'forager' }).selectedKit).toBe('breaker');
     expect(parseProgress({ unlockedKits: 9 }).unlockedKits).toEqual(['breaker']);
-    expect(migrated.heroLook).toBe('wildkin');
+    expect(migrated.heroLook).toBe('expedition');
     expect(parseProgress({ heroLook: 'classic' }).heroLook).toBe('classic');
+    expect(parseProgress({ heroLook: 'wildkin' }).heroLook).toBe('expedition');
+    expect(parseProgress({ heroLook: 'wildkin', appearanceVersion: 1 }).heroLook).toBe('wildkin');
     const earned = addRunToProgress(migrated, 40, 200, false, 'warden', 1);
     expect(availableHero(earned, 'ranger')).toBe(true);
     expect(masteryRank(earned.mastery.warden)).toBeGreaterThan(0);
@@ -107,6 +109,7 @@ describe('run progression', () => {
     };
     expect(parseRunSnapshot(JSON.parse(JSON.stringify(snapshot)))).toEqual(snapshot);
     expect(parseRunSnapshot({ ...snapshot, look: 'wildkin' })?.look).toBe('wildkin');
+    expect(parseRunSnapshot({ ...snapshot, look: 'expedition' })?.look).toBe('expedition');
     expect(parseRunSnapshot({ ...snapshot, look: 'cartoon' })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, kit: 'forager' })?.kit).toBe('forager');
     expect(parseRunSnapshot({ ...snapshot, kit: 'unknown' })).toBeNull();

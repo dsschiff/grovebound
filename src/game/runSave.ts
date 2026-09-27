@@ -1,4 +1,4 @@
-import type { Hero, Stat, Stats, Upgrade, Weapon, WeaponPath } from './logic';
+import type { Hero, HeroLook, Stat, Stats, Upgrade, Weapon, WeaponPath } from './logic';
 import type { WispLanceState } from './wispLance';
 import type { CommandChain } from './resonance';
 import type { ThornbackChargeState } from './thornback';
@@ -37,7 +37,7 @@ export function emptyRunMetrics(): RunMetrics {
 }
 export interface RunSnapshot {
   version: 1;
-  seed: number; rngState: number; hero: Hero; skin: boolean; look?: 'wildkin' | 'classic'; kit?: 'breaker' | 'conductor' | 'forager';
+  seed: number; rngState: number; hero: Hero; skin: boolean; look?: HeroLook; kit?: 'breaker' | 'conductor' | 'forager';
   unlockedWeapons: Weapon[]; masteryRank: number;
   weapons: { id: Weapon; rank: number; cooldown: number; path?: WeaponPath; commandCooldown?: number }[];
   focusedWeapon?: Weapon;
@@ -73,7 +73,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
   const run = value as Partial<RunSnapshot>;
   if (run.version !== 1 || !finite(run.seed, 0, 4294967295) || !finite(run.rngState, 0, 4294967295)
     || !HEROES.includes(run.hero ?? '') || typeof run.skin !== 'boolean'
-    || (run.look !== undefined && run.look !== 'wildkin' && run.look !== 'classic')
+    || (run.look !== undefined && run.look !== 'expedition' && run.look !== 'wildkin' && run.look !== 'classic')
     || (run.kit !== undefined && !['breaker', 'conductor', 'forager'].includes(run.kit))
     || (run.quarryRoute !== undefined && !['coolantRun', 'forgeAssault'].includes(run.quarryRoute))
     || (run.moonRoute !== undefined && !['moonflame', 'altarRite'].includes(run.moonRoute))

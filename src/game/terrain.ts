@@ -29,7 +29,8 @@ export function enemyFieldModifiers(x: number, y: number, fields: TerrainField[]
 }
 
 export function terrainSites(seed: number, region: number): TerrainSite[] {
-  const kind: TerrainKind = region === 0 ? 'bramble' : region === 1 ? 'ore' : 'moonstone';
+  const kinds: TerrainKind[] = ['bramble', 'ore', 'moonstone'];
+  const primary = region % kinds.length;
   const clearings = generateRegionLayout(seed, region).clearings;
   const routeSites = [clearings[2], clearings[3]].map((clearing, index) => {
     const dx = clearing.x - 900;
@@ -37,14 +38,14 @@ export function terrainSites(seed: number, region: number): TerrainSite[] {
     const length = Math.hypot(dx, dy);
     const side = (seed & 1 ? 1 : -1) * (index === 0 ? 1 : -1);
     return {
-      kind,
+      kind: kinds[(primary + index + 1) % kinds.length],
       x: Math.round(900 + dx * 0.48 - dy / length * 85 * side),
       y: Math.round(900 + dy * 0.48 + dx / length * 85 * side),
     };
   });
   const nearStart = [[770, 810], [1030, 810], [770, 990], [1030, 990]]
-    .map(([x, y]) => ({ kind, x, y,
+    .map(([x, y]) => ({ kind: kinds[primary], x, y,
       clearance: Math.min(...routeSites.map(site => Math.hypot(site.x - x, site.y - y))) }))
     .sort((a, b) => b.clearance - a.clearance)[0];
-  return [{ kind, x: nearStart.x, y: nearStart.y }, ...routeSites];
+  return [{ kind: kinds[primary], x: nearStart.x, y: nearStart.y }, ...routeSites];
 }

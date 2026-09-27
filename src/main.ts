@@ -4,7 +4,7 @@ import {
   CAMP_KITS, CAMP_KIT_INFO, HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_COMMAND, WEAPON_FOCUS, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS,
   addRunToProgress, availableHero, availableWeapon, chooseCampKit, masteryRank, readProgress,
   saveProgress, seedsForRun, unlockThorns,
-  type CampKit, type Hero, type Upgrade, type Weapon,
+  type CampKit, type Hero, type HeroLook, type Upgrade, type Weapon,
 } from './game/logic';
 import { emptyWeaponDamage, readRunSnapshot } from './game/runSave';
 import { soundFx } from './game/audio';
@@ -13,10 +13,11 @@ import { seedForVergeContract, type RegionRoute, type VergeContract } from './ga
 import './style.css';
 
 const treeArt = `${import.meta.env.BASE_URL}art/ancient-tree-v1.webp`;
-const heroArt = (hero: Hero, look: 'wildkin' | 'classic') =>
-  `${import.meta.env.BASE_URL}art/${hero}-${look === 'wildkin' ? 'wildkin-idle-v1' : 'v4'}.webp`;
+const heroArt = (hero: Hero, look: HeroLook) =>
+  `${import.meta.env.BASE_URL}art/${hero}-${look === 'classic' ? 'v4' : `${look}-idle-v1`}.webp`;
+const lookOrder: HeroLook[] = ['expedition', 'classic', 'wildkin'];
 const enemyArt = (name: string) => `${import.meta.env.BASE_URL}art/${name}-v2.webp`;
-const weaponArt = (weapon: Weapon) => `${import.meta.env.BASE_URL}art/weapon-${weapon}-v2.webp`;
+const weaponArt = (weapon: Weapon) => `${import.meta.env.BASE_URL}art/weapon-${weapon}-expedition-v1.webp`;
 const weaponHudName: Record<Weapon, string> = { axe: 'Axe', thorns: 'Thorns', bow: 'Sunbow', staff: 'Ember' };
 const contractOrder: VergeContract[] = ['waylight', 'seedheart', 'stag'];
 const contractInfo: Record<VergeContract, { name: string; mode: string; art: string; hint: string }> = {
@@ -64,10 +65,11 @@ root.innerHTML = `
         <div class="bar xp-bar"><div id="xp-fill"></div></div>
       </div>
       <div id="mission-card" class="mission-card waylight"><img id="objective-art" src="${import.meta.env.BASE_URL}art/waylight.webp" alt=""/><div class="mission-copy"><small id="mission-type">ESCORT</small><strong id="objective" aria-live="polite">STAY NEAR THE MOTH</strong><span id="mission-hint">Stay close and clear its path.</span><div class="mission-track"><i id="mission-progress"></i></div></div></div>
+      <button id="field-button" class="field-button hidden" type="button" aria-label="Mine nearby terrain"><strong id="field-name">MINE FIELD</strong><small id="field-reward">BREAK FOR A STAT CACHE</small><i id="field-progress"></i></button>
       <div class="minimap-frame" aria-hidden="true"><canvas id="minimap" width="120" height="120"></canvas></div>
       <div id="boss-bar" class="boss-bar hidden"><span id="boss-name">GATE SENTINEL</span><div class="bar"><div id="boss-fill"></div></div></div>
       <button id="special-button" class="special-button" aria-label="Use special ability"><span class="special-icon">✹</span><strong id="special-label">WHIRLWIND</strong><small id="special-cooldown">READY</small></button>
-      <div class="hud-bottom"><div id="resonance-cue" class="resonance-cue hidden" aria-live="polite"></div><div class="loadout-heading"><strong>COMMANDS</strong><span>2 EQUIPPED · TAP TO FIRE</span></div><div id="weapon-tray" class="weapon-tray" role="group" aria-label="Weapon commands"></div><div id="stats" class="stats-strip"></div><div class="bottom-line"><span id="kills">0 VANQUISHED</span><span id="ability-name">FOCUS YOUR WEAPON</span></div></div>
+      <div class="hud-bottom"><div id="resonance-cue" class="resonance-cue hidden" aria-live="polite"></div><div class="loadout-heading"><strong>AUTO WEAPONS</strong><span>TAP SLOT FOR COMMAND</span></div><div id="weapon-tray" class="weapon-tray" role="group" aria-label="Weapon commands"></div><div id="stats" class="stats-strip"></div><div class="bottom-line"><span id="kills">0 VANQUISHED</span><span id="ability-name">FOCUS YOUR WEAPON</span></div></div>
     </div>
 
     <div id="menu" class="screen menu-screen">
@@ -86,7 +88,7 @@ root.innerHTML = `
         <div class="ability-panel">
           <div class="panel-heading"><span>CHOOSE YOUR HERO</span><span id="seed-count" class="seed-count">✦ 0 SEEDS</span></div>
           <div id="hero-options" class="hero-options"></div>
-          <button id="hero-look-button" class="look-button" type="button" aria-label="Change hero appearance">WILDKIN LOOK · SWITCH TO CLASSIC</button>
+          <button id="hero-look-button" class="look-button" type="button" aria-label="Change hero appearance">EXPEDITION LOOK · CHANGE APPEARANCE</button>
           <div id="hero-hint" class="hero-hint"></div>
           <div class="panel-heading sub-heading"><span>STARTING WEAPON</span><span id="mastery-label">MASTERY 0</span></div>
           <div id="weapon-options" class="weapon-options"></div>
@@ -219,8 +221,7 @@ function refreshMenu(): void {
     selectedSkin = false; refreshMenu();
     el<HTMLButtonElement>(`#hero-options [data-hero="${selectedHero}"]`).focus({ preventScroll: true });
   }));
-  el('#hero-look-button').textContent = progress.heroLook === 'wildkin'
-    ? 'WILDKIN LOOK · SWITCH TO CLASSIC' : 'CLASSIC LOOK · SWITCH TO WILDKIN';
+  el('#hero-look-button').textContent = `${progress.heroLook.toUpperCase()} LOOK · TAP TO CHANGE`;
   el('#hero-hint').textContent = `${HERO_INFO[selectedHero].special.toUpperCase()} · ${HERO_INFO[selectedHero].specialDescription.toUpperCase()}`;
   el('#weapon-options').innerHTML = (Object.keys(WEAPON_INFO) as Weapon[]).map(weapon => {
     const unlocked = availableWeapon(progress, weapon);
@@ -316,10 +317,15 @@ function drawMinimap(hud: HudState): void {
     const mission = object.active && object.kind === hud.objectiveName;
     const icon = mapArt[object.kind];
     if (icon?.complete && icon.naturalWidth > 0) {
-      const size = mission ? 24 : object.kind === 'gate' ? 15 : object.kind === 'shrine' || object.kind === 'relic' ? 13 : 16;
+      const size = mission ? 32 : object.kind === 'gate' ? 17 : object.kind === 'shrine' || object.kind === 'relic' ? 13 : 15;
       if (mission) {
-        ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2);
-        ctx.fillStyle = '#173a35'; ctx.fill(); ctx.strokeStyle = '#fff1bf'; ctx.lineWidth = 2; ctx.stroke();
+        const ringColors: Record<string, string> = { waylight: '#f6e3a5', seedheart: '#b6f0a5', stag: '#ffd085', pump: '#a7edf0',
+          coolant: '#a7edf0', forge: '#ffb988', altar: '#d9baff', bloom: '#b7e4f2', moonflame: '#dbbbff' };
+        const ring = ringColors[object.kind] ?? '#fff1bf';
+        ctx.shadowColor = ring; ctx.shadowBlur = 8;
+        ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2);
+        ctx.fillStyle = '#102c30'; ctx.fill(); ctx.strokeStyle = ring; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.shadowBlur = 0;
       }
       ctx.drawImage(icon, -size / 2, -size / 2, size, size);
       ctx.restore();
@@ -384,6 +390,18 @@ function drawMinimap(hud: HudState): void {
 function updateHud(hud: HudState): void {
   currentHud = hud;
   drawMinimap(hud);
+  show('#field-button', !!hud.nearbyField);
+  if (hud.nearbyField) {
+    const field = hud.nearbyField;
+    const name = { bramble: 'BRAMBLES', ore: 'ORE', moonstone: 'MOONSTONE' }[field.kind];
+    const effect = { bramble: 'ROOT FOES', ore: 'BLAST FOES', moonstone: 'SPEED BURST' }[field.kind];
+    el('#field-name').textContent = `MINE ${name}`;
+    el('#field-reward').textContent = `${{ bramble: 'ROOT', ore: 'BLAST', moonstone: 'HASTE' }[field.kind]} · +${field.reward.toUpperCase()} CACHE`;
+    el<HTMLElement>('#field-progress').style.width = `${field.progress}%`;
+    el<HTMLButtonElement>('#field-button').setAttribute('aria-label',
+      `Mine ${name.toLowerCase()}: ${effect.toLowerCase()} and gain ${field.reward} when broken`);
+    el('#field-button').className = `field-button ${field.kind}`;
+  }
   el('#health-number').textContent = String(Math.ceil(hud.health));
   el('#health-max').textContent = String(hud.maxHealth);
   el('#level-number').textContent = String(hud.level);
@@ -443,7 +461,7 @@ function updateHud(hud: HudState): void {
   if (el<HTMLImageElement>('#objective-art').src !== new URL(objectiveSrc, location.href).href)
     el<HTMLImageElement>('#objective-art').src = objectiveSrc;
   const traySignature = `${hud.weaponSlots}|${hud.focusedWeapon}|${hud.weapons.map(weapon => `${weapon.id}:${weapon.rank}:${weapon.path ?? ''}`).join(',')}`;
-  el('.loadout-heading span').textContent = `${hud.weapons.length} EQUIPPED · TAP TO FIRE`;
+  el('.loadout-heading span').textContent = `${hud.weapons.length} SLOTS · TAP COMMAND`;
   const cue = el('#resonance-cue');
   show('#resonance-cue', !!hud.commandChain && hud.possibleResonances.length > 0);
   if (hud.commandChain && hud.possibleResonances.length) {
@@ -460,7 +478,7 @@ function updateHud(hud: HudState): void {
       if (!weapon) return `<div class="weapon-slot empty"><small>SLOT ${index + 1} · OPEN</small><span>FIND A WEAPON</span></div>`;
       const focused = weapon.id === hud.focusedWeapon;
       const pathName = weapon.path ? WEAPON_PATH_INFO[weapon.id][weapon.path].name : null;
-      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. Tap to fire and focus slot ${index + 1}, rank ${weapon.rank}${pathName ? `, ${pathName} technique` : ''}"><small>SLOT ${index + 1} · ${focused ? 'FOCUSED' : 'AUTO'}</small><span class="weapon-identity"><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id].toUpperCase()} · ${['I', 'II', 'III'][weapon.rank - 1]}</span><div class="slot-detail"><em>${pathName ?? WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0 DMG</strong></div><b class="command-status" data-command="${weapon.id}">${WEAPON_COMMAND[weapon.id].slotName} · READY</b><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
+      return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. Tap to fire and focus slot ${index + 1}, rank ${weapon.rank}${pathName ? `, ${pathName} technique` : ''}"><small>SLOT ${index + 1} · ${focused ? 'FOCUSED' : 'AUTO'}</small><span class="weapon-identity"><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id].toUpperCase()} · ${['I', 'II', 'III'][weapon.rank - 1]}</span><div class="slot-detail"><em>${pathName ?? WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0 DMG</strong></div><b class="command-status" data-command="${weapon.id}">TAP ${WEAPON_COMMAND[weapon.id].slotName}</b><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
     }).join('');
   }
   for (const weapon of hud.weapons) {
@@ -468,12 +486,13 @@ function updateHud(hud: HudState): void {
     const commandRemaining = weapon.commandCooldown ?? 0;
     charge.style.width = `${Math.max(0, Math.min(100, (1 - commandRemaining / 8) * 100))}%`;
     el(`[data-command="${weapon.id}"]`).textContent = commandRemaining <= 0
-      ? `${WEAPON_COMMAND[weapon.id].slotName} · READY` : `${WEAPON_COMMAND[weapon.id].slotName} · ${Math.ceil(commandRemaining)}s`;
+      ? `TAP ${WEAPON_COMMAND[weapon.id].slotName}` : `${WEAPON_COMMAND[weapon.id].slotName} · ${Math.ceil(commandRemaining)}s`;
     const button = el<HTMLButtonElement>(`[data-focus="${weapon.id}"]`);
     const label = `${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. ${commandRemaining <= 0
       ? 'Ready to fire' : `Recharges in ${Math.ceil(commandRemaining)} seconds`}. Tap to focus slot ${hud.weapons.indexOf(weapon) + 1}, rank ${weapon.rank}`;
     if (button.getAttribute('aria-label') !== label) button.setAttribute('aria-label', label);
     el(`[data-focus="${weapon.id}"]`).classList.toggle('ready', commandRemaining <= 0);
+    el(`[data-focus="${weapon.id}"]`).classList.toggle('fired', !!hud.commandFlash[weapon.id]);
     el(`[data-weapon-damage="${weapon.id}"]`).textContent = `${compactDamage(hud.weaponDamage[weapon.id])} DMG`;
   }
   show('#boss-bar', hud.bossHp !== null);
@@ -592,7 +611,7 @@ el('#unlock-button').addEventListener('click', () => {
 });
 el('#skin-button').addEventListener('click', () => { selectedSkin = !selectedSkin; refreshMenu(); });
 el('#hero-look-button').addEventListener('click', () => {
-  progress = { ...progress, heroLook: progress.heroLook === 'wildkin' ? 'classic' : 'wildkin' };
+  progress = { ...progress, heroLook: lookOrder[(lookOrder.indexOf(progress.heroLook) + 1) % lookOrder.length] };
   saveProgress(progress); refreshMenu();
 });
 el<HTMLInputElement>('#reduced-effects').addEventListener('change', event => {
@@ -625,6 +644,7 @@ el('#weapon-tray').addEventListener('click', event => {
   const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-focus]');
   if (button) scene.focusWeapon(button.dataset.focus as Weapon);
 });
+el('#field-button').addEventListener('click', () => scene.mineNearbyField());
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden || !scene.isRunning()) return;
   scene.saveSnapshot();

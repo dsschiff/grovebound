@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import {
   HERO_INFO, REGIONS, STAT_INFO, STAT_KEYS, WEAPON_COMMAND, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS, WEAPON_RANK_UPGRADES, Rng, baseStatsFor, damageAfterDefense,
   generateRegionLayout, upgradeStat, xpToNextLevel,
-  type CampKit, type Hero, type Stat, type Stats, type Upgrade, type Weapon, type WeaponPath,
+  type CampKit, type Hero, type HeroLook, type Stat, type Stats, type Upgrade, type Weapon, type WeaponPath,
 } from './logic';
 import { clearRunSnapshot, emptyRunMetrics, emptyWeaponDamage, saveRunSnapshot, type EnemySave, type ObjectSave, type RunMetrics, type RunSnapshot } from './runSave';
 import { soundFx } from './audio';
@@ -52,13 +52,16 @@ export interface HudState {
   stats: Stats; bossHp: number | null; bossMaxHp: number | null;
   weapons: EquippedWeapon[]; weaponSlots: number; focusedWeapon: Weapon; weaponDamage: Record<Weapon, number>;
   commandChain: CommandChain | null; possibleResonances: { weapon: Weapon; resonance: Resonance }[];
+  commandFlash: Partial<Record<Weapon, boolean>>;
   special: string; specialCooldown: number;
   objectivesLeft: number; stepTargetsLeft: number; stepProgress: number; objectiveProgress: number; objectiveName: string | null;
   ritualActive: boolean;
   coolantCarryRemaining: number;
   surge: boolean;
   moonflowRemaining: number;
-  terrainHint: string | null; markedFieldName: string | null; gateOpen: boolean; hero: Hero;
+  terrainHint: string | null; markedFieldName: string | null;
+  nearbyField: { kind: TerrainKind; progress: number; reward: Stat } | null;
+  gateOpen: boolean; hero: Hero;
   map: { x: number; y: number; objects: { x: number; y: number; kind: ObjectKind; active: boolean }[]; enemies: { x: number; y: number; kind: EnemyKind }[] };
 }
 export interface RunResult { won: boolean; kills: number; seconds: number; level: number; hero: Hero; kit: CampKit; region: number; weapons: Weapon[]; metrics: RunMetrics }
@@ -94,7 +97,7 @@ export class GroveScene extends Phaser.Scene {
   private choosing = false;
   private pausedByUser = false;
   private heroId: Hero = 'warden';
-  private heroLook: 'wildkin' | 'classic' = 'wildkin';
+  private heroLook: HeroLook = 'expedition';
   private campKit: CampKit = 'breaker';
   private quarryRoute: QuarryRoute = 'forgeAssault';
   private moonRoute: MoonRoute = 'altarRite';
@@ -146,6 +149,7 @@ export class GroveScene extends Phaser.Scene {
   private coolantCarryRemaining = 0;
   private moonflowRemaining = 0;
   private markedField: WorldObject | null = null;
+  private mineCooldown = 0;
   private fieldMarker: Phaser.GameObjects.Arc | null = null;
   private tapStart: { id: number; x: number; y: number; at: number } | null = null;
   private surgeAnnounced = false;
@@ -163,7 +167,9 @@ export class GroveScene extends Phaser.Scene {
       'warden-wildkin-idle-v1', 'ranger-wildkin-idle-v1', 'ember-wildkin-idle-v1',
       'warden-wildkin-run-v1', 'ranger-wildkin-run-v1', 'ember-wildkin-run-v1',
       'warden-wildkin-attack-v1', 'ranger-wildkin-attack-v1', 'ember-wildkin-attack-v1',
-      'weapon-axe-v2', 'weapon-thorns-v2', 'weapon-bow-v2', 'weapon-staff-v2',
+      'warden-expedition-idle-v1', 'ranger-expedition-idle-v1', 'ember-expedition-idle-v1',
+      'warden-expedition-attack-v1', 'ranger-expedition-attack-v1', 'ember-expedition-attack-v1',
+      'weapon-axe-expedition-v1', 'weapon-thorns-expedition-v1', 'weapon-bow-expedition-v1', 'weapon-staff-expedition-v1',
       'waylight', 'seedheart', 'briar-stag-v1', 'root-totem', 'coolant-pump', 'coolant-spring', 'forge-core', 'moonflame',
       'moon-altar', 'mist-bloom', 'ember-vent', 'grove-gate', 'reliquary', 'fox-relic',
       'gnarl-v2', 'wisp-v2', 'brute-v2', 'thornback-v1', 'briar-king-v2', 'bramble-field', 'ember-ore', 'moonstone',
@@ -191,7 +197,7 @@ export class GroveScene extends Phaser.Scene {
     this.publishHud();
   }
 
-  beginRun(hero: Hero, startingWeapon: Weapon, masteryRank: number, unlockedWeapons: Weapon[], reducedEffects: boolean, skin = false, autoSpecialEnabled = true, supportWeapon?: Weapon, seedOverride?: number, look: 'wildkin' | 'classic' = 'wildkin', kit: CampKit = 'breaker'): void {
+  beginRun(hero: Hero, startingWeapon: Weapon, masteryRank: number, unlockedWeapons: Weapon[], reducedEffects: boolean, skin = false, autoSpecialEnabled = true, supportWeapon?: Weapon, seedOverride?: number, look: HeroLook = 'expedition', kit: CampKit = 'breaker'): void {
     if (!this.hero) return;
     clearRunSnapshot();
     this.clearRunObjects();
@@ -327,6 +333,29 @@ export class GroveScene extends Phaser.Scene {
       this.floatText(recharging ? 'RECHARGING' : 'NO TARGET IN RANGE', this.hero.x, this.hero.y - 76,
         WEAPON_INFO[weapon].color);
     }
+    this.publishHud(); this.saveSnapshot();
+  }
+
+  private nearestMineableField(): WorldObject | undefined {
+    return this.objects.filter(object => this.isTerrainField(object) && object.active && object.hp > 0
+      && this.distance(this.hero.x, this.hero.y, object.x, object.y) < 205)
+      .sort((a, b) => this.distance(this.hero.x, this.hero.y, a.x, a.y)
+        - this.distance(this.hero.x, this.hero.y, b.x, b.y))[0];
+  }
+
+  mineNearbyField(target?: WorldObject): void {
+    if (!this.running || this.choosing || this.pausedByUser) return;
+    const field = target && target.active && this.isTerrainField(target)
+      && this.distance(this.hero.x, this.hero.y, target.x, target.y) < 205 ? target : this.nearestMineableField();
+    if (!field || this.mineCooldown > 0) return;
+    if (this.markedField !== field) this.markField(field, false);
+    this.mineCooldown = 0.38;
+    const damage = Math.round(33 + this.stats.attack * 0.9);
+    this.attackPose = 0.2; this.attackPoseDuration = 0.2;
+    if (this.heroId === 'warden') this.actionPose = Math.max(this.actionPose, 0.3);
+    this.weaponFlashUntil[this.focusedWeapon] = this.seconds + 0.25;
+    this.burst(field.x, field.y, field.kind === 'bramble' ? '#bbeba5' : field.kind === 'ore' ? '#ffb47d' : '#d9c8ff', 7);
+    this.hitObject(field, damage);
     this.publishHud(); this.saveSnapshot();
   }
 
@@ -625,6 +654,7 @@ export class GroveScene extends Phaser.Scene {
     this.seconds += dt; this.stageSeconds += dt;
     this.invulnerability = Math.max(0, this.invulnerability - dt);
     this.moonflowRemaining = Math.max(0, this.moonflowRemaining - dt);
+    this.mineCooldown = Math.max(0, this.mineCooldown - dt);
     this.attackPose = Math.max(0, this.attackPose - dt);
     this.actionPose = Math.max(0, this.actionPose - dt);
     this.commandChain = advanceCommandChain(this.commandChain, dt);
@@ -709,7 +739,7 @@ export class GroveScene extends Phaser.Scene {
       this.spawnObject(site.kind, site.x, site.y, hp, hp, true);
     }
     for (const site of terrainSites(this.seed, this.region)) {
-      this.spawnObject(site.kind, site.x, site.y, 135 + this.region * 65, 135 + this.region * 65, true);
+      this.spawnObject(site.kind, site.x, site.y, 105 + this.region * 50, 105 + this.region * 50, true);
     }
     this.petView.setVisible(this.pet);
     this.callbacks.onEvent(`REGION ${this.region + 1}: ${REGIONS[this.region].name.toUpperCase()}`);
@@ -823,13 +853,14 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private heroTexture(pose: 'idle' | 'run' | 'attack'): string {
+    if (this.heroLook === 'expedition') return `${this.heroId}-expedition-${pose === 'attack' ? 'attack' : 'idle'}-v1`;
     return this.heroLook === 'wildkin' ? `${this.heroId}-wildkin-${pose}-v1`
       : `${this.heroId}-${pose === 'idle' ? 'v4' : `${pose}-v1`}`;
   }
 
   private moveHero(dt: number): void {
     const compactView = this.scale.height <= 630;
-    const heroScale = compactView ? 0.24 : 0.36;
+    const heroScale = compactView ? 0.28 : 0.36;
     let dx = this.joyVector.x; let dy = this.joyVector.y;
     if (this.keys?.A?.isDown || this.cursors?.left?.isDown) dx -= 1;
     if (this.keys?.D?.isDown || this.cursors?.right?.isDown) dx += 1;
@@ -863,7 +894,7 @@ export class GroveScene extends Phaser.Scene {
       for (const marker of this.weaponMarkers) marker.view.destroy();
       this.weaponMarkers = this.weapons.map(weapon => {
         const rim = this.add.circle(0, 0, 15, 0x173b34, 0.86).setStrokeStyle(2, 0xf8d997, 0.75);
-        const icon = this.add.image(0, 0, `weapon-${weapon.id === 'bow' ? 'bow' : weapon.id === 'axe' ? 'axe' : weapon.id === 'thorns' ? 'thorns' : 'staff'}-v2`).setDisplaySize(27, 27);
+        const icon = this.add.image(0, 0, `weapon-${weapon.id}-expedition-v1`).setDisplaySize(27, 27);
         return { view: this.add.container(0, 0, [rim, icon]).setDepth(6), rim };
       });
       this.weaponMarkerSignature = signature;
@@ -1615,7 +1646,7 @@ export class GroveScene extends Phaser.Scene {
       : kind === 'bramble' ? 125 : kind === 'ore' ? 116 : kind === 'seedheart' ? 122 : kind === 'relic' ? 83 : kind === 'waylight' ? 104 : 98;
     const image = this.add.image(0, kind === 'gate' ? -14 : -8, texture[kind]).setDisplaySize(size, size);
     const terrainLabel: Partial<Record<ObjectKind, string>> = {
-      bramble: 'BRAMBLES · SLOW', ore: 'ORE · FOE ARMOR', moonstone: 'MOONSTONE · HASTE',
+      bramble: 'BRAMBLES · +SPEED', ore: 'ORE · +ATTACK', moonstone: 'MOONSTONE · +REACH',
     };
     const label = this.add.text(0, kind === 'gate' || kind === 'stag' ? 65 : 49,
       kind === 'waylight' && active ? 'STAY CLOSE · GUIDE ME'
@@ -2088,9 +2119,7 @@ export class GroveScene extends Phaser.Scene {
   private publishHud(): void {
     const boss = this.enemies.find(enemy => enemy.kind === 'boss' || enemy.kind === 'gatekeeper');
     const currentObjective = this.nextRequiredObjective();
-    const nearbyTerrain = this.objects.find(object => object.active
-      && (object.kind === 'bramble' || object.kind === 'ore' || object.kind === 'moonstone')
-      && this.distance(this.hero.x, this.hero.y, object.x, object.y) < (object.kind === 'bramble' ? 155 : 195));
+    const nearbyTerrain = this.nearestMineableField();
     this.callbacks.onHud({
       health: this.health, maxHealth: this.stats.maxHealth, level: this.level, xp: this.xp,
       xpNeeded: xpToNextLevel(this.level), kills: this.kills, seconds: this.seconds,
@@ -2099,6 +2128,8 @@ export class GroveScene extends Phaser.Scene {
       weapons: this.weapons.map(weapon => ({ ...weapon })), weaponSlots: this.weaponSlots, focusedWeapon: this.focusedWeapon,
       weaponDamage: { ...(this.metrics.weaponDamage ?? emptyWeaponDamage()) },
       commandChain: this.commandChain ? { ...this.commandChain } : null,
+      commandFlash: Object.fromEntries(this.weapons.map(weapon => [weapon.id,
+        (this.weaponFlashUntil[weapon.id] ?? 0) > this.seconds])) as Partial<Record<Weapon, boolean>>,
       possibleResonances: this.commandChain ? this.weapons.filter(weapon => weapon.id !== this.commandChain?.weapon)
         .map(weapon => ({ weapon: weapon.id, resonance: resonanceFor(this.commandChain!.weapon, weapon.id)! })) : [],
       special: HERO_INFO[this.heroId].special, specialCooldown: this.specialCooldown,
@@ -2129,6 +2160,9 @@ export class GroveScene extends Phaser.Scene {
               : Math.min(100, this.stageSeconds / REGIONS[this.region].duration * 100),
       terrainHint: nearbyTerrain ? terrainRupture(nearbyTerrain.kind as TerrainKind).hint : null,
       markedFieldName: this.markedField?.active ? objectiveName(this.markedField.kind) : null,
+      nearbyField: nearbyTerrain ? { kind: nearbyTerrain.kind as TerrainKind,
+        progress: 100 * (1 - nearbyTerrain.hp / nearbyTerrain.maxHp),
+        reward: nearbyTerrain.kind === 'bramble' ? 'speed' : nearbyTerrain.kind === 'ore' ? 'attack' : 'reach' } : null,
       gateOpen: this.objects.some(object => object.kind === 'gate' && object.active), hero: this.heroId,
       map: {
         x: this.hero.x, y: this.hero.y,
@@ -2208,7 +2242,8 @@ export class GroveScene extends Phaser.Scene {
     const field = this.objects.find(object => this.isTerrainField(object) && object.active && object.hp > 0
       && this.distance(pointer.worldX, pointer.worldY, object.x, object.y) < 76);
     if (!field) return;
-    this.toggleFieldMark(field);
+    if (this.distance(this.hero.x, this.hero.y, field.x, field.y) < 205) this.mineNearbyField(field);
+    else this.toggleFieldMark(field);
   }
   private releaseJoystick(): void {
     this.joyPointer = null; this.tapStart = null; this.joyVector.set(0, 0);

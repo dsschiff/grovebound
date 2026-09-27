@@ -1,5 +1,11 @@
 # Grovebound worklog
 
+## 2026-09-27 — Expedition look and direct field mining
+
+- Responded to the latest feel and visual feedback with a new Expedition roster: a rugged Warden, Ranger, and Ember, each with a matching signature attack frame. Ten transparent WebP assets, including four brighter weapon icons, add about 334 KB. Expedition opens by default for progress saved before this appearance release; Classic and Wildkin remain selectable, and an active saved run keeps its own look.
+- Each region now has one bramble, one ore deposit, and one moonstone rather than three identical field props. A nearby contextual button names the field, its burst, and its stat-cache reward. Tapping that button or the field itself performs a short-cooldown mining strike and marks it for automatic attacks. Field health was reduced so a deliberate break reaches its payoff sooner. Existing field effects, caches, command refills, kit bonuses, and saved field state remain in play.
+- The two auto-firing weapon slots now label their tap commands more directly, light up when ready, flash after firing, and show separate recharge. The active objective portrait is larger and color-coded on the minimap. At 390 × 844, a mined bramble broke and dropped its speed cache; Crescent Sweep fired and entered its independent cooldown. At 320 × 568, the mission, two slots, special, field button, and all six stats fit, and Dawnshot fired with a visible recharge. A saved run resumed after reload. These browser checks used desktop hardware at phone viewport sizes; Android performance and human feel remain open.
+
 ## 2026-09-27 — Weapon commands, mission variety, and character art
 
 - Tapping a weapon slot now fires a visibly charged attack at a target in range and focuses that slot. Each weapon has an independent eight-second command recharge shown in the tray. Commands have longer reach and double damage while retaining axe splash, thorn pierce, Sunbow critical fire, or staff burn. Terrain fields now refill all commands when broken, giving their tactical burst a useful follow-up.

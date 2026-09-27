@@ -6,8 +6,8 @@ export type Hero = 'warden' | 'ranger' | 'ember';
 export type CampKit = 'breaker' | 'conductor' | 'forager';
 export const CAMP_KITS: CampKit[] = ['breaker', 'conductor', 'forager'];
 export const CAMP_KIT_INFO: Record<CampKit, { name: string; description: string; cost: number; art: string }> = {
-  breaker: { name: 'Breaker', description: 'Field bursts hit 50% harder and reach 30% farther.', cost: 0, art: 'weapon-axe-v2.webp' },
-  conductor: { name: 'Conductor', description: 'Commands recharge in 7s. Chain another within 6s.', cost: 8, art: 'weapon-bow-v2.webp' },
+  breaker: { name: 'Breaker', description: 'Field bursts hit 50% harder and reach 30% farther.', cost: 0, art: 'weapon-axe-expedition-v1.webp' },
+  conductor: { name: 'Conductor', description: 'Commands recharge in 7s. Chain another within 6s.', cost: 8, art: 'weapon-bow-expedition-v1.webp' },
   forager: { name: 'Forager', description: 'Every stat cache also restores 10 health.', cost: 8, art: 'ancient-tree-v1.webp' },
 };
 export type Upgrade = Stat | 'splash' | 'pet' | 'wildArsenal' | `weapon:${Weapon}` | `path:${Weapon}:${WeaponPath}`;
@@ -146,17 +146,18 @@ export interface Progress {
   muted: boolean;
   autoSpecialEnabled: boolean;
   heroLook: HeroLook;
+  appearanceVersion: number;
   unlockedKits: CampKit[];
   selectedKit: CampKit;
 }
 
-export type HeroLook = 'wildkin' | 'classic';
+export type HeroLook = 'expedition' | 'wildkin' | 'classic';
 
 export const EMPTY_PROGRESS: Progress = {
   seeds: 0, thornsUnlocked: false, bestKills: 0, bestSeconds: 0, victories: 0,
   bestRegion: 0, mastery: { warden: 0, ranger: 0, ember: 0 }, reducedEffects: false, muted: false,
   autoSpecialEnabled: true,
-  heroLook: 'wildkin',
+  heroLook: 'expedition', appearanceVersion: 1,
   unlockedKits: ['breaker'], selectedKit: 'breaker',
 };
 export const THORNS_COST = 6;
@@ -182,7 +183,9 @@ export function parseProgress(value: unknown): Progress {
     reducedEffects: data.reducedEffects === true,
     muted: data.muted === true,
     autoSpecialEnabled: data.autoSpecialEnabled !== false,
-    heroLook: data.heroLook === 'classic' ? 'classic' : 'wildkin',
+    heroLook: data.heroLook === 'classic' ? 'classic'
+      : data.appearanceVersion === 1 && data.heroLook === 'wildkin' ? 'wildkin' : 'expedition',
+    appearanceVersion: 1,
     unlockedKits,
     selectedKit: unlockedKits.includes(data.selectedKit as CampKit) ? data.selectedKit as CampKit : 'breaker',
   };
