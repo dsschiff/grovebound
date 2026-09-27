@@ -116,6 +116,15 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .clock-wrap .objective-status #objective{display:block;max-width:155px;margin:0;color:#fff0c5;font-size:8px;line-height:1.15;text-align:left}
 .mission-card{position:absolute;top:calc(max(13px,env(safe-area-inset-top)) + 154px);left:12px;display:flex;align-items:center;gap:7px;width:min(210px,calc(100% - 147px));min-height:62px;padding:6px;background:linear-gradient(135deg,#183e37ed,#0d302fe8);border:1px solid #f3d68aa8;border-radius:12px;box-shadow:0 7px 19px #0a2a27a8;color:#fff1d0;text-shadow:0 2px 4px #102e2a}
 .mission-card img{width:47px;height:47px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 5px #0b2929)}
+.mission-card.waylight img,.mission-card.moonflame img{animation:objective-hover 1.9s ease-in-out infinite alternate}
+.mission-card.seedheart img,.mission-card.altar img{animation:objective-heartbeat 2.2s ease-in-out infinite}
+.mission-card.pump img,.mission-card.coolant img,.mission-card.forge img{animation:objective-working 1.4s ease-in-out infinite alternate}
+.mission-card.boss img{animation:objective-heartbeat 1.25s ease-in-out infinite}
+@keyframes objective-hover{from{transform:translateY(2px) rotate(-4deg)}to{transform:translateY(-4px) rotate(4deg)}}
+@keyframes objective-heartbeat{0%,100%{transform:scale(1)}45%{transform:scale(1.08)}}
+@keyframes objective-working{from{transform:rotate(-2deg)}to{transform:rotate(2deg)}}
+#app.reduced-effects .mission-card img{animation:none}
+@media(prefers-reduced-motion:reduce){.mission-card img{animation:none!important}}
 .mission-copy{min-width:0;flex:1}
 .mission-copy small{display:block;color:#f4d58c;font-size:8px;font-weight:800;letter-spacing:.12em}
 .mission-copy strong{display:block;margin:3px 0 5px;font-size:9px;line-height:1.15;letter-spacing:.03em}

@@ -138,6 +138,7 @@ function notify(message: string): void {
 }
 
 function refreshMenu(): void {
+  root.classList.toggle('reduced-effects', progress.reducedEffects);
   el('#seed-count').textContent = `✦ ${progress.seeds} SEEDS`;
   if (!availableHero(progress, selectedHero)) selectedHero = 'warden';
   if (!availableWeapon(progress, selectedWeapon)) selectedWeapon = HERO_INFO[selectedHero].weapon;
@@ -463,6 +464,7 @@ el('#unlock-button').addEventListener('click', () => {
 el('#skin-button').addEventListener('click', () => { selectedSkin = !selectedSkin; refreshMenu(); });
 el<HTMLInputElement>('#reduced-effects').addEventListener('change', event => {
   progress = { ...progress, reducedEffects: (event.target as HTMLInputElement).checked };
+  root.classList.toggle('reduced-effects', progress.reducedEffects);
   saveProgress(progress);
 });
 el<HTMLInputElement>('#muted').addEventListener('change', event => {

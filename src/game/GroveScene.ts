@@ -21,6 +21,12 @@ import { RESONANCE_INFO, advanceCommandChain, commandChainResult, resonanceFor, 
 const WORLD = 1800;
 type EnemyKind = EnemySave['kind'];
 type ObjectKind = ObjectSave['kind'];
+const OBJECT_MOTION: Partial<Record<ObjectKind, { speed: number; lift: number; tilt: number }>> = {
+  waylight: { speed: 3.6, lift: 5, tilt: 0.07 },
+  moonflame: { speed: 5.3, lift: 7, tilt: 0.11 },
+  seedheart: { speed: 2.1, lift: 2, tilt: 0.025 },
+  bloom: { speed: 2.5, lift: 3, tilt: 0.045 },
+};
 interface Enemy {
   sprite: Phaser.GameObjects.Image; kind: EnemyKind; hp: number; maxHp: number;
   speed: number; damage: number; radius: number; phase: number; pendingDamage: number; damageClock: number;
@@ -29,7 +35,7 @@ interface Enemy {
   strike?: BossStrikeState & { ring?: Phaser.GameObjects.Arc };
   lance?: WispLanceState & { marker?: Phaser.GameObjects.Graphics };
 }
-interface WorldObject { view: Phaser.GameObjects.Container; label: Phaser.GameObjects.Text; kind: ObjectKind; x: number; y: number; hp: number; maxHp: number; active: boolean; ring?: Phaser.GameObjects.Arc; hazardPhase?: VentPhase }
+interface WorldObject { view: Phaser.GameObjects.Container; image: Phaser.GameObjects.Image; label: Phaser.GameObjects.Text; kind: ObjectKind; x: number; y: number; hp: number; maxHp: number; active: boolean; ring?: Phaser.GameObjects.Arc; hazardPhase?: VentPhase }
 interface Orb { view: Phaser.GameObjects.Container; x: number; y: number; value: number }
 interface Cache { view: Phaser.GameObjects.Container; x: number; y: number; stat: Stat }
 interface EquippedWeapon { id: Weapon; rank: number; cooldown: number; path?: WeaponPath; commandCooldown?: number }
@@ -61,6 +67,7 @@ export interface GameCallbacks {
 export class GroveScene extends Phaser.Scene {
   private callbacks: GameCallbacks;
   private hero!: Phaser.GameObjects.Image;
+  private heroShadow!: Phaser.GameObjects.Ellipse;
   private nav!: Phaser.GameObjects.Text;
   private petView!: Phaser.GameObjects.Arc;
   private joystickBase!: Phaser.GameObjects.Arc;
@@ -108,6 +115,7 @@ export class GroveScene extends Phaser.Scene {
   private invulnerability = 0;
   private attackPose = 0;
   private attackPoseDuration = 0.16;
+  private actionPose = 0;
   private gatekeeperSpawned = false;
   private bossSpawned = false;
   private upgradeOptions: Upgrade[] = [];
@@ -135,7 +143,8 @@ export class GroveScene extends Phaser.Scene {
   preload(): void {
     const base = import.meta.env.BASE_URL;
     this.load.image('tree', `${base}art/tree.png`);
-    for (const key of ['warden-v4', 'ranger-v4', 'ember-v4', 'waylight', 'seedheart', 'root-totem', 'coolant-pump', 'coolant-spring', 'forge-core', 'moonflame',
+    for (const key of ['warden-v4', 'ranger-v4', 'ember-v4', 'warden-attack-v1', 'ranger-attack-v1', 'ember-attack-v1',
+      'waylight', 'seedheart', 'root-totem', 'coolant-pump', 'coolant-spring', 'forge-core', 'moonflame',
       'moon-altar', 'mist-bloom', 'ember-vent', 'grove-gate', 'reliquary', 'fox-relic',
       'gnarl-v2', 'wisp-v2', 'brute-v2', 'briar-king-v2', 'bramble-field', 'ember-ore', 'moonstone']) {
       this.load.image(key, `${base}art/${key}.webp`);
@@ -144,6 +153,7 @@ export class GroveScene extends Phaser.Scene {
 
   create(): void {
     this.cameras.main.setBounds(0, 0, WORLD, WORLD);
+    this.heroShadow = this.add.ellipse(900, 943, 63, 21, 0x071f1c, 0.34).setDepth(3.5);
     this.hero = this.add.image(900, 900, 'warden-v4').setDisplaySize(104, 104).setDepth(5);
     this.nav = this.add.text(900, 820, '', { fontFamily: 'Arial, sans-serif', fontSize: '14px', color: '#fff0bc', stroke: '#18372d', strokeThickness: 4 }).setOrigin(0.5).setDepth(12);
     this.petView = this.add.circle(900, 900, 9, 0xffe4a3).setStrokeStyle(3, 0x446c60).setDepth(7).setVisible(false);
@@ -180,7 +190,7 @@ export class GroveScene extends Phaser.Scene {
     this.metrics = emptyRunMetrics();
     this.health = this.stats.maxHealth;
     this.xp = 0; this.level = 1; this.kills = 0; this.seconds = 0; this.region = 0;
-    this.attackPose = 0; this.slowed = false;
+    this.attackPose = 0; this.actionPose = 0; this.slowed = false;
     this.choosing = false; this.pausedByUser = false; this.upgradeOptions = [];
     this.hero.setTexture(`${hero}-v4`).setTint(skin ? 0xf3d28a : 0xffffff).setPosition(900, 900).setAlpha(1).setDisplaySize(104, 104);
     this.startRegion();
@@ -209,7 +219,7 @@ export class GroveScene extends Phaser.Scene {
     this.lanceIntroduced = this.region > 0 && (snapshot.metrics.lancesEvaded ?? 0) + (snapshot.metrics.lanceHits ?? 0) > 0;
     this.spawnClock = snapshot.spawnClock; this.cacheClock = snapshot.cacheClock;
     this.invulnerability = snapshot.invulnerability;
-    this.attackPose = 0; this.slowed = false;
+    this.attackPose = 0; this.actionPose = 0; this.slowed = false;
     this.gatekeeperSpawned = snapshot.gatekeeperSpawned; this.bossSpawned = snapshot.bossSpawned;
     this.choosing = snapshot.choosing; this.upgradeOptions = [...snapshot.upgradeOptions];
     this.hero.setTexture(`${this.heroId}-v4`).setTint(this.skin ? 0xf3d28a : 0xffffff)
@@ -485,6 +495,7 @@ export class GroveScene extends Phaser.Scene {
   castSpecial(): void {
     if (!this.running || this.choosing || this.pausedByUser || this.specialCooldown > 0) return;
     this.specialCooldown = 12;
+    this.actionPose = Math.max(this.actionPose, 0.46);
     soundFx.play('special');
     const radius = this.heroId === 'ember' ? 190 : this.heroId === 'warden' ? 145 : 300;
     const color = this.heroId === 'ember' ? '#ffb67d' : this.heroId === 'ranger' ? '#b9ed9f' : '#fbe3a8';
@@ -529,6 +540,7 @@ export class GroveScene extends Phaser.Scene {
     this.invulnerability = Math.max(0, this.invulnerability - dt);
     this.moonflowRemaining = Math.max(0, this.moonflowRemaining - dt);
     this.attackPose = Math.max(0, this.attackPose - dt);
+    this.actionPose = Math.max(0, this.actionPose - dt);
     this.commandChain = advanceCommandChain(this.commandChain, dt);
     this.specialCooldown = Math.max(0, this.specialCooldown - dt);
     this.health = Math.min(this.stats.maxHealth, this.health + this.stats.regen * dt);
@@ -724,6 +736,8 @@ export class GroveScene extends Phaser.Scene {
     if (this.keys?.S?.isDown || this.cursors?.down?.isDown) dy += 1;
     const length = Math.hypot(dx, dy);
     this.moveDirection.set(length > 0.03 ? dx / length : 0, length > 0.03 ? dy / length : 0);
+    const poseTexture = `${this.heroId}-${this.actionPose > 0 ? 'attack-v1' : 'v4'}`;
+    if (this.hero.texture.key !== poseTexture) this.hero.setTexture(poseTexture);
     const attackKick = this.attackPose > 0 ? Math.sin(this.attackPose / this.attackPoseDuration * Math.PI) : 0;
     if (length > 0.03) {
       const speed = this.stats.speed * (this.slowed ? 0.68 : 1) * (this.moonflowRemaining > 0 ? 1.28 : 1);
@@ -735,6 +749,7 @@ export class GroveScene extends Phaser.Scene {
     } else this.hero.setRotation(attackKick * (this.hero.flipX ? -0.12 : 0.12))
       .setScale(0.36 * (1 + Math.sin(this.seconds * 3) * 0.012 + attackKick * 0.09), 0.36 * (1 - attackKick * 0.06));
     this.hero.setAlpha(this.invulnerability > 0 && Math.floor(this.seconds * 18) % 2 === 0 ? 0.57 : 1);
+    this.heroShadow.setPosition(this.hero.x, this.hero.y + 40).setScale(length > 0.03 ? 1.08 : 1, 1);
     this.nav.setPosition(this.hero.x, this.hero.y - 110);
   }
 
@@ -1011,6 +1026,7 @@ export class GroveScene extends Phaser.Scene {
     weapon.cooldown = info.cooldown * (focused && weapon.id === 'bow' ? 0.78 : 1);
     soundFx.play(weapon.id === 'axe' ? 'swing' : weapon.id === 'thorns' ? 'dart' : weapon.id === 'bow' ? 'bow' : 'staff');
     this.attackPose = 0.16; this.attackPoseDuration = 0.16;
+    if (weapon.id === HERO_INFO[this.heroId].weapon) this.actionPose = Math.max(this.actionPose, commanded ? 0.42 : 0.24);
     const x = target?.sprite.x ?? object!.x; const y = target?.sprite.y ?? object!.y;
     if (commanded) this.lastCommandAim = { x, y };
     this.hero.setFlipX(x < this.hero.x);
@@ -1399,7 +1415,7 @@ export class GroveScene extends Phaser.Scene {
     }).setOrigin(0.5);
     const view = this.add.container(x, y, ring ? [ring, base, image, label] : [base, image, label])
       .setDepth(2).setAlpha(active ? 1 : 0.35);
-    this.objects.push({ view, label, kind, x, y, hp, maxHp, active, ring });
+    this.objects.push({ view, image, label, kind, x, y, hp, maxHp, active, ring });
   }
 
   private hitObject(object: WorldObject, damage: number): void {
@@ -1512,6 +1528,13 @@ export class GroveScene extends Phaser.Scene {
     if (gate) { gate.active = true; gate.view.setAlpha(1); this.callbacks.onEvent('GATE OPEN — FOLLOW THE ARROW'); this.saveSnapshot(); }
   }
   private updateObjects(dt = 0): void {
+    if (!this.reducedEffects && dt > 0) for (const object of this.objects) {
+      if (!object.active) continue;
+      const motion = OBJECT_MOTION[object.kind];
+      if (!motion) continue;
+      object.image.y = -8 + Math.sin(this.seconds * motion.speed + object.x * 0.01) * motion.lift;
+      object.image.rotation = Math.sin(this.seconds * motion.speed * 0.6 + object.y * 0.01) * motion.tilt;
+    }
     const waylight = this.objects.find(object => object.kind === 'waylight' && object.active && object.hp > 0);
     if (waylight && dt > 0 && this.waylightRoute) {
       const { start, goal } = this.waylightRoute;
