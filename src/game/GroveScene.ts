@@ -12,6 +12,8 @@ import { pilotDirection } from './pilot';
 import { hazardSites, ventPhase, type VentPhase } from './hazards';
 import { enemyFieldModifiers, terrainSites } from './terrain';
 import { BOSS_STRIKE_WINDUP, bossStrikeCooldown, bossStrikeRadius, bossStrikeTarget, insideBossStrike, type BossStrikeState } from './bossStrike';
+import { WISP_LANCE_WIDTH, WISP_LANCE_WINDUP, insideWispLance, waveInterval, wildSurge,
+  wispLanceCooldown, wispLanceDamage, wispLanceTarget, type WispLanceState } from './wispLance';
 import { nextObjective, objectiveName, objectivesLeft } from './objectives';
 import { advanceWaylight, waylightProgress } from './waylight';
 
@@ -23,6 +25,7 @@ interface Enemy {
   speed: number; damage: number; radius: number; phase: number; pendingDamage: number; damageClock: number;
   burnRemaining: number; burnTickClock: number; burnDamage: number; burnSource?: Weapon;
   strike?: BossStrikeState & { ring?: Phaser.GameObjects.Arc };
+  lance?: WispLanceState & { marker?: Phaser.GameObjects.Graphics };
 }
 interface WorldObject { view: Phaser.GameObjects.Container; label: Phaser.GameObjects.Text; kind: ObjectKind; x: number; y: number; hp: number; maxHp: number; active: boolean; ring?: Phaser.GameObjects.Arc; hazardPhase?: VentPhase }
 interface Orb { view: Phaser.GameObjects.Container; x: number; y: number; value: number }
@@ -37,6 +40,7 @@ export interface HudState {
   special: string; specialCooldown: number;
   objectivesLeft: number; stepTargetsLeft: number; stepProgress: number; objectiveName: string | null;
   ritualActive: boolean;
+  surge: boolean;
   terrainHint: string | null; gateOpen: boolean; hero: Hero;
   map: { x: number; y: number; objects: { x: number; y: number; kind: ObjectKind; active: boolean }[]; enemies: { x: number; y: number; kind: EnemyKind }[] };
 }
@@ -107,6 +111,8 @@ export class GroveScene extends Phaser.Scene {
   private slowed = false;
   private waylightAmbush = false;
   private ritualClock = 0;
+  private surgeAnnounced = false;
+  private lanceIntroduced = false;
   private waylightRoute: { start: { x: number; y: number }; goal: { x: number; y: number } } | null = null;
 
   constructor(callbacks: GameCallbacks) { super('Grove'); this.callbacks = callbacks; }
@@ -182,6 +188,8 @@ export class GroveScene extends Phaser.Scene {
     this.metrics = { ...snapshot.metrics, regionSeconds: [...snapshot.metrics.regionSeconds] as RunMetrics['regionSeconds'] };
     this.level = snapshot.level; this.kills = snapshot.kills; this.seconds = snapshot.seconds;
     this.region = snapshot.region; this.stageSeconds = snapshot.stageSeconds;
+    this.surgeAnnounced = wildSurge(this.region, this.stageSeconds, REGIONS[this.region].duration);
+    this.lanceIntroduced = this.region > 0 && (snapshot.metrics.lancesEvaded ?? 0) + (snapshot.metrics.lanceHits ?? 0) > 0;
     this.spawnClock = snapshot.spawnClock; this.cacheClock = snapshot.cacheClock;
     this.invulnerability = snapshot.invulnerability;
     this.attackPose = 0; this.slowed = false;
@@ -256,7 +264,7 @@ export class GroveScene extends Phaser.Scene {
   isChoosing(): boolean { return this.choosing; }
   endRunEarly(): void {
     this.pausedByUser = false; this.running = false; this.releaseJoystick(); clearRunSnapshot();
-    for (const enemy of this.enemies) enemy.strike?.ring?.destroy();
+    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); }
   }
 
   // Localhost-only QA controls are wired in main.ts when ?debug=1 is present.
@@ -341,6 +349,22 @@ export class GroveScene extends Phaser.Scene {
   }
 
   debugHeal(): void { if (this.running) { this.health = this.stats.maxHealth; this.publishHud(); this.saveSnapshot(); } }
+  debugMarkWisp(): void {
+    if (!this.running || this.choosing) return;
+    if (this.region !== 1) { this.region = 1; this.startRegion(); }
+    this.clearEnemies();
+    this.hero.setPosition(900, 900);
+    this.spawnEnemy('wisp', { x: 750, y: 900 });
+    const wisp = this.enemies[0];
+    wisp.hp = 5000; wisp.maxHp = 5000; wisp.speed = 0; wisp.damage = 0;
+    const lance = wisp.lance!;
+    lance.cooldown = 0; lance.windup = 7;
+    lance.fromX = wisp.sprite.x; lance.fromY = wisp.sprite.y;
+    lance.toX = this.hero.x; lance.toY = this.hero.y;
+    lance.marker = this.createWispLanceMarker(lance);
+    this.callbacks.onEvent('WISP LANCE — SIDESTEP THE LINE');
+    this.publishHud(); this.saveSnapshot();
+  }
   debugSummonBoss(): void {
     if (!this.running || this.choosing) return;
     if (this.region !== 2) { this.region = 2; this.startRegion(); }
@@ -475,6 +499,7 @@ export class GroveScene extends Phaser.Scene {
     this.gatekeeperSpawned = false; this.bossSpawned = false;
     this.waylightAmbush = false;
     this.ritualClock = 0;
+    this.surgeAnnounced = false; this.lanceIntroduced = false;
     this.slowed = false;
     this.hero.setPosition(900, 900);
     this.drawRegion();
@@ -570,7 +595,7 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private clearEnemies(): void {
-    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.sprite.destroy(); }
+    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.sprite.destroy(); }
     this.enemies = [];
   }
 
@@ -630,12 +655,19 @@ export class GroveScene extends Phaser.Scene {
 
   private updateSpawns(dt: number): void {
     this.spawnClock += dt;
-    const wavePause = this.stageSeconds % 45 > 38;
-    const interval = Math.max(0.55, 1.75 - this.region * 0.19 - this.stageSeconds / 850);
+    const surge = wildSurge(this.region, this.stageSeconds, REGIONS[this.region].duration);
+    if (surge && !this.surgeAnnounced) {
+      this.surgeAnnounced = true;
+      this.callbacks.onEvent('WILD SURGE — WISPS GATHER');
+      this.floatText('WILD SURGE', this.hero.x, this.hero.y - 100, '#f7c47a');
+      this.saveSnapshot();
+    }
+    const wavePause = !surge && this.stageSeconds % 45 > 38;
+    const interval = waveInterval(this.region, this.stageSeconds, surge);
     if (!this.gatekeeperSpawned && !wavePause && this.spawnClock >= interval && this.enemies.length < 70) {
       this.spawnClock = 0;
       this.spawnEnemy(this.chooseEnemyKind());
-      if (this.region > 0 && this.random.next() < 0.25) this.spawnEnemy(this.chooseEnemyKind());
+      if (this.region > 0 && this.random.next() < (surge ? 0.55 : 0.25)) this.spawnEnemy(this.chooseEnemyKind());
     }
     this.cacheClock += dt;
     if (this.cacheClock >= 34 && this.caches.length < 4) {
@@ -652,8 +684,9 @@ export class GroveScene extends Phaser.Scene {
 
   private chooseEnemyKind(): EnemyKind {
     const roll = this.random.next();
+    const surge = wildSurge(this.region, this.stageSeconds, REGIONS[this.region].duration);
     if (this.stageSeconds > 55 && roll < 0.16 + this.region * 0.05) return 'brute';
-    if (this.stageSeconds > 25 && roll < 0.43 + this.region * 0.05) return 'wisp';
+    if (this.stageSeconds > 25 && roll < 0.43 + this.region * 0.05 + (surge ? 0.16 : 0)) return 'wisp';
     return 'gnarl';
   }
 
@@ -685,12 +718,19 @@ export class GroveScene extends Phaser.Scene {
       radius: saved?.bossStrike?.radius ?? bossStrikeRadius(phase),
     } as Enemy['strike'] : undefined;
     if (strike && strike.windup > 0) strike.ring = this.createBossStrikeMarker(strike);
+    const lance: Enemy['lance'] = kind === 'wisp' && this.region > 0 ? {
+      cooldown: saved?.wispLance?.cooldown ?? 0.45 + phase * 0.18,
+      windup: saved?.wispLance?.windup ?? 0,
+      fromX: saved?.wispLance?.fromX ?? point.x, fromY: saved?.wispLance?.fromY ?? point.y,
+      toX: saved?.wispLance?.toX ?? point.x, toY: saved?.wispLance?.toY ?? point.y,
+    } : undefined;
+    if (lance && lance.windup > 0) lance.marker = this.createWispLanceMarker(lance);
     this.enemies.push({ sprite, kind, hp: saved?.hp ?? hp, maxHp: hp,
       speed: values.speed + (kind === 'boss' ? phase * 10 : 0),
       damage: values.damage + (kind === 'boss' ? phase * 3 : 0),
       radius: values.radius, phase, pendingDamage: 0, damageClock: 0,
       burnRemaining: saved?.burnRemaining ?? 0, burnTickClock: saved?.burnTickClock ?? 0,
-      burnDamage: saved?.burnDamage ?? 0, burnSource: saved?.burnSource, strike });
+      burnDamage: saved?.burnDamage ?? 0, burnSource: saved?.burnSource, strike, lance });
   }
 
   private updateEnemies(dt: number): void {
@@ -708,12 +748,12 @@ export class GroveScene extends Phaser.Scene {
       }
       const dx = this.hero.x - enemy.sprite.x; const dy = this.hero.y - enemy.sprite.y;
       const distance = Math.max(1, Math.hypot(dx, dy));
-      if (distance > enemy.radius + 16) {
+      if (distance > enemy.radius + 16 && !(enemy.lance && enemy.lance.windup > 0)) {
         const weave = enemy.kind === 'wisp' ? Math.sin(this.seconds * 7 + enemy.phase) * 0.32 : 0;
         const fieldSpeed = enemyFieldModifiers(enemy.sprite.x, enemy.sprite.y, this.objects).speed;
         enemy.sprite.x += (dx / distance - dy / distance * weave) * enemy.speed * fieldSpeed * dt;
         enemy.sprite.y += (dy / distance + dx / distance * weave) * enemy.speed * fieldSpeed * dt;
-      } else if (this.invulnerability <= 0) this.takeDamage(enemy.damage);
+      } else if (distance <= enemy.radius + 16 && this.invulnerability <= 0) this.takeDamage(enemy.damage);
       if (!this.running) break;
       enemy.sprite.setFlipX(dx < 0);
       enemy.sprite.setRotation(Math.sin(this.seconds * (enemy.kind === 'wisp' ? 8 : 3) + enemy.phase) * 0.055);
@@ -722,6 +762,7 @@ export class GroveScene extends Phaser.Scene {
         if (enemy.damageClock <= 0) this.flushDamage(enemy);
       }
       if (enemy.strike) this.updateBossStrike(enemy, dt);
+      if (enemy.lance) this.updateWispLance(enemy, dt);
       if (!this.running) break;
     }
   }
@@ -753,6 +794,62 @@ export class GroveScene extends Phaser.Scene {
     strike.windup = BOSS_STRIKE_WINDUP;
     strike.ring = this.createBossStrikeMarker(strike);
     this.callbacks.onEvent('BRIAR MARK — MOVE!');
+    this.saveSnapshot();
+  }
+
+  private createWispLanceMarker(lance: WispLanceState): Phaser.GameObjects.Graphics {
+    const marker = this.add.graphics().setDepth(3);
+    marker.lineStyle(WISP_LANCE_WIDTH * 2, 0x681e3a, 0.38);
+    marker.lineBetween(lance.fromX, lance.fromY, lance.toX, lance.toY);
+    marker.lineStyle(11, 0xf06573, 0.84);
+    marker.lineBetween(lance.fromX, lance.fromY, lance.toX, lance.toY);
+    marker.lineStyle(3, 0xffdfaa, 0.96);
+    marker.lineBetween(lance.fromX, lance.fromY, lance.toX, lance.toY);
+    marker.fillStyle(0xff6277, 0.9);
+    marker.fillCircle(lance.toX, lance.toY, 7);
+    return marker;
+  }
+
+  private updateWispLance(wisp: Enemy, dt: number): void {
+    const lance = wisp.lance!;
+    if (lance.windup > 0) {
+      lance.windup = Math.max(0, lance.windup - dt);
+      if (!this.reducedEffects) lance.marker?.setAlpha(0.72 + Math.sin(this.seconds * 20) * 0.24);
+      if (lance.windup > 0) return;
+      lance.marker?.destroy(); lance.marker = undefined;
+      const beam = this.add.graphics().setDepth(8);
+      beam.lineStyle(WISP_LANCE_WIDTH * 2, 0xffad5e, 0.42)
+        .lineBetween(lance.fromX, lance.fromY, lance.toX, lance.toY);
+      beam.lineStyle(10, 0xfff1c3, 0.95)
+        .lineBetween(lance.fromX, lance.fromY, lance.toX, lance.toY);
+      this.tweens.add({ targets: beam, alpha: 0, duration: this.reducedEffects ? 90 : 220,
+        onComplete: () => beam.destroy() });
+      if (insideWispLance({ x: this.hero.x, y: this.hero.y }, lance)) {
+        if (this.invulnerability <= 0) {
+          this.metrics.lanceHits = (this.metrics.lanceHits ?? 0) + 1;
+          this.takeDamage(wispLanceDamage(this.region, this.stageSeconds));
+        }
+      } else {
+        this.metrics.lancesEvaded = (this.metrics.lancesEvaded ?? 0) + 1;
+        this.floatText('SIDESTEP', this.hero.x, this.hero.y - 55, '#bdf3cf');
+      }
+      lance.cooldown = wispLanceCooldown(this.region, this.stageSeconds);
+      this.saveSnapshot();
+      return;
+    }
+    lance.cooldown = Math.max(0, lance.cooldown - dt);
+    if (lance.cooldown > 0 || this.gatekeeperSpawned || this.enemies.filter(enemy => (enemy.lance?.windup ?? 0) > 0).length >= 2) return;
+    const distance = this.distance(wisp.sprite.x, wisp.sprite.y, this.hero.x, this.hero.y);
+    if (distance < 125 || distance > 510) return;
+    const target = wispLanceTarget({ x: this.hero.x, y: this.hero.y }, this.moveDirection, this.stats.speed);
+    lance.fromX = wisp.sprite.x; lance.fromY = wisp.sprite.y;
+    lance.toX = target.x; lance.toY = target.y;
+    lance.windup = WISP_LANCE_WINDUP;
+    lance.marker = this.createWispLanceMarker(lance);
+    if (!this.lanceIntroduced) {
+      this.lanceIntroduced = true;
+      this.callbacks.onEvent('WISP LANCE — SIDESTEP THE LINE');
+    }
     this.saveSnapshot();
   }
 
@@ -893,7 +990,7 @@ export class GroveScene extends Phaser.Scene {
     }
     this.flushDamage(enemy);
     const x = enemy.sprite.x; const y = enemy.sprite.y;
-    enemy.strike?.ring?.destroy(); enemy.sprite.destroy(); this.enemies.splice(this.enemies.indexOf(enemy), 1);
+    enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.sprite.destroy(); this.enemies.splice(this.enemies.indexOf(enemy), 1);
     this.kills++;
     const rite = this.objects.find(object => object.kind === 'altar' && object.active && object.hp > 0 && object.maxHp <= 6);
     if (rite && this.distance(x, y, rite.x, rite.y) < 250) {
@@ -1243,7 +1340,7 @@ export class GroveScene extends Phaser.Scene {
     if (!this.running) return;
     this.metrics.regionSeconds[this.region] = this.stageSeconds;
     this.running = false; this.releaseJoystick(); clearRunSnapshot();
-    for (const enemy of this.enemies) enemy.strike?.ring?.destroy();
+    for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); }
     if (won) soundFx.play('victory');
     if (won) this.tweens.add({ targets: this.hero, scaleX: 0.44, scaleY: 0.44, yoyo: true, duration: 250 });
     else this.tweens.add({ targets: this.hero, angle: 80, alpha: 0.28, duration: 370, ease: 'Cubic.Out' });
@@ -1269,6 +1366,7 @@ export class GroveScene extends Phaser.Scene {
       special: HERO_INFO[this.heroId].special, specialCooldown: this.specialCooldown,
       objectivesLeft: this.requiredLeft(), objectiveName: currentObjective?.kind ?? null,
       ritualActive: currentObjective?.kind === 'altar' && currentObjective.maxHp <= 6,
+      surge: wildSurge(this.region, this.stageSeconds, REGIONS[this.region].duration),
       stepTargetsLeft: this.objects.filter(object => object.kind === currentObjective?.kind && object.hp > 0).length,
       stepProgress: currentObjective?.kind === 'pump'
         ? Math.min(4, Math.floor((1 - currentObjective.hp / currentObjective.maxHp) * 4))
@@ -1310,7 +1408,10 @@ export class GroveScene extends Phaser.Scene {
         burnRemaining: enemy.burnRemaining, burnTickClock: enemy.burnTickClock, burnDamage: enemy.burnDamage,
         burnSource: enemy.burnSource,
         bossStrike: enemy.strike ? { cooldown: enemy.strike.cooldown, windup: enemy.strike.windup,
-          x: enemy.strike.x, y: enemy.strike.y, radius: enemy.strike.radius } : undefined })),
+          x: enemy.strike.x, y: enemy.strike.y, radius: enemy.strike.radius } : undefined,
+        wispLance: enemy.lance ? { cooldown: enemy.lance.cooldown, windup: enemy.lance.windup,
+          fromX: enemy.lance.fromX, fromY: enemy.lance.fromY,
+          toX: enemy.lance.toX, toY: enemy.lance.toY } : undefined })),
       objects: this.objects.map(object => ({ kind: object.kind, x: object.x, y: object.y, hp: object.hp, maxHp: object.maxHp, active: object.active })),
       orbs: this.orbs.map(orb => ({ x: orb.x, y: orb.y, value: orb.value })),
       caches: this.caches.map(cache => ({ x: cache.x, y: cache.y, stat: cache.stat })),

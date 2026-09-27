@@ -16,6 +16,8 @@ Weapon ranks change behavior as well as damage. The axe grows a wider cleave and
 
 Each region also has two optional terrain fields that change nearby fights: Verge brambles slow you and enemies, Quarry ore protects enemies, and Moonfen moonstones hasten them. Attack a field to clear its effect and reveal a stat cache. The HUD names the effect when you approach, and the minimap marks each field separately.
 
+Quarry and Moonfen wisps now aim a visible lance across the ground before firing. Step out of its marked lane to evade it; the result screen counts successful sidesteps and hits. The second half of each later region brings a Wild Surge with faster waves and more wisps. The warning lane and its remaining windup survive a paused run and reload.
+
 ## Develop and publish
 
 Requires Node.js 22 or newer.

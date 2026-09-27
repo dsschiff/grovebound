@@ -1,4 +1,5 @@
 import type { Hero, Stat, Stats, Upgrade, Weapon } from './logic';
+import type { WispLanceState } from './wispLance';
 
 export const RUN_SAVE_KEY = 'grovebound-run-v1';
 export interface EnemySave {
@@ -6,6 +7,7 @@ export interface EnemySave {
   x: number; y: number; hp: number; maxHp: number; phase: number;
   burnRemaining?: number; burnTickClock?: number; burnDamage?: number; burnSource?: Weapon;
   bossStrike?: { cooldown: number; windup: number; x: number; y: number; radius: number };
+  wispLance?: WispLanceState;
 }
 export interface ObjectSave {
   kind: 'ward' | 'waylight' | 'pump' | 'forge' | 'altar' | 'shrine' | 'relic' | 'gate' | 'vent' | 'bloom'
@@ -15,6 +17,7 @@ export interface ObjectSave {
 export interface RunMetrics {
   foeDamage: number; objectDamage: number; damageTaken: number;
   caches: number; blessings: number; wards: number; hazards: number; terrain?: number;
+  lancesEvaded?: number; lanceHits?: number;
   weaponDamage?: Record<Weapon, number>;
   regionSeconds: [number | null, number | null, number | null];
 }
@@ -23,6 +26,7 @@ export function emptyWeaponDamage(): Record<Weapon, number> {
 }
 export function emptyRunMetrics(): RunMetrics {
   return { foeDamage: 0, objectDamage: 0, damageTaken: 0, caches: 0, blessings: 0, wards: 0, hazards: 0, terrain: 0,
+    lancesEvaded: 0, lanceHits: 0,
     weaponDamage: emptyWeaponDamage(),
     regionSeconds: [null, null, null] };
 }
@@ -87,7 +91,12 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
         && typeof enemy.bossStrike === 'object' && enemy.bossStrike !== null
         && finite(enemy.bossStrike.cooldown, 0, 10) && finite(enemy.bossStrike.windup, 0, 2)
         && finite(enemy.bossStrike.x, 0, 1800) && finite(enemy.bossStrike.y, 0, 1800)
-        && finite(enemy.bossStrike.radius, 60, 200))))
+        && finite(enemy.bossStrike.radius, 60, 200)))
+      && (enemy.wispLance === undefined || (enemy.kind === 'wisp'
+        && typeof enemy.wispLance === 'object' && enemy.wispLance !== null
+        && finite(enemy.wispLance.cooldown, 0, 10) && finite(enemy.wispLance.windup, 0, 8)
+        && finite(enemy.wispLance.fromX, 0, 1800) && finite(enemy.wispLance.fromY, 0, 1800)
+        && finite(enemy.wispLance.toX, 0, 1800) && finite(enemy.wispLance.toY, 0, 1800))))
     || (run.waylightAmbush !== undefined && typeof run.waylightAmbush !== 'boolean')
     || (run.ritualClock !== undefined && !finite(run.ritualClock, 0, 10))
     || !Array.isArray(run.objects) || run.objects.length > 12 || !run.objects.every(object =>
@@ -105,12 +114,15 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || !finite(metrics.wards, 0, 8)
     || (metrics.hazards !== undefined && !finite(metrics.hazards, 0, 4))
     || (metrics.terrain !== undefined && !finite(metrics.terrain, 0, 6))
+    || (metrics.lancesEvaded !== undefined && !finite(metrics.lancesEvaded, 0, 1000))
+    || (metrics.lanceHits !== undefined && !finite(metrics.lanceHits, 0, 1000))
     || (metrics.weaponDamage !== undefined && (!metrics.weaponDamage
       || !WEAPONS.every(weapon => finite(metrics.weaponDamage?.[weapon as Weapon]))))
     || !Array.isArray(metrics.regionSeconds)
     || metrics.regionSeconds.length !== 3
     || !metrics.regionSeconds.every(seconds => seconds === null || finite(seconds)))) return null;
   return { ...run, metrics: metrics ? { ...metrics, hazards: metrics.hazards ?? 0, terrain: metrics.terrain ?? 0,
+    lancesEvaded: metrics.lancesEvaded ?? 0, lanceHits: metrics.lanceHits ?? 0,
     weaponDamage: metrics.weaponDamage ?? emptyWeaponDamage() } : emptyRunMetrics() } as RunSnapshot;
 }
 

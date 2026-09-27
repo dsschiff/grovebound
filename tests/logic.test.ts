@@ -108,6 +108,13 @@ describe('run progression', () => {
     expect(parseRunSnapshot(boss)?.enemies[0].bossStrike?.windup).toBe(0.7);
     expect(parseRunSnapshot({ ...boss, enemies: [{ ...boss.enemies[0], bossStrike: undefined }] })?.enemies[0].bossStrike).toBeUndefined();
     expect(parseRunSnapshot({ ...boss, enemies: [{ ...boss.enemies[0], bossStrike: { ...boss.enemies[0].bossStrike, windup: -1 } }] })).toBeNull();
+    const lancing = { ...snapshot, region: 1, enemies: [{ kind: 'wisp' as const, x: 640, y: 900,
+      hp: 17, maxHp: 17, phase: 2, wispLance: { cooldown: 0, windup: 0.6,
+        fromX: 640, fromY: 900, toX: 900, toY: 900 } }] };
+    expect(parseRunSnapshot(lancing)?.enemies[0].wispLance?.windup).toBe(0.6);
+    expect(parseRunSnapshot({ ...lancing, enemies: [{ ...lancing.enemies[0],
+      wispLance: { ...lancing.enemies[0].wispLance, windup: -1 } }] })).toBeNull();
+    expect(parseRunSnapshot({ ...lancing, enemies: [{ ...lancing.enemies[0], kind: 'gnarl' }] })).toBeNull();
     const { hazards: _oldHazards, ...oldMetrics } = snapshot.metrics;
     expect(parseRunSnapshot({ ...snapshot, metrics: oldMetrics })?.metrics.hazards).toBe(0);
     const withHazards = { ...snapshot, objects: [{ kind: 'vent', x: 850, y: 780, hp: 20, maxHp: 180, active: true }],
@@ -129,6 +136,8 @@ describe('run progression', () => {
     const { weaponDamage: _oldWeaponDamage, ...preWeaponMetrics } = snapshot.metrics;
     expect(parseRunSnapshot({ ...snapshot, metrics: preWeaponMetrics })?.metrics.weaponDamage).toEqual(emptyRunMetrics().weaponDamage);
     expect(parseRunSnapshot({ ...snapshot, metrics: { ...snapshot.metrics, weaponDamage: { axe: -1, thorns: 0, bow: 0, staff: 0 } } })).toBeNull();
+    const { lancesEvaded: _oldEvades, lanceHits: _oldLanceHits, ...preLanceMetrics } = snapshot.metrics;
+    expect(parseRunSnapshot({ ...snapshot, metrics: preLanceMetrics })?.metrics.lancesEvaded).toBe(0);
     const terrainRun = { ...snapshot, region: 1, objects: [{ kind: 'ore', x: 850, y: 780, hp: 100, maxHp: 200, active: true }],
       metrics: { ...snapshot.metrics, terrain: 1 } };
     expect(parseRunSnapshot(terrainRun)?.metrics.terrain).toBe(1);

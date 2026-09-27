@@ -64,6 +64,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 /* Distinct objective pacing and a visible, touchable weapon loadout. */
 .clock-wrap{min-width:156px;max-width:190px}
 .clock-wrap #timer-heading{color:#f5df9d;font-size:8px}
+.clock-wrap #timer-heading.surge{color:#ffae72;text-shadow:0 0 10px #d96d49}
 .clock-wrap #stage-timer{color:#bdf0d2;font-size:9px}
 .clock-wrap #objective{color:#fff0c5;font-size:8px;line-height:1.15;max-width:190px}
 .vitals{top:calc(max(13px,env(safe-area-inset-top)) + 73px)}
