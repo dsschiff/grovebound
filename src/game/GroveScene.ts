@@ -15,7 +15,8 @@ import { BOSS_STRIKE_WINDUP, bossStrikeCooldown, bossStrikeRadius, bossStrikeTar
 import { WISP_LANCE_WIDTH, WISP_LANCE_WINDUP, insideWispLance, waveInterval, wildSurge,
   wispLanceCooldown, wispLanceDamage, wispLanceTarget, type WispLanceState } from './wispLance';
 import { advanceThornbackDash, thornbackTarget, THORNBACK_WINDUP, type ThornbackChargeState } from './thornback';
-import { advanceSeedheart, moonMission, nextObjective, objectiveName, objectivesLeft, quarryMission, vergeMission } from './objectives';
+import { advanceSeedheart, moonMission, nextObjective, objectiveName, objectivesLeft, quarryMission, routeReward, vergeMission,
+  type MoonRoute, type QuarryRoute, type RegionRoute } from './objectives';
 import { advanceWaylight, waylightProgress } from './waylight';
 import { advanceBriarStag, stagLeg, strikeBriarStag } from './briarStag';
 import { RESONANCE_INFO, advanceCommandChain, commandChainResult, resonanceFor, type CommandChain, type Resonance } from './resonance';
@@ -64,6 +65,7 @@ export interface RunResult { won: boolean; kills: number; seconds: number; level
 export interface GameCallbacks {
   onHud: (hud: HudState) => void;
   onUpgrade: (options: Upgrade[]) => void;
+  onRouteChoice: (region: 1 | 2) => void;
   onEnd: (result: RunResult) => void;
   onEvent: (message: string) => void;
 }
@@ -94,6 +96,9 @@ export class GroveScene extends Phaser.Scene {
   private heroId: Hero = 'warden';
   private heroLook: 'wildkin' | 'classic' = 'wildkin';
   private campKit: CampKit = 'breaker';
+  private quarryRoute: QuarryRoute = 'forgeAssault';
+  private moonRoute: MoonRoute = 'altarRite';
+  private routeChoiceRegion: 1 | 2 | null = null;
   private skin = false;
   private masteryRank = 0;
   private unlockedWeapons: Weapon[] = ['axe'];
@@ -194,6 +199,7 @@ export class GroveScene extends Phaser.Scene {
       ? seedOverride : (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0 || 1;
     this.random = new Rng(this.seed);
     this.heroId = hero; this.heroLook = look; this.campKit = kit; this.skin = skin; this.masteryRank = masteryRank;
+    this.quarryRoute = quarryMission(this.seed); this.moonRoute = moonMission(this.seed); this.routeChoiceRegion = null;
     this.unlockedWeapons = unlockedWeapons;
     this.weapons = [{ id: startingWeapon, rank: 1, cooldown: 0 }];
     if (supportWeapon && supportWeapon !== startingWeapon && unlockedWeapons.includes(supportWeapon))
@@ -220,6 +226,9 @@ export class GroveScene extends Phaser.Scene {
     if (!this.hero) return false;
     this.clearRunObjects();
     this.seed = snapshot.seed; this.random = new Rng(snapshot.rngState);
+    this.quarryRoute = snapshot.quarryRoute ?? quarryMission(this.seed);
+    this.moonRoute = snapshot.moonRoute ?? moonMission(this.seed);
+    this.routeChoiceRegion = snapshot.routeChoiceRegion ?? null;
     this.heroId = snapshot.hero; this.heroLook = snapshot.look ?? 'classic'; this.campKit = snapshot.kit ?? 'breaker';
     this.skin = snapshot.skin; this.masteryRank = snapshot.masteryRank;
     this.unlockedWeapons = snapshot.unlockedWeapons;
@@ -263,8 +272,9 @@ export class GroveScene extends Phaser.Scene {
     snapshot.orbs.forEach(orb => this.spawnOrb(orb.x, orb.y, orb.value));
     snapshot.caches.forEach(cache => this.spawnCache(cache.stat, cache.x, cache.y));
     this.petView.setVisible(this.pet);
-    this.running = true; this.pausedByUser = !this.choosing;
+    this.running = true; this.pausedByUser = !this.choosing && this.routeChoiceRegion === null;
     if (this.choosing) this.callbacks.onUpgrade(this.upgradeOptions);
+    if (this.routeChoiceRegion !== null) this.callbacks.onRouteChoice(this.routeChoiceRegion);
     this.publishHud();
     return true;
   }
@@ -345,7 +355,24 @@ export class GroveScene extends Phaser.Scene {
     if (value) { this.releaseJoystick(); this.saveSnapshot(); }
   }
   isRunning(): boolean { return this.running; }
-  isChoosing(): boolean { return this.choosing; }
+  isChoosing(): boolean { return this.choosing || this.routeChoiceRegion !== null; }
+  chooseRoute(route: RegionRoute): boolean {
+    const next = this.routeChoiceRegion;
+    if (!this.running || next === null) return false;
+    if (next === 1) {
+      if (route !== 'coolantRun' && route !== 'forgeAssault') return false;
+      this.quarryRoute = route;
+    } else {
+      if (route !== 'moonflame' && route !== 'altarRite') return false;
+      this.moonRoute = route;
+    }
+    this.metrics.regionSeconds[this.region] = this.stageSeconds;
+    this.region = next; this.routeChoiceRegion = null; this.pausedByUser = false;
+    this.health = Math.min(this.stats.maxHealth, this.health + 25);
+    this.startRegion(); this.spawnCache(STAT_KEYS[this.random.between(0, STAT_KEYS.length - 1)], 1010, 830);
+    this.publishHud(); this.saveSnapshot();
+    return true;
+  }
   endRunEarly(): void {
     this.pausedByUser = false; this.running = false; this.releaseJoystick(); clearRunSnapshot();
     this.weaponMarkers.forEach(marker => marker.view.setVisible(false));
@@ -401,6 +428,13 @@ export class GroveScene extends Phaser.Scene {
     if (!this.running || this.choosing) return;
     const target = this.objects.find(object => this.isTerrainField(object) && object.active);
     if (target) this.markField(target, true);
+  }
+
+  debugOfferRouteChoice(): void {
+    if (!this.running || this.choosing || this.routeChoiceRegion !== null || this.region >= 2) return;
+    this.routeChoiceRegion = (this.region + 1) as 1 | 2;
+    this.callbacks.onRouteChoice(this.routeChoiceRegion);
+    this.saveSnapshot();
   }
 
   debugMaxBuild(): void {
@@ -586,7 +620,7 @@ export class GroveScene extends Phaser.Scene {
   }
 
   update(_time: number, deltaMs: number): void {
-    if (!this.running || this.choosing || this.pausedByUser) return;
+    if (!this.running || this.choosing || this.pausedByUser || this.routeChoiceRegion !== null) return;
     const dt = Math.min(deltaMs / 1000, 0.05);
     this.seconds += dt; this.stageSeconds += dt;
     this.invulnerability = Math.max(0, this.invulnerability - dt);
@@ -654,14 +688,14 @@ export class GroveScene extends Phaser.Scene {
           else this.spawnObject('waylight', clearing.x, clearing.y, 1, 1, true);
         }
         else if (this.region === 1) {
-          const delivery = quarryMission(this.seed) === 'coolantRun';
+          const delivery = this.quarryRoute === 'coolantRun';
           this.spawnObject(wardIndex === 0 ? delivery ? 'coolant' : 'pump' : 'forge', clearing.x, clearing.y,
             wardIndex === 0 ? delivery ? 2 : 240 : delivery ? 3 : 320,
             wardIndex === 0 ? delivery ? 2 : 240 : delivery ? 3 : 320, wardIndex === 0);
         }
-        else if (wardIndex === 0) this.spawnObject(moonMission(this.seed) === 'moonflame' ? 'moonflame' : 'altar',
-          clearing.x, clearing.y, moonMission(this.seed) === 'moonflame' ? 3 : 6,
-          moonMission(this.seed) === 'moonflame' ? 3 : 6, moonMission(this.seed) === 'moonflame');
+        else if (wardIndex === 0) this.spawnObject(this.moonRoute === 'moonflame' ? 'moonflame' : 'altar',
+          clearing.x, clearing.y, this.moonRoute === 'moonflame' ? 3 : 6,
+          this.moonRoute === 'moonflame' ? 3 : 6, this.moonRoute === 'moonflame');
         wardIndex++;
       }
       if (clearing.kind === 'shrine') {
@@ -1707,6 +1741,12 @@ export class GroveScene extends Phaser.Scene {
       this.spawnCache(reward, object.x, object.y);
       this.callbacks.onEvent(`${terrainRupture(object.kind).name} · ${STAT_INFO[reward].name.toUpperCase()} CACHE`);
     }
+    if (object.kind === 'forge' && this.region === 1 || object.kind === 'altar' && this.region === 2
+      || object.kind === 'moonflame' && this.region === 2) {
+      const reward = routeReward(this.region === 1 ? this.quarryRoute : this.moonRoute);
+      this.spawnCache(reward, object.x, object.y);
+      this.callbacks.onEvent(`${STAT_INFO[reward].name.toUpperCase()} CACHE DROPPED`);
+    }
     this.publishHud(); this.saveSnapshot();
   }
 
@@ -1884,11 +1924,9 @@ export class GroveScene extends Phaser.Scene {
     const gate = this.objects.find(object => object.kind === 'gate');
     if (gate?.active && this.distance(this.hero.x, this.hero.y, gate.x, gate.y) < 82) {
       if (this.region < 2) {
-        this.metrics.regionSeconds[this.region] = this.stageSeconds;
-        this.region++;
-        this.health = Math.min(this.stats.maxHealth, this.health + 25);
-        this.startRegion(); this.spawnCache(STAT_KEYS[this.random.between(0, STAT_KEYS.length - 1)], 1010, 830);
-        this.publishHud(); this.saveSnapshot();
+        this.routeChoiceRegion = (this.region + 1) as 1 | 2;
+        this.callbacks.onRouteChoice(this.routeChoiceRegion);
+        this.saveSnapshot();
       }
     }
   }
@@ -2104,6 +2142,7 @@ export class GroveScene extends Phaser.Scene {
     if (!this.running) return;
     saveRunSnapshot({
       version: 1, seed: this.seed, rngState: this.random.state, hero: this.heroId, skin: this.skin, look: this.heroLook, kit: this.campKit,
+      quarryRoute: this.quarryRoute, moonRoute: this.moonRoute, routeChoiceRegion: this.routeChoiceRegion,
       unlockedWeapons: [...this.unlockedWeapons], masteryRank: this.masteryRank,
       weapons: this.weapons.map(weapon => ({ ...weapon })), weaponSlots: this.weaponSlots,
       focusedWeapon: this.focusedWeapon,

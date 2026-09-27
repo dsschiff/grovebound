@@ -9,7 +9,7 @@ import {
 import { emptyWeaponDamage, readRunSnapshot } from './game/runSave';
 import { soundFx } from './game/audio';
 import { RESONANCE_INFO, resonanceFor } from './game/resonance';
-import { seedForVergeContract, type VergeContract } from './game/objectives';
+import { seedForVergeContract, type RegionRoute, type VergeContract } from './game/objectives';
 import './style.css';
 
 const treeArt = `${import.meta.env.BASE_URL}art/ancient-tree-v1.webp`;
@@ -24,6 +24,16 @@ const contractInfo: Record<VergeContract, { name: string; mode: string; art: str
   seedheart: { name: 'Seedheart', mode: 'DEFEND', art: 'seedheart.webp', hint: 'Hold the ring while it awakens.' },
   stag: { name: 'Briar Stag', mode: 'HUNT', art: 'briar-stag-v1.webp', hint: 'Strike it, then pursue each retreat.' },
 };
+const laterRoutes: Record<1 | 2, { id: RegionRoute; name: string; art: string; action: string; reward: string }[]> = {
+  1: [
+    { id: 'forgeAssault', name: 'Forge Assault', art: 'forge-core.webp', action: 'Drain the pump, then break the exposed core.', reward: 'ATTACK CACHE' },
+    { id: 'coolantRun', name: 'Coolant Run', art: 'coolant-spring.webp', action: 'Fill flasks and race to the forge three times.', reward: 'SPEED CACHE' },
+  ],
+  2: [
+    { id: 'altarRite', name: 'Moon Rite', art: 'moon-altar.webp', action: 'Purge mist blooms, then defeat foes by the altar.', reward: 'DEFENSE CACHE' },
+    { id: 'moonflame', name: 'Moonflame Chase', art: 'moonflame.webp', action: 'Catch a roaming flame across three clearings.', reward: 'REACH CACHE' },
+  ],
+};
 let progress = readProgress();
 let selectedHero: Hero = 'warden';
 let selectedWeapon: Weapon = 'axe';
@@ -33,7 +43,7 @@ let selectedContract: VergeContract = contractOrder[progress.mastery.warden % co
 let scene: GroveScene;
 let game: Phaser.Game;
 let currentHud: HudState | null = null;
-let activeModal: 'menu' | 'upgrade' | 'pause' | 'result' | null = 'menu';
+let activeModal: 'menu' | 'upgrade' | 'route' | 'pause' | 'result' | null = 'menu';
 let toastTimer = 0;
 let debugPilot = false;
 let weaponTraySignature = '';
@@ -103,6 +113,12 @@ root.innerHTML = `
       <div class="modal-icon">✺</div><div class="overline">THE GROVE ANSWERS</div>
       <h2 id="upgrade-title" tabindex="-1">Choose your growth</h2><p>Time pauses while you choose one blessing.</p>
       <div id="upgrade-cards" class="upgrade-cards"></div>
+    </div></div>
+
+    <div id="route" class="screen modal-screen hidden" role="dialog" aria-modal="true" aria-labelledby="route-title"><div class="modal-content">
+      <div class="modal-icon">❧</div><div class="overline">THE PATH FORKS</div>
+      <h2 id="route-title" tabindex="-1">Choose your route</h2><p>Time pauses while you choose the next mission.</p>
+      <div id="route-cards" class="route-cards"></div>
     </div></div>
 
     <div id="pause" class="screen modal-screen hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title"><div class="modal-content narrow">
@@ -244,7 +260,7 @@ function refreshMenu(): void {
 
 function setModal(modal: typeof activeModal): void {
   activeModal = modal;
-  for (const name of ['menu', 'upgrade', 'pause', 'result']) show(`#${name}`, name === modal);
+  for (const name of ['menu', 'upgrade', 'route', 'pause', 'result']) show(`#${name}`, name === modal);
   show('#hud', modal !== 'menu' && modal !== 'result');
   el('#game').inert = modal !== null;
   el('#hud').inert = modal !== null;
@@ -259,7 +275,7 @@ function setModal(modal: typeof activeModal): void {
   }
   const focusTarget = modal === 'menu' ? '#resume-run-button:not(.hidden), #start-button'
     : modal === 'upgrade' ? '#upgrade-title'
-      : modal === 'pause' ? '#pause-title' : '#result-title';
+      : modal === 'route' ? '#route-title' : modal === 'pause' ? '#pause-title' : '#result-title';
   document.querySelector<HTMLElement>(focusTarget)?.focus({ preventScroll: true });
 }
 
@@ -497,6 +513,16 @@ function onUpgrade(options: Upgrade[]): void {
   }
 }
 
+function onRouteChoice(region: 1 | 2): void {
+  el('#route-title').textContent = region === 1 ? 'Enter Ember Quarry' : 'Enter Moonfen';
+  el('#route-cards').innerHTML = laterRoutes[region].map(route =>
+    `<button class="route-card" data-route="${route.id}" aria-label="${route.name}. ${route.action} Reward: ${route.reward}"><img src="${import.meta.env.BASE_URL}art/${route.art}" alt=""/><span><strong>${route.name}</strong><small>${route.action}</small><em>REWARD · ${route.reward}</em></span><b>➜</b></button>`).join('');
+  el('#route-cards').querySelectorAll<HTMLButtonElement>('[data-route]').forEach(button => button.addEventListener('click', () => {
+    if (scene.chooseRoute(button.dataset.route as RegionRoute)) setModal(null);
+  }));
+  setModal('route');
+}
+
 function onEnd(result: RunResult): void {
   const earned = seedsForRun(result.kills, result.won);
   progress = addRunToProgress(progress, result.kills, result.seconds, result.won, result.hero, result.region);
@@ -538,7 +564,7 @@ function onEnd(result: RunResult): void {
 
 scene = new GroveScene({
   onHud: hud => { updateHud(hud); el<HTMLButtonElement>('#start-button').disabled = false; },
-  onUpgrade, onEnd, onEvent: notify,
+  onUpgrade, onRouteChoice, onEnd, onEvent: notify,
 });
 game = new Phaser.Game({
   type: Phaser.AUTO, parent: 'game', backgroundColor: '#183f32', antialias: true,
@@ -629,7 +655,7 @@ if (new URLSearchParams(location.search).has('debug')) {
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const controls = document.createElement('div');
     controls.className = 'debug-controls';
-    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="growth">GROWTH CARD</button><button data-debug="build">MAX BUILD</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="terrain">INSPECT FIELD</button><button data-debug="mark-field">TARGET FIELD</button><button data-debug="clear-terrain">CLEAR FIELD</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="wisp">WISP LANCE</button><button data-debug="thornback">THORNBACK CHARGE</button><button data-debug="sidestep">SIDESTEP CHARGE</button><button data-debug="heal">HEAL</button>';
+    controls.innerHTML = '<button data-debug="pilot">PILOT OFF</button><button data-debug="growth">GROWTH CARD</button><button data-debug="build">MAX BUILD</button><button data-debug="approach">APPROACH OBJECT</button><button data-debug="hazard">APPROACH HAZARD</button><button data-debug="shatter">SHATTER HAZARD</button><button data-debug="terrain">INSPECT FIELD</button><button data-debug="mark-field">TARGET FIELD</button><button data-debug="clear-terrain">CLEAR FIELD</button><button data-debug="route">ROUTE CHOICE</button><button data-debug="advance">ADVANCE REGION</button><button data-debug="boss">SUMMON BOSS</button><button data-debug="mark">MARK HERO</button><button data-debug="wisp">WISP LANCE</button><button data-debug="thornback">THORNBACK CHARGE</button><button data-debug="sidestep">SIDESTEP CHARGE</button><button data-debug="heal">HEAL</button>';
     el('#ui').append(controls);
     controls.querySelectorAll<HTMLButtonElement>('button').forEach(button => button.addEventListener('click', () => {
       if (button.dataset.debug === 'pilot') {
@@ -645,6 +671,7 @@ if (new URLSearchParams(location.search).has('debug')) {
       if (button.dataset.debug === 'terrain') scene.debugInspectTerrain();
       if (button.dataset.debug === 'mark-field') scene.debugMarkTerrain();
       if (button.dataset.debug === 'clear-terrain') scene.debugClearTerrain();
+      if (button.dataset.debug === 'route') scene.debugOfferRouteChoice();
       if (button.dataset.debug === 'advance') scene.debugAdvanceRegion();
       if (button.dataset.debug === 'boss') scene.debugSummonBoss();
     if (button.dataset.debug === 'mark') scene.debugMarkBoss();

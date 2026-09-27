@@ -1,4 +1,5 @@
 import type { ObjectSave } from './runSave';
+import type { Stat } from './logic';
 
 export type Objective = Pick<ObjectSave, 'kind' | 'hp' | 'active' | 'x' | 'y'>;
 
@@ -22,6 +23,14 @@ export function quarryMission(seed: number): 'coolantRun' | 'forgeAssault' {
 
 export function moonMission(seed: number): 'moonflame' | 'altarRite' {
   return seed & 4 ? 'moonflame' : 'altarRite';
+}
+
+export type QuarryRoute = ReturnType<typeof quarryMission>;
+export type MoonRoute = ReturnType<typeof moonMission>;
+export type RegionRoute = QuarryRoute | MoonRoute;
+
+export function routeReward(route: RegionRoute): Stat {
+  return { forgeAssault: 'attack', coolantRun: 'speed', altarRite: 'defense', moonflame: 'reach' }[route] as Stat;
 }
 
 export function advanceSeedheart(hp: number, dt: number, close: boolean, threatened: boolean): number {

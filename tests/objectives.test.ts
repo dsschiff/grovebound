@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceSeedheart, moonMission, nextObjective, objectiveKinds, objectivesLeft, quarryMission, seedForVergeContract, vergeMission } from '../src/game/objectives';
+import { advanceSeedheart, moonMission, nextObjective, objectiveKinds, objectivesLeft, quarryMission, routeReward, seedForVergeContract, vergeMission } from '../src/game/objectives';
 
 describe('region objectives', () => {
   it('honors a chosen Verge mission without freezing the rest of the route seed', () => {
@@ -70,6 +70,10 @@ describe('region objectives', () => {
     expect(quarryMission(2)).toBe('coolantRun');
     expect(moonMission(2)).toBe('altarRite');
     expect(moonMission(4)).toBe('moonflame');
+    expect(routeReward('forgeAssault')).toBe('attack');
+    expect(routeReward('coolantRun')).toBe('speed');
+    expect(routeReward('altarRite')).toBe('defense');
+    expect(routeReward('moonflame')).toBe('reach');
     const objects = [
       { kind: 'coolant' as const, x: 100, y: 100, hp: 2, active: true },
       { kind: 'forge' as const, x: 500, y: 500, hp: 3, active: false },

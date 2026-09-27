@@ -48,6 +48,7 @@ export interface RunSnapshot {
   seconds: number; region: number; stageSeconds: number; spawnClock: number; cacheClock: number;
   x: number; y: number; invulnerability: number;
   gatekeeperSpawned: boolean; bossSpawned: boolean; choosing: boolean; upgradeOptions: Upgrade[];
+  quarryRoute?: 'coolantRun' | 'forgeAssault'; moonRoute?: 'moonflame' | 'altarRite'; routeChoiceRegion?: 1 | 2 | null;
   waylightAmbush?: boolean;
   ritualClock?: number;
   coolantCarryRemaining?: number;
@@ -74,6 +75,10 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || !HEROES.includes(run.hero ?? '') || typeof run.skin !== 'boolean'
     || (run.look !== undefined && run.look !== 'wildkin' && run.look !== 'classic')
     || (run.kit !== undefined && !['breaker', 'conductor', 'forager'].includes(run.kit))
+    || (run.quarryRoute !== undefined && !['coolantRun', 'forgeAssault'].includes(run.quarryRoute))
+    || (run.moonRoute !== undefined && !['moonflame', 'altarRite'].includes(run.moonRoute))
+    || (run.routeChoiceRegion !== undefined && run.routeChoiceRegion !== null
+      && (run.routeChoiceRegion !== 1 && run.routeChoiceRegion !== 2 || run.region !== run.routeChoiceRegion - 1))
     || !Array.isArray(run.unlockedWeapons) || !run.unlockedWeapons.every(weapon => WEAPONS.includes(weapon))
     || !finite(run.masteryRank, 0, 5)
     || !Array.isArray(run.weapons) || run.weapons.length < 1 || run.weapons.length > 3

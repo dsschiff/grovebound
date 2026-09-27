@@ -110,6 +110,10 @@ describe('run progression', () => {
     expect(parseRunSnapshot({ ...snapshot, look: 'cartoon' })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, kit: 'forager' })?.kit).toBe('forager');
     expect(parseRunSnapshot({ ...snapshot, kit: 'unknown' })).toBeNull();
+    expect(parseRunSnapshot({ ...snapshot, routeChoiceRegion: 1 })?.routeChoiceRegion).toBe(1);
+    expect(parseRunSnapshot({ ...snapshot, routeChoiceRegion: 2 })).toBeNull();
+    expect(parseRunSnapshot({ ...snapshot, quarryRoute: 'coolantRun', moonRoute: 'moonflame' })?.quarryRoute).toBe('coolantRun');
+    expect(parseRunSnapshot({ ...snapshot, quarryRoute: 'wrong' })).toBeNull();
     const loadout = { ...snapshot, weapons: [{ id: 'axe' as const, rank: 1, cooldown: 0.3 },
       { id: 'bow' as const, rank: 2, cooldown: 0.1 }], weaponSlots: 2, focusedWeapon: 'bow' as const };
     expect(parseRunSnapshot(loadout)?.focusedWeapon).toBe('bow');
