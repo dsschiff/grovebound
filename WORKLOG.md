@@ -8,6 +8,7 @@
 - Twelve seeded scenarios compare both immediate snapshots and 120-step continuation before/after restoration: all seven mission routes, active burn/Ember Field/wisp/Thornback/boss attacks, slowed terrain, upgrade selection, and both route-choice pauses. A separate real page reload preserves simultaneous attack warnings and fire timers exactly.
 - Fixed Phaser globally consuming Space on DOM buttons. Keyboard capture now follows field focus, and changing the focused weapon retains the actual button node. Space can fire a focused command or activate the Pause dialog's Return button. Compact notifications wrap at 320 pixels rather than clipping.
 - Validation: 44 unit tests, 10 desktop Chrome browser tests, TypeScript and the Pages production build passed. Browser evidence includes 390 × 844 and 320 × 568 screenshots; the compact notification fix was visually checked. Real Android hardware, assistive technology, and human balance testing remain open. Reproduction instructions are in README; sprint evidence is in `C:/projects/active/outputs/sprint-grovebound-20261003/`.
+- Source and staged site landed at `6bf759076e578322f1bba2216213f51ae4933ecb` on `origin/main`. GitHub Pages reported `built` for that commit. At 02:37:58 UTC on October 4, the live site served `index-BmFohTP2.js` and `index-Bkdln4ig.css`; desktop Chrome verified Space on weapon and pause controls, retained button focus, an identical paused reload snapshot, and 390 × 844 / 320 × 568 layouts with no page errors.
 
 ## 2026-09-27 — Expedition look and direct field mining
 
