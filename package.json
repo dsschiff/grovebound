@@ -8,12 +8,15 @@
     "build": "tsc --noEmit && vite build",
     "stage:pages": "node scripts/stage-pages.mjs",
     "preview": "vite preview --host 0.0.0.0",
-    "test": "vitest run"
+    "test": "vitest run tests",
+    "test:browser": "playwright test",
+    "profile:browser": "node scripts/profile-browser.mjs"
   },
   "dependencies": {
     "phaser": "4.2.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/node": "^24.0.0",
     "typescript": "^5.9.3",
     "vite": "^7.0.0",

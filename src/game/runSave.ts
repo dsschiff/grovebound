@@ -53,6 +53,7 @@ export interface RunSnapshot {
   ritualClock?: number;
   coolantCarryRemaining?: number;
   moonflowRemaining?: number; markedFieldIndex?: number;
+  mineCooldown?: number; slowed?: boolean;
   emberFields?: { x: number; y: number; remaining: number; tickClock: number; damage: number }[];
   enemies: EnemySave[]; objects: ObjectSave[];
   orbs: { x: number; y: number; value: number }[];
@@ -132,6 +133,8 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || (run.ritualClock !== undefined && !finite(run.ritualClock, 0, 10))
     || (run.coolantCarryRemaining !== undefined && !finite(run.coolantCarryRemaining, 0, 12))
     || (run.moonflowRemaining !== undefined && !finite(run.moonflowRemaining, 0, 8))
+    || (run.mineCooldown !== undefined && !finite(run.mineCooldown, 0, 0.38))
+    || (run.slowed !== undefined && typeof run.slowed !== 'boolean')
     || (run.markedFieldIndex !== undefined && !finite(run.markedFieldIndex, 0, 11))
     || (run.emberFields !== undefined && (!Array.isArray(run.emberFields) || run.emberFields.length > 3
       || !run.emberFields.every(field => finite(field.x, 0, 1800) && finite(field.y, 0, 1800)
@@ -150,7 +153,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     || !finite(metrics.damageTaken) || !finite(metrics.caches) || !finite(metrics.blessings)
     || !finite(metrics.wards, 0, 8)
     || (metrics.hazards !== undefined && !finite(metrics.hazards, 0, 4))
-    || (metrics.terrain !== undefined && !finite(metrics.terrain, 0, 6))
+    || (metrics.terrain !== undefined && !finite(metrics.terrain, 0, 9))
     || (metrics.lancesEvaded !== undefined && !finite(metrics.lancesEvaded, 0, 1000))
     || (metrics.lanceHits !== undefined && !finite(metrics.lanceHits, 0, 1000))
     || (metrics.chargesEvaded !== undefined && !finite(metrics.chargesEvaded, 0, 1000))

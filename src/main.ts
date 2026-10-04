@@ -48,6 +48,7 @@ let activeModal: 'menu' | 'upgrade' | 'route' | 'pause' | 'result' | null = 'men
 let toastTimer = 0;
 let debugPilot = false;
 let weaponTraySignature = '';
+let statsSignature = '';
 
 const root = document.querySelector<HTMLDivElement>('#app')!;
 root.innerHTML = `
@@ -271,6 +272,7 @@ function setModal(modal: typeof activeModal): void {
   show('#hud', modal !== 'menu' && modal !== 'result');
   el('#game').inert = modal !== null;
   el('#hud').inert = modal !== null;
+  scene.setKeyboardActive(false);
   if (modal === null) {
     const canvas = document.querySelector<HTMLCanvasElement>('#game canvas');
     if (canvas) {
@@ -466,7 +468,7 @@ function updateHud(hud: HudState): void {
   const objectiveSrc = `${import.meta.env.BASE_URL}art/${objectiveArt ?? 'grove-gate.webp'}`;
   if (el<HTMLImageElement>('#objective-art').src !== new URL(objectiveSrc, location.href).href)
     el<HTMLImageElement>('#objective-art').src = objectiveSrc;
-  const traySignature = `${hud.weaponSlots}|${hud.focusedWeapon}|${hud.weapons.map(weapon => `${weapon.id}:${weapon.rank}:${weapon.path ?? ''}`).join(',')}`;
+  const traySignature = `${hud.weaponSlots}|${hud.weapons.map(weapon => `${weapon.id}:${weapon.rank}:${weapon.path ?? ''}`).join(',')}`;
   el('.loadout-heading span').textContent = `${hud.weapons.length} SLOTS · TAP COMMAND`;
   const cue = el('#resonance-cue');
   show('#resonance-cue', !!hud.commandChain && hud.possibleResonances.length > 0);
@@ -476,6 +478,7 @@ function updateHud(hud: HudState): void {
     if (cue.textContent !== label) cue.textContent = label;
   }
   if (traySignature !== weaponTraySignature) {
+    const focusedSlot = (document.activeElement as HTMLElement | null)?.dataset.focus;
     weaponTraySignature = traySignature;
     el('#weapon-tray').classList.toggle('full', hud.weapons.length >= 3);
     el('#weapon-tray').classList.toggle('two', hud.weapons.length === 2 && hud.weaponSlots === 2);
@@ -486,6 +489,7 @@ function updateHud(hud: HudState): void {
       const pathName = weapon.path ? WEAPON_PATH_INFO[weapon.id][weapon.path].name : null;
       return `<button class="weapon-slot equipped ${focused ? 'focused' : ''}" data-focus="${weapon.id}" aria-pressed="${focused}" aria-label="${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. Tap to fire and focus slot ${index + 1}, rank ${weapon.rank}${pathName ? `, ${pathName} technique` : ''}"><small>SLOT ${index + 1} · ${focused ? 'FOCUSED' : 'AUTO'}</small><span class="weapon-identity"><img src="${weaponArt(weapon.id)}" alt=""/>${weaponHudName[weapon.id].toUpperCase()} · ${['I', 'II', 'III'][weapon.rank - 1]}</span><div class="slot-detail"><em>${pathName ?? WEAPON_RANKS[weapon.id][weapon.rank - 1]}</em><strong data-weapon-damage="${weapon.id}">0 DMG</strong></div><b class="command-status" data-command="${weapon.id}">TAP ${WEAPON_COMMAND[weapon.id].slotName}</b><i class="weapon-charge" data-charge="${weapon.id}"></i></button>`;
     }).join('');
+    if (focusedSlot) document.querySelector<HTMLButtonElement>(`[data-focus="${focusedSlot}"]`)?.focus({ preventScroll: true });
   }
   for (const weapon of hud.weapons) {
     const charge = el<HTMLElement>(`[data-charge="${weapon.id}"]`);
@@ -494,6 +498,10 @@ function updateHud(hud: HudState): void {
     el(`[data-command="${weapon.id}"]`).textContent = commandRemaining <= 0
       ? `TAP ${WEAPON_COMMAND[weapon.id].slotName}` : `${WEAPON_COMMAND[weapon.id].slotName} · ${Math.ceil(commandRemaining)}s`;
     const button = el<HTMLButtonElement>(`[data-focus="${weapon.id}"]`);
+    const focused = weapon.id === hud.focusedWeapon;
+    button.classList.toggle('focused', focused);
+    button.setAttribute('aria-pressed', String(focused));
+    button.querySelector('small')!.textContent = `SLOT ${hud.weapons.indexOf(weapon) + 1} · ${focused ? 'FOCUSED' : 'AUTO'}`;
     const label = `${WEAPON_COMMAND[weapon.id].name}: ${WEAPON_COMMAND[weapon.id].description}. ${commandRemaining <= 0
       ? 'Ready to fire' : `Recharges in ${Math.ceil(commandRemaining)} seconds`}. Tap to focus slot ${hud.weapons.indexOf(weapon) + 1}, rank ${weapon.rank}`;
     if (button.getAttribute('aria-label') !== label) button.setAttribute('aria-label', label);
@@ -507,13 +515,17 @@ function updateHud(hud: HudState): void {
   el('#special-label').textContent = hud.special.toUpperCase();
   el('#special-cooldown').textContent = hud.specialCooldown <= 0 ? 'READY' : `${Math.ceil(hud.specialCooldown)}s`;
   el<HTMLButtonElement>('#special-button').disabled = hud.specialCooldown > 0;
-  el('#stats').innerHTML = `
+  const nextStatsSignature = JSON.stringify(hud.stats);
+  if (nextStatsSignature !== statsSignature) {
+    statsSignature = nextStatsSignature;
+    el('#stats').innerHTML = `
     <div class="stat-pill speed"><span>✦</span><small>SPD</small><strong>${Math.round(hud.stats.speed)}</strong></div>
     <div class="stat-pill regen"><span>♥</span><small>REG</small><strong>${hud.stats.regen.toFixed(1)}</strong></div>
     <div class="stat-pill attack"><span>⚔</span><small>ATK</small><strong>${hud.stats.attack}</strong></div>
     <div class="stat-pill defense"><span>◆</span><small>DEF</small><strong>${Math.round(hud.stats.defense * 100)}%</strong></div>
     <div class="stat-pill maxHealth"><span>✚</span><small>HP</small><strong>${hud.stats.maxHealth}</strong></div>
     <div class="stat-pill reach"><span>◎</span><small>RNG</small><strong>${Math.round(hud.stats.reach * 100)}%</strong></div>`;
+  }
 }
 
 function onUpgrade(options: Upgrade[]): void {
@@ -675,6 +687,9 @@ window.addEventListener('keydown', event => {
     else if (activeModal === 'pause') { scene.setPaused(false); setModal(null); }
   }
 });
+document.addEventListener('focusin', event => {
+  scene.setKeyboardActive(activeModal === null && event.target === document.querySelector('#game canvas'));
+});
 if (new URLSearchParams(location.search).has('debug')) {
   show('#fps', true);
   window.setInterval(() => { el('#fps').textContent = `${Math.round(game.loop.actualFps)} FPS · ${currentHud?.kills ?? 0} KILLS`; }, 500);
@@ -709,3 +724,6 @@ if (new URLSearchParams(location.search).has('debug')) {
   }
 }
 refreshMenu();
+
+// Local browser regression tests exercise the real scene and renderer.
+export { scene, game };

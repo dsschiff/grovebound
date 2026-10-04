@@ -159,6 +159,14 @@ export class GroveScene extends Phaser.Scene {
 
   constructor(callbacks: GameCallbacks) { super('Grove'); this.callbacks = callbacks; }
 
+  setKeyboardActive(active: boolean): void {
+    if (!this.input.keyboard) return;
+    this.input.keyboard.resetKeys();
+    this.input.keyboard.enabled = active;
+    if (active) this.input.keyboard.addCapture('SPACE,UP,DOWN,LEFT,RIGHT');
+    else this.input.keyboard.clearCaptures();
+  }
+
   preload(): void {
     const base = import.meta.env.BASE_URL;
     this.load.image('tree', `${base}art/ancient-tree-v1.webp`);
@@ -190,6 +198,8 @@ export class GroveScene extends Phaser.Scene {
     this.joystickNub = this.add.circle(0, 0, 23, 0xf8e8b0, 0.45).setStrokeStyle(2, 0xffffff, 0.7).setScrollFactor(0).setDepth(101).setVisible(false);
     this.keys = this.input.keyboard?.addKeys('W,A,S,D,F,SPACE') as Record<string, Phaser.Input.Keyboard.Key>;
     this.cursors = this.input.keyboard?.createCursorKeys() as Phaser.Types.Input.Keyboard.CursorKeys;
+    // DOM buttons need native Space/arrow behavior when the game field is not focused.
+    this.input.keyboard?.clearCaptures();
     this.input.on('pointerdown', this.handlePointerDown, this);
     this.input.on('pointermove', this.handlePointerMove, this);
     this.input.on('pointerup', this.handlePointerUp, this);
@@ -261,6 +271,8 @@ export class GroveScene extends Phaser.Scene {
     this.ritualClock = snapshot.ritualClock ?? 0;
     this.coolantCarryRemaining = snapshot.coolantCarryRemaining ?? 0;
     this.moonflowRemaining = snapshot.moonflowRemaining ?? 0;
+    this.mineCooldown = snapshot.mineCooldown ?? 0;
+    this.slowed = snapshot.slowed ?? false;
     this.drawRegion(snapshot.objects.some(object => object.kind === 'waylight'));
     snapshot.objects.forEach(object => this.spawnObject(object.kind, object.x, object.y, object.hp, object.maxHp, object.active));
     const spring = this.objects.find(object => object.kind === 'coolant');
@@ -699,6 +711,7 @@ export class GroveScene extends Phaser.Scene {
     this.clearRunObjects();
     this.stageSeconds = 0; this.spawnClock = 0; this.cacheClock = 0;
     this.moonflowRemaining = 0;
+    this.mineCooldown = 0;
     this.gatekeeperSpawned = false; this.bossSpawned = false;
     this.waylightAmbush = false;
     this.ritualClock = 0;
@@ -765,7 +778,6 @@ export class GroveScene extends Phaser.Scene {
       ground.lineStyle(4, theme.accent, 0.18).strokeCircle(clearing.x, clearing.y, clearing.radius - 10);
     }
     ground.lineStyle(18, theme.accent, 0.3).strokeRect(10, 10, WORLD - 20, WORLD - 20);
-    this.decorations.push(ground);
     if (this.region === 0) {
       const goal = this.waylightRoute?.goal;
       if (goal) {
@@ -775,12 +787,16 @@ export class GroveScene extends Phaser.Scene {
         this.decorations.push(destination, center);
       }
     }
-    const flecks = this.add.graphics().setDepth(-9);
     for (let i = 0; i < 650; i++) {
-      flecks.fillStyle(i % 9 === 0 ? theme.accent : theme.clearing, rng.range(0.12, 0.38));
-      flecks.fillCircle(rng.between(30, WORLD - 30), rng.between(30, WORLD - 30), rng.range(1, 3));
+      ground.fillStyle(i % 9 === 0 ? theme.accent : theme.clearing, rng.range(0.12, 0.38));
+      ground.fillCircle(rng.between(30, WORLD - 30), rng.between(30, WORLD - 30), rng.range(1, 3));
     }
-    this.decorations.push(flecks);
+    // Bake the static floor once; replace the single texture when regions change.
+    const floorTexture = 'region-floor';
+    if (this.textures.exists(floorTexture)) this.textures.remove(floorTexture);
+    ground.generateTexture(floorTexture, WORLD, WORLD);
+    ground.destroy();
+    this.decorations.push(this.add.image(0, 0, floorTexture).setOrigin(0).setDepth(-10));
     for (let i = 0; i < 75; i++) {
       const x = rng.between(65, WORLD - 65); const y = rng.between(65, WORLD - 65);
       if (layout.clearings.some(clearing => this.distance(x, y, clearing.x, clearing.y) < clearing.radius + 55)) continue;
@@ -2192,6 +2208,7 @@ export class GroveScene extends Phaser.Scene {
       ritualClock: this.ritualClock,
       coolantCarryRemaining: this.coolantCarryRemaining,
       moonflowRemaining: this.moonflowRemaining,
+      mineCooldown: this.mineCooldown, slowed: this.slowed,
       emberFields: this.emberFields.map(field => ({ x: field.x, y: field.y, remaining: field.remaining,
         tickClock: field.tickClock, damage: field.damage })),
       markedFieldIndex: this.markedField ? this.objects.indexOf(this.markedField) : undefined,

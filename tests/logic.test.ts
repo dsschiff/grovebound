@@ -218,7 +218,11 @@ describe('run progression', () => {
     const terrainRun = { ...snapshot, region: 1, objects: [{ kind: 'ore', x: 850, y: 780, hp: 100, maxHp: 200, active: true }],
       metrics: { ...snapshot.metrics, terrain: 1 } };
     expect(parseRunSnapshot(terrainRun)?.metrics.terrain).toBe(1);
-    expect(parseRunSnapshot({ ...terrainRun, metrics: { ...terrainRun.metrics, terrain: 7 } })).toBeNull();
+    expect(parseRunSnapshot({ ...terrainRun, metrics: { ...terrainRun.metrics, terrain: 9 } })?.metrics.terrain).toBe(9);
+    expect(parseRunSnapshot({ ...terrainRun, metrics: { ...terrainRun.metrics, terrain: 10 } })).toBeNull();
+    expect(parseRunSnapshot({ ...snapshot, mineCooldown: 0.38, slowed: true })?.mineCooldown).toBe(0.38);
+    expect(parseRunSnapshot({ ...snapshot, mineCooldown: -1 })).toBeNull();
+    expect(parseRunSnapshot({ ...snapshot, slowed: 'yes' })).toBeNull();
     expect(parseRunSnapshot({ ...withHazards, metrics: { ...withHazards.metrics, hazards: -1 } })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, metrics: { ...snapshot.metrics, foeDamage: -1 } })).toBeNull();
     expect(parseRunSnapshot({ ...snapshot, health: 1000 })).toBeNull();

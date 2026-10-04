@@ -14,5 +14,6 @@ if (!html.includes('/grovebound/assets/')) {
 await rm(target, { recursive: true, force: true });
 await mkdir(target, { recursive: true });
 await cp(source, target, { recursive: true });
+await writeFile(join(target, 'index.html'), html.replace(/\r+\n/g, '\n'));
 await writeFile(join(target, '.nojekyll'), '');
 console.log('Staged GitHub Pages site in docs/');
