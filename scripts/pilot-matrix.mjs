@@ -376,13 +376,15 @@ async function runCell(cell) {
       // filter then decides what reaches the same player entry points (castSpecial, focusWeapon, the stick).
       const { createPilotSkillFilter } = await import('/src/game/pilot.ts');
       const filter = createPilotSkillFilter(cell.pilotSkill);
-      const decide = Object.getPrototypeOf(s).updateDebugPilot;
+      const proto = Object.getPrototypeOf(s);
       pm.skillPresses = { special: 0, command: 0 };
+      // Installed once (not per frame) so the scene object keeps one shape; outside the pilot's decision they pass through.
+      let captured = null;
+      s.castSpecial = function () { if (captured) captured.push({ kind: 'special' }); else proto.castSpecial.call(this); };
+      s.focusWeapon = function (weapon) { if (captured) captured.push({ kind: 'command', weapon }); else proto.focusWeapon.call(this, weapon); };
       s.updateDebugPilot = function () {
-        const actions = [];
-        this.castSpecial = () => { actions.push({ kind: 'special' }); };
-        this.focusWeapon = weapon => { actions.push({ kind: 'command', weapon }); };
-        try { decide.call(this); } finally { delete this.castSpecial; delete this.focusWeapon; }
+        const actions = captured = [];
+        try { proto.updateDebugPilot.call(this); } finally { captured = null; }
         const out = filter(this.seconds, { direction: { x: this.joyVector.x, y: this.joyVector.y }, actions });
         this.joyVector.set(out.direction.x, out.direction.y);
         for (const action of out.actions) {
