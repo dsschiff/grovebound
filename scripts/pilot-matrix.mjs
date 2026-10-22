@@ -189,15 +189,18 @@ export function summarize({ cells: done }) {
   return lines.join('\n') + '\n';
 }
 
-// Per route: one row per Quarry/Moonfen route a run actually took (chosenRoutes; a run that ended before the fork has
-// none, and rows written without chosenRoutes fall back to the cell's assigned route). A run counts under both of its
-// routes, so rows overlap. Clock and damage taken are whole-run means, not time spent on that route.
+// Per route: one row per Quarry/Moonfen route a run actually reached. GroveScene seeds both routes at run start and
+// runCell saves them as they stand, so chosenRoutes is never null; reach is decided like routesMatch does in runCell:
+// the Quarry route counts when endRegion >= 1, the Moonfen route when endRegion >= 2. Rows without chosenRoutes fall back
+// to the cell's assigned route. A run counts under both of its routes, so rows overlap. Clock and damage taken are
+// whole-run means, not time spent on that route.
 export function routeSection(rows) {
   const byRoute = new Map();
   for (const r of rows) {
     const chosen = r.chosenRoutes ?? { quarry: r.quarry, moon: r.moon };
-    for (const [stage, route] of [['Quarry', chosen.quarry], ['Moonfen', chosen.moon]]) {
-      if (!route) continue;
+    const reached = Number(r.endRegion ?? 0);
+    for (const [stage, route, needs] of [['Quarry', chosen.quarry, 1], ['Moonfen', chosen.moon, 2]]) {
+      if (!route || reached < needs) continue;
       const key = `${stage}/${route}`;
       byRoute.set(key, [...(byRoute.get(key) ?? []), r]);
     }
