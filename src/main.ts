@@ -66,10 +66,10 @@ root.innerHTML = `
         <div class="bar xp-bar"><div id="xp-fill"></div></div>
       </div>
       <div id="mission-card" class="mission-card waylight"><img id="objective-art" src="${import.meta.env.BASE_URL}art/waylight.webp" alt=""/><div class="mission-copy"><small id="mission-type">ESCORT</small><strong id="objective" aria-live="polite">STAY NEAR THE MOTH</strong><span id="mission-hint">Stay close and clear its path.</span><div class="mission-track"><i id="mission-progress"></i></div></div></div>
-      <button id="field-button" class="field-button hidden" type="button" aria-label="Mine nearby terrain"><strong id="field-name">MINE FIELD</strong><small id="field-reward">BREAK FOR A STAT CACHE</small><i id="field-progress"></i></button>
+      <button id="field-button" class="field-button hidden" type="button" aria-label="Mine nearby terrain"><strong id="field-name">MINE FIELD</strong> <small id="field-reward">BREAK FOR A STAT CACHE</small><i id="field-progress"></i></button>
       <div class="minimap-frame" aria-hidden="true"><canvas id="minimap" width="120" height="120"></canvas></div>
       <div id="boss-bar" class="boss-bar hidden"><span id="boss-name">GATE SENTINEL</span><div class="bar"><div id="boss-fill"></div></div></div>
-      <button id="special-button" class="special-button" aria-label="Use special ability"><span class="special-icon">✹</span><strong id="special-label">WHIRLWIND</strong><small id="special-cooldown">READY</small></button>
+      <button id="special-button" class="special-button"><span class="sr-only">Special ability: </span><span class="special-icon" aria-hidden="true">✹</span><strong id="special-label">WHIRLWIND</strong> <small id="special-cooldown">READY</small></button>
       <div class="hud-bottom"><div id="resonance-cue" class="resonance-cue hidden" aria-live="polite"></div><div class="loadout-heading"><strong>AUTO WEAPONS</strong><span>TAP SLOT FOR COMMAND</span></div><div id="weapon-tray" class="weapon-tray" role="group" aria-label="Weapon commands"></div><div id="stats" class="stats-strip"></div><div class="bottom-line"><span id="kills">0 VANQUISHED</span><span id="ability-name">FOCUS YOUR WEAPON</span></div></div>
     </div>
 
@@ -406,8 +406,9 @@ function updateHud(hud: HudState): void {
     el('#field-name').textContent = `MINE ${name}`;
     el('#field-reward').textContent = `${{ bramble: 'ROOT', ore: 'BLAST', moonstone: 'HASTE' }[field.kind]} · +${field.reward.toUpperCase()} CACHE`;
     el<HTMLElement>('#field-progress').style.width = `${field.progress}%`;
+    // The spoken name starts with the visible text (WCAG 2.5.3 label in name), then explains the effect.
     el<HTMLButtonElement>('#field-button').setAttribute('aria-label',
-      `Mine ${name.toLowerCase()}: ${effect.toLowerCase()} and gain ${field.reward} when broken`);
+      `${el('#field-name').textContent} ${el('#field-reward').textContent}: ${effect.toLowerCase()} and gain ${field.reward} when broken`);
     el('#field-button').className = `field-button ${field.kind}`;
   }
   el('#health-number').textContent = String(Math.ceil(hud.health));
