@@ -7,6 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",
     "stage:pages": "node scripts/stage-pages.mjs",
+    "check:pages": "node scripts/check-pages-live.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run tests",
     "test:browser": "playwright test",
