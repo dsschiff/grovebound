@@ -11,7 +11,13 @@
 // cell, and a rerun skips cells already in the output file (resumable). Usage:
 //   node scripts/pilot-matrix.mjs [--out reports/pilot-matrix/pilot-matrix.json] [--heroes warden,ranger,ember]
 //     [--contracts waylight,seedheart,stag] [--quarry coolantRun,forgeAssault] [--moon moonflame,altarRite]
-//     [--limit N] [--concurrency 3] [--render] [--rerun] [--port 4191]
+//     [--limit N] [--concurrency 3] [--render] [--rerun] [--port 4191] [--seed-set A|B|C] [--repeats N]
+//     [--commands off|on] [--baseline reports/pilot-matrix/<earlier>.json]
+// --commands on also lets the pilot tap weapon command slots (GroveScene.setDebugPilotCommands, decision in
+// src/game/pilot.ts pilotCommand); those cells get a `+cmd` id suffix so on and off runs can share one file.
+// Every cell records pilotCommands, commands fired (counted from command-recharge restarts, so it measures the
+// game state rather than trusting the pilot) and resonances (RunMetrics.resonances). --baseline compares each
+// commands-off row with the same id in an earlier file and reports whether the outcome is identical.
 // --render steps the whole Phaser game (game.step, including WebGL/canvas render) instead of only the scene
 // update; logic is identical, render is just slower. Desktop Chrome CPU only; not human or Android evidence.
 import { chromium } from 'playwright';
@@ -38,6 +44,10 @@ const render = flag('render');
 const rerun = flag('rerun');
 const port = Number(opt('port', '4191'));
 const repeats = Math.max(1, Number(opt('repeats', '1')));
+const commands = opt('commands', 'off');
+if (commands !== 'on' && commands !== 'off') throw new Error('--commands must be on or off');
+const baselinePath = opt('baseline', null) ? resolve(root, opt('baseline', null)) : null;
+const baseline = baselinePath ? JSON.parse(await readFile(baselinePath, 'utf8')) : null;
 
 // Fixed seeds, one per Verge contract (src/game/objectives.ts vergeMission). The Quarry/Moonfen route is chosen
 // at the fork, so the seed's own default route does not matter; the seed still fixes layout and RNG.
@@ -49,7 +59,7 @@ const SEED_SETS = {
 const seedSet = opt('seed-set', 'A');
 if (!SEED_SETS[seedSet]) throw new Error('unknown --seed-set ' + seedSet);
 const CONTRACT_SEEDS = SEED_SETS[seedSet];
-const idSuffix = seedSet === 'A' ? '' : '@' + seedSet;
+const idSuffix = (seedSet === 'A' ? '' : '@' + seedSet) + (commands === 'on' ? '+cmd' : '');
 // Minimum progress that unlocks each hero (logic.ts availableHero), all at mastery 0. Warden is a fresh save.
 const PROGRESS = {
   warden: null,
@@ -64,7 +74,7 @@ const cells = [];
 for (let run = 1; run <= repeats; run++)
   for (const hero of heroes) for (const contract of contracts) for (const quarry of quarryRoutes) for (const moon of moonRoutes)
     cells.push({ id: `${hero}/${contract}/${quarry}/${moon}` + idSuffix + (run > 1 ? `#${run}` : ''), cell: `${hero}/${contract}/${quarry}/${moon}`,
-      run, seedSet, hero, contract, quarry, moon, seed: CONTRACT_SEEDS[contract] });
+      run, seedSet, hero, contract, quarry, moon, seed: CONTRACT_SEEDS[contract], pilotCommands: commands });
 
 let store = { cells: {} };
 try { store = JSON.parse(await readFile(outPath, 'utf8')); } catch { /* first run */ }
@@ -80,7 +90,8 @@ async function save() {
   store.meta = { updated: new Date().toISOString(), script: 'scripts/pilot-matrix.mjs', stepHz: 60, seedSets: SEED_SETS,
     stepping: 'fixed 1000/60 ms steps driven from the page; see cell.stepping', 
     softlockRule: `no change for ${SOFTLOCK_SECONDS}s of game time in region, fork state, required-objective hp/position/count, gate state, or guardian hp, excluding the guardian countdown after objectives are done`,
-    gameCapSeconds: GAME_CAP_SECONDS, progressProfiles: PROGRESS };
+    gameCapSeconds: GAME_CAP_SECONDS, progressProfiles: PROGRESS,
+    commandCounting: 'a command is counted when a weapon command recharge restarts (commandCooldown rises by >0.5 s in one step); resonances are RunMetrics.resonances' };
   await mkdir(dirname(outPath), { recursive: true });
   await writeFile(outPath, JSON.stringify(store, null, 2));
   await writeFile(summaryPath, summarize(store));
@@ -133,9 +144,64 @@ function summarize({ cells: done }) {
       lines.push(`| ${key} | ${group.length} | ${group.filter(r => r.won).length} | ${clock(Math.min(...secs))}–${clock(Math.max(...secs))} | ${Math.min(...taken)}–${Math.max(...taken)} |`);
     }
   }
+  lines.push(...commandSection(rows));
+  if (baseline) lines.push(...baselineSection(rows));
   const missing = cells.filter(cell => !done[cell.id]).map(cell => cell.id);
   if (missing.length) lines.push('', `Not yet run in this invocation's scope (${missing.length}): ${missing.join(', ')}`);
   return lines.join('\n') + '\n';
+}
+
+const BASELINE_FIELDS = ['outcome', 'gameSeconds', 'endRegion', 'damageTaken', 'foeDamage', 'kills', 'level', 'regionSeconds',
+  'objectives', 'hazards', 'blessings', 'weapons', 'forks', 'chosenRoutes', 'minHealth', 'minHealthFraction',
+  'minHealthAtSeconds', 'minHealthFractionAtSeconds', 'maxStallSeconds', 'upgradeFallbacks', 'steps'];
+
+function baselineSection(rows) {
+  const name = baselinePath.slice(root.length + 1).split('\\').join('/');
+  const lines = ['', `## Commands-off runs vs baseline \`${name}\``, '',
+    `Fields compared exactly: ${BASELINE_FIELDS.join(', ')}.`, '', '| Run | Baseline row | Identical | Differing fields |', '|---|---|---|---|'];
+  for (const r of rows.filter(row => (row.pilotCommands ?? 'off') === 'off')) {
+    const before = baseline.cells[r.id];
+    if (!before) { lines.push(`| ${r.id} | missing | — | — |`); continue; }
+    const differing = BASELINE_FIELDS.filter(field => JSON.stringify(before[field]) !== JSON.stringify(r[field]));
+    lines.push(`| ${r.id} | found | ${differing.length ? 'NO' : 'yes'} | ${differing.join(', ') || '—'} |`);
+  }
+  return lines;
+}
+
+function signed(value, digits = 0) {
+  const text = value.toFixed(digits);
+  return Number(text) > 0 ? '+' + text : Number(text) === 0 ? (0).toFixed(digits) : text;
+}
+
+function commandSection(rows) {
+  const on = rows.filter(r => r.pilotCommands === 'on');
+  if (!on.length) return [];
+  const offFor = r => rows.find(o => (o.pilotCommands ?? 'off') === 'off' && o.cell === r.cell && o.seedSet === r.seedSet && o.run === r.run);
+  const lines = ['', '## Weapon commands: pilot taps commands (on) vs never (off)', '',
+    'Same cell, seed, and stepping; only `--commands` differs. Deltas are on minus off. Clock is the full-run clear time.', '',
+    '| Cell | Seed | Off result | On result | Clock off → on (Δ s) | Damage taken off → on (Δ) | Lowest HP % off → on | Foe damage Δ | Kills Δ | Commands on (by weapon) | Resonances on | Commands off |',
+    '|---|---|---|---|---|---|---|---|---|---|---|---|'];
+  const pairs = [];
+  for (const r of [...on].sort((a, b) => a.id.localeCompare(b.id))) {
+    const off = offFor(r);
+    if (!off) { lines.push(`| ${r.cell}@${r.seedSet} | ${r.seed} | not run | ${r.outcome} | — | — | — | — | — | ${r.commands} | ${r.resonances} | — |`); continue; }
+    pairs.push([off, r]);
+    const byWeapon = Object.entries(r.commandsByWeapon ?? {}).map(([w, n]) => `${w} ${n}`).join(', ');
+    lines.push(`| ${r.cell}@${r.seedSet} | ${r.seed} | ${off.outcome} | ${r.outcome} | ${clock(off.gameSeconds)} → ${clock(r.gameSeconds)} (${signed(r.gameSeconds - off.gameSeconds, 1)}) | ${Math.round(off.damageTaken)} → ${Math.round(r.damageTaken)} (${signed(r.damageTaken - off.damageTaken)}) | ${Math.round(off.minHealthFraction * 100)}% → ${Math.round(r.minHealthFraction * 100)}% | ${signed(r.foeDamage - off.foeDamage)} | ${signed(r.kills - off.kills)} | ${r.commands} (${byWeapon || '—'}) | ${r.resonances} | ${off.commands ?? 'n/a'} |`);
+  }
+  if (!pairs.length) return lines;
+  const mean = values => values.reduce((a, b) => a + b, 0) / values.length;
+  const median = values => { const v = [...values].sort((a, b) => a - b); return v.length % 2 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2; };
+  lines.push('', '| Hero | Pairs | Wins off / on | Mean Δ clock s | Δ damage taken mean (median) | Runs with less / more damage taken | Mean Δ lowest HP pts | Commands per run | Resonances per run | Resonances per command |',
+    '|---|---|---|---|---|---|---|---|---|---|');
+  for (const hero of [...new Set(pairs.map(([off]) => off.hero)), 'all']) {
+    const group = hero === 'all' ? pairs : pairs.filter(([off]) => off.hero === hero);
+    const dTaken = group.map(([off, r]) => r.damageTaken - off.damageTaken);
+    const cmds = group.map(([, r]) => r.commands); const res = group.map(([, r]) => r.resonances);
+    const totalCmds = cmds.reduce((a, b) => a + b, 0);
+    lines.push(`| ${hero} | ${group.length} | ${group.filter(([off]) => off.won).length} / ${group.filter(([, r]) => r.won).length} | ${signed(mean(group.map(([off, r]) => r.gameSeconds - off.gameSeconds)), 1)} | ${signed(mean(dTaken))} (${signed(median(dTaken))}) | ${dTaken.filter(d => d < 0).length} / ${dTaken.filter(d => d > 0).length} | ${signed(mean(group.map(([off, r]) => (r.minHealthFraction - off.minHealthFraction) * 100)), 1)} | ${mean(cmds).toFixed(1)} | ${mean(res).toFixed(1)} | ${totalCmds ? (res.reduce((a, b) => a + b, 0) / totalCmds).toFixed(2) : '—'} |`);
+  }
+  return lines;
 }
 
 async function runCell(cell) {
@@ -162,7 +228,9 @@ async function runCell(cell) {
     document.querySelector('#start-button').click();
     const pm = window.__pm = { s, game, render, secondsAtStart: s.seconds, objectivesLeft, durations: REGIONS.map(r => r.duration), t: Number(game.loop.time) || 0, steps: 0, result: null, forks: [],
       routeClicks: 0, upgradeFallbacks: 0, unpauses: 0, lastSig: '', lastProgressAt: s.seconds, maxStall: 0, stallAt: null, minHealth: Infinity, minHealthAt: null,
-      minHealthFraction: Infinity, minHealthFractionAt: null, minHealthFractionHp: null, minHealthFractionMax: null };
+      minHealthFraction: Infinity, minHealthFractionAt: null, minHealthFractionHp: null, minHealthFractionMax: null,
+      commands: 0, commandsByWeapon: {}, commandPrev: {} };
+    if (cell.pilotCommands === 'on') s.setDebugPilotCommands(true);
     const callbacks = s.callbacks;
     const onEnd = callbacks.onEnd; callbacks.onEnd = result => { pm.result = result; onEnd(result); };
     const onRoute = callbacks.onRouteChoice;
@@ -201,6 +269,14 @@ async function runCell(cell) {
         pm.t += frameMs;
         if (pm.render) game.step(pm.t, frameMs); else game.scene.update(pm.t, frameMs);
         pm.steps++;
+        // Read-only command count: a tap that fires restarts that slot's recharge (GroveScene.focusWeapon).
+        for (const weapon of s.weapons) {
+          const now = weapon.commandCooldown ?? 0;
+          if (now > (pm.commandPrev[weapon.id] ?? 0) + 0.5) {
+            pm.commands++; pm.commandsByWeapon[weapon.id] = (pm.commandsByWeapon[weapon.id] ?? 0) + 1;
+          }
+          pm.commandPrev[weapon.id] = now;
+        }
         // Track the lowest absolute HP and the lowest HP fraction separately: max HP grows with upgrades, so the two
         // low points are usually at different moments.
         if (s.running && s.health < pm.minHealth) { pm.minHealth = s.health; pm.minHealthAt = s.seconds; }
@@ -231,7 +307,8 @@ async function runCell(cell) {
       unpauses: pm.unpauses, minHealth: pm.minHealth, minHealthFraction: pm.minHealthFraction, minHealthAt: pm.minHealthAt,
       minHealthFractionAt: pm.minHealthFractionAt, minHealthFractionHp: pm.minHealthFractionHp, minHealthFractionMax: pm.minHealthFractionMax, maxStall: pm.maxStall, stallAt: pm.stallAt, steps: pm.steps, startHero: pm.startHero,
       contract: pm.contract, quarryRoute: s.quarryRoute, moonRoute: s.moonRoute, seconds: s.seconds, region: s.region,
-      metrics: s.metrics, kills: s.kills, level: s.level, health: s.health, weapons: s.weapons.map(w => `${w.id}:${w.rank}`) };
+      metrics: s.metrics, kills: s.kills, level: s.level, health: s.health, weapons: s.weapons.map(w => `${w.id}:${w.rank}`),
+      commands: pm.commands, commandsByWeapon: pm.commandsByWeapon };
   });
   await context.close();
   const result = final.result;
@@ -255,6 +332,8 @@ async function runCell(cell) {
     minHealthAtSeconds: final.minHealthAt, minHealthFractionAtSeconds: final.minHealthFractionAt,
     minHealthFractionHp: Math.round(final.minHealthFractionHp), minHealthFractionMaxHp: Math.round(final.minHealthFractionMax), upgradeFallbacks: final.upgradeFallbacks, unpauses: final.unpauses, steps: final.steps,
     stepping: render ? 'game.step (update + render)' : 'game.scene.update (no render)',
+    pilotCommands: cell.pilotCommands, commands: final.commands, commandsByWeapon: final.commandsByWeapon,
+    resonances: metrics.resonances ?? 0,
     pageErrors: errors, wallSeconds: Math.round((Date.now() - started) / 1000), finishedAt: new Date().toISOString(),
   };
 }
