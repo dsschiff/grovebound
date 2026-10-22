@@ -13,6 +13,7 @@
 //     [--contracts waylight,seedheart,stag] [--quarry coolantRun,forgeAssault] [--moon moonflame,altarRite]
 //     [--limit N] [--concurrency 3] [--render] [--rerun] [--port 4191] [--seed-set A|B|C] [--repeats N]
 //     [--commands off|on] [--pairing on|off] [--focus keep|restore] [--baseline reports/pilot-matrix/<earlier>.json]
+//     [--skill reactionMs[:actEvery]]   (weak-pilot arm; --seed-set also takes a comma list such as w1,w3,w5)
 // --pairing off (pilot never lands a chain) and --focus restore (pilot re-focuses the starting weapon after a
 // command) need --commands on; they add -solo / -restore to the id suffix (arms cmd, cmd-solo, cmd-restore,
 // cmd-solo-restore). With all four arms and off in one file the summary adds a plain/resonance/focus decomposition.
@@ -57,7 +58,15 @@ if (pairing !== 'on' && pairing !== 'off') throw new Error('--pairing must be on
 const focusMode = opt('focus', 'keep');
 if (focusMode !== 'keep' && focusMode !== 'restore') throw new Error('--focus must be keep or restore');
 if (commands === 'off' && (pairing !== 'on' || focusMode !== 'keep')) throw new Error('--pairing and --focus need --commands on');
-const arm = commands === 'off' ? 'off' : 'cmd' + (pairing === 'off' ? '-solo' : '') + (focusMode === 'restore' ? '-restore' : '');
+// --skill reactionMs[:actEvery] (e.g. 250:3): the weak-pilot arm (src/game/pilot.ts createPilotSkillFilter). The
+// normal pilot still decides; its stick direction and presses are delayed by reactionMs of game time, and it takes
+// only every actEvery-th chance to press the special or a command. Adds -weakR<ms>N<n> to the arm. Absent = unchanged.
+const skillOpt = opt('skill', null);
+const skillMatch = skillOpt === null ? null : /^(\d+)(?::(\d+))?$/.exec(skillOpt);
+if (skillOpt !== null && !skillMatch) throw new Error('--skill must be reactionMs or reactionMs:actEvery');
+const skill = skillMatch ? { reactionMs: Number(skillMatch[1]), actEvery: Math.max(1, Number(skillMatch[2] ?? '1')) } : null;
+const arm = (commands === 'off' ? 'off' : 'cmd' + (pairing === 'off' ? '-solo' : '') + (focusMode === 'restore' ? '-restore' : ''))
+  + (skill ? `-weakR${skill.reactionMs}N${skill.actEvery}` : '');
 const baselinePath = opt('baseline', null) ? resolve(root, opt('baseline', null)) : null;
 const baseline = baselinePath ? JSON.parse(await readFile(baselinePath, 'utf8')) : null;
 
@@ -68,19 +77,21 @@ const SEED_SETS = {
   B: { waylight: 7, seedheart: 1000, stag: 4123 },
   C: { waylight: 2021, seedheart: 3010, stag: 10015 },
 };
-const seedSet = opt('seed-set', 'A');
-// --seed-set wN runs the Waylight contract on seed N (objectives.ts vergeMission: odd, and bits 0x18 not both set), to
-// widen a waylight-only slice beyond sets A-C. Other contracts have no seed in such a set.
-const waylightSeed = /^w(\d+)$/.exec(seedSet);
-if (waylightSeed) {
-  const n = Number(waylightSeed[1]);
-  if (n % 2 === 0 || (n & 0x18) === 0x18) throw new Error(`--seed-set ${seedSet}: seed ${n} is not a Waylight seed`);
-  if (contracts.some(contract => contract !== 'waylight')) throw new Error(`--seed-set ${seedSet} needs --contracts waylight`);
-  SEED_SETS[seedSet] = { waylight: n };
+// --seed-set also takes a comma list (e.g. w1,w3,w5) to run several seed sets in one invocation.
+const seedSetNames = list('seed-set', 'A');
+for (const seedSet of seedSetNames) {
+  // --seed-set wN runs the Waylight contract on seed N (objectives.ts vergeMission: odd, and bits 0x18 not both set), to
+  // widen a waylight-only slice beyond sets A-C. Other contracts have no seed in such a set.
+  const waylightSeed = /^w(\d+)$/.exec(seedSet);
+  if (waylightSeed) {
+    const n = Number(waylightSeed[1]);
+    if (n % 2 === 0 || (n & 0x18) === 0x18) throw new Error(`--seed-set ${seedSet}: seed ${n} is not a Waylight seed`);
+    if (contracts.some(contract => contract !== 'waylight')) throw new Error(`--seed-set ${seedSet} needs --contracts waylight`);
+    SEED_SETS[seedSet] = { waylight: n };
+  }
+  if (!SEED_SETS[seedSet]) throw new Error('unknown --seed-set ' + seedSet);
 }
-if (!SEED_SETS[seedSet]) throw new Error('unknown --seed-set ' + seedSet);
-const CONTRACT_SEEDS = SEED_SETS[seedSet];
-const idSuffix = (seedSet === 'A' ? '' : '@' + seedSet) + (arm === 'off' ? '' : '+' + arm);
+const idSuffixFor = seedSet => (seedSet === 'A' ? '' : '@' + seedSet) + (arm === 'off' ? '' : '+' + arm);
 // Minimum progress that unlocks each hero (logic.ts availableHero), all at mastery 0. Warden is a fresh save.
 const PROGRESS = {
   warden: null,
@@ -92,11 +103,12 @@ const SOFTLOCK_SECONDS = 60; // no objective/region/guardian progress for 60 s o
 const SOFTLOCK_ABORT_SECONDS = 150; // stop the cell once it has been stuck this long
 
 const cells = [];
+for (const seedSet of seedSetNames)
 for (let run = 1; run <= repeats; run++)
   for (const hero of heroes) for (const contract of contracts) for (const quarry of quarryRoutes) for (const moon of moonRoutes)
-    cells.push({ id: `${hero}/${contract}/${quarry}/${moon}` + idSuffix + (run > 1 ? `#${run}` : ''), cell: `${hero}/${contract}/${quarry}/${moon}`,
-      run, seedSet, hero, contract, quarry, moon, seed: CONTRACT_SEEDS[contract], pilotCommands: commands, arm,
-      pilotPairing: pairing, pilotFocus: focusMode });
+    cells.push({ id: `${hero}/${contract}/${quarry}/${moon}` + idSuffixFor(seedSet) + (run > 1 ? `#${run}` : ''), cell: `${hero}/${contract}/${quarry}/${moon}`,
+      run, seedSet, hero, contract, quarry, moon, seed: SEED_SETS[seedSet][contract], pilotCommands: commands, arm,
+      pilotPairing: pairing, pilotFocus: focusMode, ...(skill ? { pilotSkill: skill } : {}) });
 
 let store = { cells: {} };
 try { store = JSON.parse(await readFile(outPath, 'utf8')); } catch { /* first run */ }
@@ -219,8 +231,50 @@ const ARM_LABEL = {
 const offRowFor = (rows, r) => rows.find(o => armOf(o) === 'off' && o.cell === r.cell && o.seedSet === r.seedSet && o.run === r.run);
 
 function commandSection(rows) {
-  const arms = [...new Set(rows.map(armOf))].filter(a => a !== 'off').sort();
-  return arms.flatMap(a => armSection(rows, a));
+  const arms = [...new Set(rows.map(armOf))].filter(a => a !== 'off' && !WEAK_ARM.test(a)).sort();
+  return arms.flatMap(a => armSection(rows, a)).concat(weakSection(rows));
+}
+
+// Weak-pilot arms (--skill): each run is paired with the same cell, seed set, and repeat in the arm without the skill.
+const WEAK_ARM = /-weakR(\d+)N(\d+)$/;
+// Two-sided 95% t quantile (Cornish-Fisher expansion around z; within 0.01 of tables for df >= 3).
+function t975(df) {
+  const z = 1.959964;
+  if (df < 1) return NaN;
+  if (df === 1) return 12.706;
+  if (df === 2) return 4.303;
+  return z + (z ** 3 + z) / (4 * df) + (5 * z ** 5 + 16 * z ** 3 + 3 * z) / (96 * df ** 2);
+}
+function meanCi(values) {
+  const n = values.length; const m = values.reduce((a, b) => a + b, 0) / n;
+  if (n < 2) return { n, mean: m, half: NaN };
+  const sd = Math.sqrt(values.reduce((a, b) => a + (b - m) ** 2, 0) / (n - 1));
+  return { n, mean: m, half: t975(n - 1) * sd / Math.sqrt(n) };
+}
+const fmtCi = ({ mean, half }, digits = 1, sign = false) =>
+  `${sign ? signed(mean, digits) : mean.toFixed(digits)} ± ${Number.isFinite(half) ? half.toFixed(digits) : '—'}`;
+
+function weakSection(rows) {
+  const weakArms = [...new Set(rows.map(armOf))].filter(a => WEAK_ARM.test(a)).sort();
+  const lines = [];
+  for (const weakArm of weakArms) {
+    const [, ms, every] = WEAK_ARM.exec(weakArm);
+    const baseArm = weakArm.replace(WEAK_ARM, '');
+    const pairs = rows.filter(r => armOf(r) === weakArm).map(r => [rows.find(o => armOf(o) === baseArm && o.cell === r.cell
+      && o.seedSet === r.seedSet && o.run === r.run), r]).filter(([base]) => base);
+    lines.push('', `## Weak pilot \`${weakArm}\` vs \`${baseArm}\` (reaction ${ms} ms, every ${every === '1' ? '' : every + (every === '2' ? 'nd' : every === '3' ? 'rd' : 'th') + ' '}chance)`, '',
+      `${pairs.length} paired runs (same cell, seed, and stepping). Mean ± half-width of the 95% t interval over runs. Lowest HP is the lowest health as % of max health at that moment; a loss counts as 0%. Δ is weak minus base, paired by run.`, '');
+    if (!pairs.length) continue;
+    lines.push('| Hero | Pairs | Wins base / weak | Lowest HP % base | Lowest HP % weak | Δ lowest HP pts | Damage taken base | Damage taken weak | Δ damage taken | Weak runs below 50% / 25% HP | Specials / commands pressed per weak run |',
+      '|---|---|---|---|---|---|---|---|---|---|---|');
+    const low = r => (r.outcome.startsWith('loss') ? 0 : r.minHealthFraction) * 100;
+    for (const hero of [...new Set(pairs.map(([b]) => b.hero)), 'all']) {
+      const group = hero === 'all' ? pairs : pairs.filter(([b]) => b.hero === hero);
+      const presses = group.map(([, w]) => w.skillPresses ?? { special: 0, command: 0 });
+      lines.push(`| ${hero} | ${group.length} | ${group.filter(([b]) => b.won).length} / ${group.filter(([, w]) => w.won).length} | ${fmtCi(meanCi(group.map(([b]) => low(b))))} | ${fmtCi(meanCi(group.map(([, w]) => low(w))))} | ${fmtCi(meanCi(group.map(([b, w]) => low(w) - low(b))), 1, true)} | ${fmtCi(meanCi(group.map(([b]) => b.damageTaken)), 0)} | ${fmtCi(meanCi(group.map(([, w]) => w.damageTaken)), 0)} | ${fmtCi(meanCi(group.map(([b, w]) => w.damageTaken - b.damageTaken)), 0, true)} | ${group.filter(([, w]) => low(w) < 50).length} / ${group.filter(([, w]) => low(w) < 25).length} | ${(presses.reduce((a, p) => a + p.special, 0) / group.length).toFixed(1)} / ${(presses.reduce((a, p) => a + p.command, 0) / group.length).toFixed(1)} |`);
+    }
+  }
+  return lines;
 }
 
 function armSection(rows, armName) {
@@ -316,6 +370,28 @@ async function runCell(cell) {
       minHealthFraction: Infinity, minHealthFractionAt: null, minHealthFractionHp: null, minHealthFractionMax: null,
       commands: 0, commandsByWeapon: {}, commandPrev: {}, offFocusSeconds: 0 };
     if (cell.pilotCommands === 'on') s.setDebugPilotCommands(true, { pairing: cell.pilotPairing !== 'off', focusRestore: cell.pilotFocus === 'restore' });
+    if (cell.pilotSkill) {
+      // Weak-pilot arm only. The normal pilot (GroveScene.updateDebugPilot) still decides each frame, but its special
+      // presses and command taps are captured instead of performed, and its stick direction is read back; the skill
+      // filter then decides what reaches the same player entry points (castSpecial, focusWeapon, the stick).
+      const { createPilotSkillFilter } = await import('/src/game/pilot.ts');
+      const filter = createPilotSkillFilter(cell.pilotSkill);
+      const decide = Object.getPrototypeOf(s).updateDebugPilot;
+      pm.skillPresses = { special: 0, command: 0 };
+      s.updateDebugPilot = function () {
+        const actions = [];
+        this.castSpecial = () => { actions.push({ kind: 'special' }); };
+        this.focusWeapon = weapon => { actions.push({ kind: 'command', weapon }); };
+        try { decide.call(this); } finally { delete this.castSpecial; delete this.focusWeapon; }
+        const out = filter(this.seconds, { direction: { x: this.joyVector.x, y: this.joyVector.y }, actions });
+        this.joyVector.set(out.direction.x, out.direction.y);
+        for (const action of out.actions) {
+          if (!this.running) return;
+          pm.skillPresses[action.kind]++;
+          if (action.kind === 'special') this.castSpecial(); else this.focusWeapon(action.weapon);
+        }
+      };
+    }
     const callbacks = s.callbacks;
     const onEnd = callbacks.onEnd; callbacks.onEnd = result => { pm.result = result; onEnd(result); };
     const onRoute = callbacks.onRouteChoice;
@@ -397,7 +473,7 @@ async function runCell(cell) {
       contract: pm.contract, quarryRoute: s.quarryRoute, moonRoute: s.moonRoute, seconds: s.seconds, region: s.region,
       metrics: s.metrics, kills: s.kills, level: s.level, health: s.health, weapons: s.weapons.map(w => `${w.id}:${w.rank}`),
       commands: pm.commands, commandsByWeapon: pm.commandsByWeapon, offFocusSeconds: pm.offFocusSeconds, startWeapon: s.weapons[0].id,
-      restoreFires: s.pilotRestoreFires ?? 0 };
+      restoreFires: s.pilotRestoreFires ?? 0, skillPresses: pm.skillPresses ?? null };
   });
   await context.close();
   const result = final.result;
@@ -425,6 +501,7 @@ async function runCell(cell) {
     resonances: metrics.resonances ?? 0,
     arm: cell.arm, pilotPairing: cell.pilotPairing, pilotFocus: cell.pilotFocus, startWeapon: final.startWeapon,
     offFocusSeconds: Math.round(final.offFocusSeconds * 10) / 10, restoreFires: final.restoreFires,
+    ...(cell.pilotSkill ? { pilotSkill: cell.pilotSkill, skillPresses: final.skillPresses } : {}),
     pageErrors: errors, wallSeconds: Math.round((Date.now() - started) / 1000), finishedAt: new Date().toISOString(),
   };
 }

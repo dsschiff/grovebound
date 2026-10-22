@@ -114,3 +114,52 @@ export interface PilotFocusInput { focused: Weapon; start: Weapon; startCommandC
 export function pilotShouldRestoreFocus(input: PilotFocusInput): boolean {
   return input.focused !== input.start && (input.startCommandCooldown > 0 || !input.startHasTarget);
 }
+
+// Pilot-matrix "weak" arm: a lower-skill pilot built on top of the normal pilot's decisions. Nothing in the game calls
+// this; scripts/pilot-matrix.mjs --skill wraps the scene's debug pilot with it, and without --skill the pilot is
+// untouched. Each frame the normal pilot produces an intent (a stick direction plus any special press or command tap
+// it wants). The filter
+//   - delays the whole intent by reactionMs of game time: the stick follows the direction chosen reactionMs ago (held
+//     still until the first decision is that old), and a press happens reactionMs after the pilot first wanted it;
+//   - acts on only every actEvery-th chance per action. A chance is one unbroken run of frames in which the pilot
+//     wants that action (the special, or one weapon's command); a taken chance gives exactly one press, at its start.
+// reactionMs 0 and actEvery 1 give the normal pilot's stick direction every frame and its first press of every chance
+// (tests/pilot.test.ts); the normal pilot would also repeat a press that did nothing, which this filter does not.
+export interface PilotSkill { reactionMs?: number; actEvery?: number }
+export type PilotAction = { kind: 'special' } | { kind: 'command'; weapon: Weapon };
+export interface PilotIntent { direction: Point; actions: PilotAction[] }
+
+const actionKey = (action: PilotAction) => action.kind === 'special' ? 'special' : `command:${action.weapon}`;
+
+export function createPilotSkillFilter(skill: PilotSkill = {}): (nowSeconds: number, intent: PilotIntent) => PilotIntent {
+  const delay = Math.max(0, skill.reactionMs ?? 0) / 1000;
+  const every = Math.max(1, Math.floor(skill.actEvery ?? 1));
+  const wantedLastFrame = new Set<string>();
+  const chances = new Map<string, number>();
+  const queue: { at: number; direction: Point; actions: PilotAction[] }[] = [];
+  let direction: Point = { x: 0, y: 0 };
+  return (now, intent) => {
+    const actions: PilotAction[] = [];
+    const wanted = new Set<string>();
+    for (const action of intent.actions) {
+      const key = actionKey(action);
+      if (wanted.has(key)) continue;
+      wanted.add(key);
+      if (wantedLastFrame.has(key)) continue; // same chance, already counted
+      const count = (chances.get(key) ?? 0) + 1;
+      chances.set(key, count);
+      if (count % every === 0) actions.push(action);
+    }
+    wantedLastFrame.clear();
+    for (const key of wanted) wantedLastFrame.add(key);
+    queue.push({ at: now, direction: { x: intent.direction.x, y: intent.direction.y }, actions });
+    const due: PilotAction[] = [];
+    // A small epsilon keeps fixed 60 Hz steps from missing a frame to float drift in the game clock.
+    while (queue.length && queue[0].at <= now - delay + 1e-9) {
+      const frame = queue.shift()!;
+      direction = frame.direction;
+      due.push(...frame.actions);
+    }
+    return { direction: { x: direction.x, y: direction.y }, actions: due };
+  };
+}
