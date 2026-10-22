@@ -2,12 +2,12 @@
 // Usage: node scripts/check-pages-live.mjs [--url <url>] [--docs <path>]
 // Env: GROVE_PAGES_URL overrides the default URL. Exit 0 equal, 1 differ, 2 fetch/parse failure.
 // Checks names (hashed asset filenames in index.html) and content (SHA-256 of each live JS bundle
-// against docs/assets/<same name>) separately; exit 0 only when both match.
+// against the HEAD-committed docs/assets/<same name>) separately; exit 0 only when both match.
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
+import { relative, resolve, sep } from 'node:path';
 
 const DEFAULT_URL = 'https://dsschiff.github.io/grovebound/';
 
@@ -169,7 +169,17 @@ async function main() {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.arrayBuffer();
     },
-    readDocsBytes: name => readFile(resolve(docsDir, 'assets', name)),
+    // Hash the committed blob, not the working-tree file: with core.autocrlf=true on Windows the
+    // checked-out JS differs byte-for-byte from what was pushed, so the disk copy would always mismatch.
+    // Falls back to the disk file when git cannot serve it (not a repo, file untracked).
+    readDocsBytes: async name => {
+      const rel = relative(root, resolve(docsDir, 'assets', name)).split(sep).join('/');
+      try {
+        return execFileSync('git', ['show', 'HEAD:' + rel], { cwd: root, maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
+      } catch {
+        return readFile(resolve(docsDir, 'assets', name));
+      }
+    },
   });
   console.log(formatContentReport(result, content));
   return exitCodeFor(result, content);
