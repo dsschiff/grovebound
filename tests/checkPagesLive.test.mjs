@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareBundles, extractBundles, formatReport } from '../scripts/check-pages-live.mjs';
+import { compareBundles, extractBundles, formatBundleLine, formatReport } from '../scripts/check-pages-live.mjs';
 
 const page = (js, css) => `<!doctype html><html><head>
 <script type="module" crossorigin src="/grovebound/assets/${js}"></script>
@@ -43,5 +43,11 @@ describe('check-pages-live', () => {
   it('ignores non-index assets and unrelated tags', () => {
     const html = '<script src="/grovebound/assets/vendor-ZZ.js"></script><link rel="icon" href="/grovebound/art/warden.png">';
     expect(extractBundles(html)).toEqual({ js: [], css: [] });
+  });
+
+  it('formats the bundle line with repo HEAD, or unknown when git fails', () => {
+    const r = compareBundles(page('index-AAA.js', 'index-BBB.css'), page('index-AAA.js', 'index-BBB.css'));
+    expect(formatBundleLine(r, 'abc1234')).toBe('bundle: assets/index-AAA.js | repo HEAD: abc1234');
+    expect(formatBundleLine(r, '')).toBe('bundle: assets/index-AAA.js | repo HEAD: unknown');
   });
 });
