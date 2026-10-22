@@ -35,7 +35,7 @@ Lowest sustained ____ FPS  Typical ____ FPS  Where: ________  Result: ________
 
 ## 3. TalkBack on camp and one dialog (ROADMAP.md L9: accessibility pass)
 
-Turn on TalkBack. On the camp screen, swipe through every control. Then open one dialog: Pause (the Ⅱ button labeled "Pause game", `src/main.ts` L61), or "Choose your route" (L124) or "Choose your growth" (L118) when one appears in a run.
+Turn on TalkBack. On the camp screen, swipe through every control. Then open one dialog: Pause (the Ⅱ button labeled "Pause game", `src/main.ts` L61), or, when one appears in a run, the route dialog titled "Enter Ember Quarry" or "Enter Moonfen" (`src/main.ts` L555; its default heading "Choose your route" is replaced) or the "Choose your growth" dialog (L118).
 Pass: every control is announced with a meaningful name (no "unlabeled button"), focus stays inside the open dialog, and after closing it focus lands on the game field (announced as "Game field. Drag to move...", `src/main.ts` L276-281). Fail: an unlabeled control, focus escapes the dialog, you cannot close it, or focus lands nowhere. Known gap, not a fail: focus does not return to the control that opened the dialog. Nothing inside the game canvas is expected to be readable.
 Unlabeled or confusing controls: ________________  Result: ________
 
@@ -54,7 +54,7 @@ ROADMAP.md L38 names the target: "human feedback on the Expedition art, command 
 1. "Is each Expedition hero readable at phone size mid-fight?" Answer: ________
 2. "Is an 8 s command recharge worth tapping, or ignorable?" (Recharge: ROADMAP.md L17.) Answer: ________
 3. "Does the 4 s resonance window feel reachable?" (Window: ROADMAP.md L21.) Answer: ________
-4. "Do the Quarry and Moonfen mission choices feel different enough to matter?" (Choices: ROADMAP.md L16; the picker is "Choose your route".) Answer: ________
+4. "Do the Quarry and Moonfen mission choices feel different enough to matter?" (Choices: ROADMAP.md L16; the picker is the "Enter Ember Quarry" / "Enter Moonfen" dialog, `src/main.ts` L555.) Answer: ________
 
 Run 1: hero ________ result (win/loss, time) ________  Run 2: hero ________ result ________
 
