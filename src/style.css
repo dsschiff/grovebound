@@ -239,3 +239,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .clock-wrap{padding:4px 10px 5px}
 .health-caption{padding:2px 8px;margin-bottom:5px}
 .loadout-heading{padding:3px 8px;margin-bottom:4px}@media(max-width:365px){.loadout-heading{flex-wrap:wrap;row-gap:1px}.loadout-heading span{white-space:normal}}
+/* Boss name, crest wordmark and bottom line sit on the playfield; a plate (as on the timer and health caption) keeps AA contrast over any terrain. */
+.crest,.bottom-line,.boss-bar>span{background:rgba(15,48,39,.82);border-radius:10px}
+.crest{padding:4px 9px;margin-top:5px}
+.boss-bar>span{display:inline-block;padding:2px 10px}
+.bottom-line{padding:3px 8px;margin-top:4px}
