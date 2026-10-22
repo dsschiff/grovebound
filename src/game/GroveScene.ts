@@ -8,7 +8,7 @@ import { clearRunSnapshot, emptyRunMetrics, emptyWeaponDamage, saveRunSnapshot, 
 import { soundFx } from './audio';
 import { advanceEmberField, bossPhaseFor, bowCriticalChance, chooseAutoTarget, pickUpgradeChoices, pierceTargets, ricochetTarget, targetsInArc,
   shouldSpawnGuardian, staffBurn, thornPierceCount, weaponDamage, weaponPathEffects, weaponSplash } from './combat';
-import { pilotCommand, pilotDirection } from './pilot';
+import { pilotCommand, pilotDirection, pilotShouldRestoreFocus } from './pilot';
 import { hazardSites, ventPhase, type VentPhase } from './hazards';
 import { enemyFieldModifiers, terrainRupture, terrainSites, type TerrainKind } from './terrain';
 import { BOSS_STRIKE_WINDUP, bossStrikeCooldown, bossStrikeRadius, bossStrikeTarget, insideBossStrike, type BossStrikeState } from './bossStrike';
@@ -148,6 +148,10 @@ export class GroveScene extends Phaser.Scene {
   private moveDirection = new Phaser.Math.Vector2();
   private pilotEnabled = false;
   private pilotCommandsEnabled = false;
+  private pilotPairing = true;
+  private pilotFocusRestore = false;
+  /** Debug pilot only: focus-restore taps that fired a command (expected 0; read by scripts/pilot-matrix.mjs). */
+  pilotRestoreFires = 0;
   private slowed = false;
   private waylightAmbush = false;
   private ritualClock = 0;
@@ -587,9 +591,15 @@ export class GroveScene extends Phaser.Scene {
     this.pilotEnabled = enabled;
     if (!enabled) this.releaseJoystick();
   }
-  /** Debug pilot only: also tap weapon command slots (off by default; the pilot matrix turns it on with --commands on). */
-  setDebugPilotCommands(enabled: boolean): void {
+  /**
+   * Debug pilot only: also tap weapon command slots (off by default; the pilot matrix turns it on with --commands on).
+   * pairing false never lands a chain (--pairing off); focusRestore taps the starting weapon again after a command
+   * (--focus restore). Both default to the PR #9 behaviour.
+   */
+  setDebugPilotCommands(enabled: boolean, options: { pairing?: boolean; focusRestore?: boolean } = {}): void {
     this.pilotCommandsEnabled = enabled;
+    this.pilotPairing = options.pairing ?? true;
+    this.pilotFocusRestore = options.focusRestore ?? false;
   }
 
   private updatePilotCommands(): void {
@@ -602,9 +612,28 @@ export class GroveScene extends Phaser.Scene {
         elite: enemy.kind === 'brute' || enemy.kind === 'thornback' || enemy.kind === 'gatekeeper' || enemy.kind === 'boss' })),
       chain: this.commandChain,
       chainWindow: this.campKit === 'conductor' ? 6 : 4,
+      pairing: this.pilotPairing,
     });
     // Same entry point as a slot tap or keyboard press (main.ts), so no separate damage path.
     if (choice) this.focusWeapon(choice.weapon);
+    // Runs before this frame's auto attacks (update), so a restored focus applies to all of them.
+    const start = this.weapons[0];
+    if (this.pilotFocusRestore && this.running && pilotShouldRestoreFocus({ focused: this.focusedWeapon, start: start.id,
+      startCommandCooldown: start.commandCooldown ?? 0, startHasTarget: this.pilotCommandHasTarget(start) })) {
+      const before = start.commandCooldown ?? 0;
+      this.focusWeapon(start.id);
+      // Should stay 0: a restore tap that fired would be an extra command. The pilot matrix reports it.
+      if ((start.commandCooldown ?? 0) > before) this.pilotRestoreFires++;
+    }
+  }
+
+  /** Debug pilot only: whether a commanded attack by this weapon would find a target (autoAttack's commanded targeting). */
+  private pilotCommandHasTarget(weapon: EquippedWeapon): boolean {
+    const range = WEAPON_INFO[weapon.id].range * this.stats.reach * (weapon.id === 'bow' ? 2.05 : 1.38);
+    const objects = this.objects.filter(candidate => candidate.active && candidate.hp > 0 && !isChanneledObjective(candidate)
+      && (!isTerrainField(candidate) || candidate === this.markedField));
+    return chooseAutoTarget({ x: this.hero.x, y: this.hero.y }, range,
+      this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })), objects) !== null;
   }
 
   private updateDebugPilot(): void {
