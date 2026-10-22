@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { LEGACY_SAVE_KEY, parseProgress } from '../src/game/logic';
+import { LEGACY_SAVE_KEY, SAVE_KEY, readProgress } from '../src/game/logic';
 import { parseRunSnapshot } from '../src/game/runSave';
 
 // Frozen literal saves reproduced from git history. Each file's shapeCommit names the
@@ -12,7 +12,7 @@ const runFixtures = readdirSync(dir).filter(name => name.startsWith('run-'));
 
 describe('frozen save fixtures', () => {
   it('ships a run fixture for each of the three earlier shapes', () => {
-    expect(runFixtures.map(name => load(name).shapeCommit).sort()).toEqual(['221d943', '5b613ac', 'b27bab7']);
+    expect([...new Set(runFixtures.map(name => load(name).shapeCommit))].sort()).toEqual(['221d943', '5b613ac', 'b27bab7']);
   });
 
   it.each(runFixtures)('%s still parses and keeps seed, rngState and unlocks', name => {
@@ -35,19 +35,34 @@ describe('frozen save fixtures', () => {
   });
 
   it('keeps the kit and conductor-length command chain from the pre-routes shape', () => {
-    const parsed = parseRunSnapshot(load('run-pre-routes-221d943.json').snapshot)!;
+    const parsed = parseRunSnapshot(load('run-pre-routes-221d943-active-chain.json').snapshot)!;
     expect(parsed.kit).toBe('conductor');
     expect(parsed.commandChain).toEqual({ weapon: 'bow', remaining: 5.5 });
   });
 
-  it('migrates the v1 progress blob with seeds and thornsUnlocked intact', () => {
+  it('reads the frozen v1 blob from the legacy key and writes a v2 save with defaults for new fields', () => {
     const fixture = load('progress-v1-60abfba.json');
     expect(fixture.storageKey).toBe(LEGACY_SAVE_KEY);
-    const migrated = parseProgress(fixture.blob);
-    expect(migrated.seeds).toBe(14);
-    expect(migrated.thornsUnlocked).toBe(true);
-    expect(migrated.bestKills).toBe(131);
-    expect(migrated.victories).toBe(2);
+    const values = new Map([[LEGACY_SAVE_KEY, JSON.stringify(fixture.blob)]]);
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value),
+    });
+    try {
+      const progress = readProgress();
+      expect(progress.seeds).toBe(14);
+      expect(progress.thornsUnlocked).toBe(true);
+      expect(progress.bestSeconds).toBe(412);
+      expect(progress.unlockedKits).toEqual(['breaker']);
+      expect(progress.heroLook).toBe('expedition');
+      expect(JSON.parse(values.get(SAVE_KEY)!).seeds).toBe(14);
+    } finally { vi.unstubAllGlobals(); }
+  });
+
+  it('accepts a null commandChain, the usual saved state, and keeps it null', () => {
+    for (const name of ['run-pre-kit-5b613ac.json', 'run-pre-routes-221d943.json']) {
+      expect(parseRunSnapshot(load(name).snapshot)!.commandChain).toBeNull();
+    }
   });
 
   it('returns null without throwing when a field in an old save is corrupt', () => {

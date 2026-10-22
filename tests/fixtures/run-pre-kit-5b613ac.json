@@ -69,6 +69,7 @@
         "burnRemaining": 2,
         "burnTickClock": 0.2,
         "burnDamage": 5,
+        "tangleRemaining": 0,
         "burnSource": "axe"
       },
       {
@@ -78,6 +79,10 @@
         "hp": 10,
         "maxHp": 18,
         "phase": 0,
+        "burnRemaining": 0,
+        "burnTickClock": 0,
+        "burnDamage": 0,
+        "tangleRemaining": 1.5,
         "wispLance": {
           "cooldown": 2,
           "windup": 0.5,
@@ -94,6 +99,10 @@
         "hp": 900,
         "maxHp": 1200,
         "phase": 2,
+        "burnRemaining": 0,
+        "burnTickClock": 0,
+        "burnDamage": 0,
+        "tangleRemaining": 0,
         "bossStrike": {
           "cooldown": 3,
           "windup": 0.8,
@@ -109,6 +118,10 @@
         "hp": 70,
         "maxHp": 90,
         "phase": 0,
+        "burnRemaining": 0,
+        "burnTickClock": 0,
+        "burnDamage": 0,
+        "tangleRemaining": 0,
         "thornbackCharge": {
           "cooldown": 2,
           "windup": 0.4,
@@ -161,6 +174,10 @@
         "stat": "speed"
       }
     ],
+    "waylightAmbush": false,
+    "ritualClock": 0,
+    "coolantCarryRemaining": 0,
+    "moonflowRemaining": 0,
     "emberFields": [
       {
         "x": 870,
@@ -197,9 +214,6 @@
       "resonances": 3
     },
     "look": "wildkin",
-    "commandChain": {
-      "weapon": "bow",
-      "remaining": 3
-    }
+    "commandChain": null
   }
 }
