@@ -79,7 +79,7 @@ git add src public scripts tests docs README.md GOAL.md ROADMAP.md WORKLOG.md
 
 The staging command replaces `docs/` with the verified `dist/` build and adds `.nojekyll`. Commit source and `docs/` together, push, then verify the live page. The current GitHub token cannot push workflow changes, so this repository uses `main:/docs` instead of a Pages workflow.
 
-To check whether the live page is serving the build in `docs/`, run `npm run check:pages`. It compares the hashed `assets/index-*.js` and `.css` names in the live `index.html` with `docs/index.html`, then prints the bundle name and the repository HEAD for the phone checklist header. Exit code 0 means they match, 1 means they differ (it names the last commit that touched `docs/`), and 2 means the fetch or parse failed. `--url <url>` or `GROVE_PAGES_URL` checks another address; `--docs <path>` compares another file. GitHub Pages can take a few minutes to update after a push.
+To check whether the live page is serving the build in `docs/`, run `npm run check:pages`. It compares the hashed `assets/index-*.js` and `.css` names in the live `index.html` with `docs/index.html`, then prints the bundle name and the repository HEAD for the phone checklist header. It also compares the SHA-256 of each live JS bundle with the committed `docs/assets/` file of the same name and reports names and content on separate lines. Exit code 0 means both match, 1 means they differ (it names the last commit that touched `docs/`), and 2 means the fetch or parse failed or the content could not be confirmed. `--url <url>` or `GROVE_PAGES_URL` checks another address; `--docs <path>` compares another file. GitHub Pages can take a few minutes to update after a push.
 
 ## Project state
 

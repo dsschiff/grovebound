@@ -1,10 +1,13 @@
 // Reports whether the live GitHub Pages bundle matches docs/index.html in the working tree.
 // Usage: node scripts/check-pages-live.mjs [--url <url>] [--docs <path>]
 // Env: GROVE_PAGES_URL overrides the default URL. Exit 0 equal, 1 differ, 2 fetch/parse failure.
+// Checks names (hashed asset filenames in index.html) and content (SHA-256 of each live JS bundle
+// against the HEAD-committed docs/assets/<same name>) separately; exit 0 only when both match.
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
+import { relative, resolve, sep } from 'node:path';
 
 const DEFAULT_URL = 'https://dsschiff.github.io/grovebound/';
 
@@ -39,6 +42,68 @@ export function compareBundles(liveHtml, docsHtml) {
   const same = a => JSON.stringify(a);
   const equal = same(live.js) === same(docs.js) && same(live.css) === same(docs.css);
   return { status: equal ? 'equal' : 'differ', live, docs };
+}
+
+/** Pure: lowercase hex SHA-256 of a string, Buffer, ArrayBuffer or typed array. */
+export function sha256Hex(data) {
+  const buf = typeof data === 'string' ? Buffer.from(data, 'utf8')
+    : data instanceof ArrayBuffer ? Buffer.from(new Uint8Array(data))
+      : Buffer.from(data.buffer ?? data, data.byteOffset ?? 0, data.byteLength ?? data.length);
+  return createHash('sha256').update(buf).digest('hex');
+}
+
+/**
+ * Compare the bytes of each live JS bundle with docs/assets/<same name>. Network and disk are injected:
+ * fetchBytes(url) -> Promise<ArrayBuffer|Uint8Array|string>, readDocsBytes(name) -> Promise<Buffer|...>.
+ * Returns { status: 'equal'|'differ'|'error', files: [{ name, url, live, docs, match, error? }] }.
+ * A docs file that is missing (e.g. the names already differ) is a per-file error, not a throw.
+ */
+export async function compareContent(jsNames, pageUrl, { fetchBytes, readDocsBytes }) {
+  const files = [];
+  for (const name of jsNames ?? []) {
+    const url = new URL('assets/' + name, pageUrl).href;
+    const entry = { name, url, live: null, docs: null, match: false };
+    try {
+      entry.live = sha256Hex(await fetchBytes(url));
+    } catch (err) {
+      entry.error = 'live fetch failed: ' + (err instanceof Error ? err.message : err);
+    }
+    try {
+      entry.docs = sha256Hex(await readDocsBytes(name));
+    } catch (err) {
+      entry.error = (entry.error ? entry.error + '; ' : '') + 'docs read failed: ' + (err instanceof Error ? err.message : err);
+    }
+    entry.match = !entry.error && entry.live === entry.docs;
+    files.push(entry);
+  }
+  const status = !files.length || files.some(f => f.error) ? 'error' : files.every(f => f.match) ? 'equal' : 'differ';
+  return { status, files };
+}
+
+const short = h => (h ? h.slice(0, 12) : '-');
+
+/** Pure: report lines for the name check and the content check, kept separate. */
+export function formatContentReport(nameResult, content) {
+  const nameLine = 'names:   ' + ({ equal: 'MATCH', differ: 'DIFFER', error: 'ERROR' }[nameResult.status] ?? nameResult.status);
+  if (!content) return [nameLine, 'content: UNCHECKED'].join('\n');
+  const label = { equal: 'MATCH', differ: 'DIFFER', error: 'ERROR' }[content.status];
+  const lines = [nameLine, 'content: ' + label + (content.files.length ? '' : ' (no JS bundle to hash)')];
+  for (const f of content.files) {
+    lines.push('  ' + f.name + ' live sha256 ' + short(f.live) + ' docs sha256 ' + short(f.docs) + (f.error ? ' (' + f.error + ')' : f.match ? '' : ' MISMATCH'));
+  }
+  return lines.join('\n');
+}
+
+/**
+ * Pure: exit code from both checks. 0 only if names and content both match. Names differing is 1 even
+ * though the content check then errors (docs has no file by the live name). 2 on a name-check error, or
+ * on a content error while names match (cannot confirm the bytes).
+ */
+export function exitCodeFor(nameResult, content) {
+  if (nameResult.status === 'error') return 2;
+  if (nameResult.status === 'differ') return 1;
+  if (!content || content.status === 'error') return 2;
+  return content.status === 'equal' ? 0 : 1;
 }
 
 const names = b => [...b.js, ...b.css].join(', ') || '(none)';
@@ -96,7 +161,28 @@ async function main() {
     } catch { /* unknown */ }
     console.log(formatBundleLine(result, head));
   }
-  return { equal: 0, differ: 1, error: 2 }[result.status];
+  if (result.status === 'error') return 2;
+  const docsDir = resolve(root, docs, '..');
+  const content = await compareContent(result.live.js, url, {
+    fetchBytes: async u => {
+      const r = await fetch(u, { headers: { 'cache-control': 'no-cache' } });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.arrayBuffer();
+    },
+    // Hash the committed blob, not the working-tree file: with core.autocrlf=true on Windows the
+    // checked-out JS differs byte-for-byte from what was pushed, so the disk copy would always mismatch.
+    // Falls back to the disk file when git cannot serve it (not a repo, file untracked).
+    readDocsBytes: async name => {
+      const rel = relative(root, resolve(docsDir, 'assets', name)).split(sep).join('/');
+      try {
+        return execFileSync('git', ['show', 'HEAD:' + rel], { cwd: root, maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
+      } catch {
+        return readFile(resolve(docsDir, 'assets', name));
+      }
+    },
+  });
+  console.log(formatContentReport(result, content));
+  return exitCodeFor(result, content);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
