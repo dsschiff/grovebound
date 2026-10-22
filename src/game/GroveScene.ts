@@ -20,6 +20,7 @@ import { advanceSeedheart, moonMission, nextObjective, objectiveName, objectives
 import { advanceWaylight, waylightProgress } from './waylight';
 import { advanceBriarStag, stagLeg, strikeBriarStag } from './briarStag';
 import { RESONANCE_INFO, advanceCommandChain, commandChainResult, resonanceFor, type CommandChain, type Resonance } from './resonance';
+import { isChanneledObjective, isDeliveryForge, isRitualAltar } from './objectiveRoles';
 import { ENEMY_STATS, enemyKindForRoll, enemyMaxHp, spawnDistance, wavePaused } from './enemySpawns';
 import { ROUTE_GATE_RADIUS, healOnRoute, routeChoiceAfter, selectRoute, type RouteChoiceRegion } from './routeChoice';
 import { MARK_REACH, MINE_REACH, fieldHitColor, fieldReward, isTerrainField, mineTarget, nearestTerrainField, tappedTerrainField } from './fieldMarking';
@@ -279,7 +280,7 @@ export class GroveScene extends Phaser.Scene {
     this.drawRegion(snapshot.objects.some(object => object.kind === 'waylight'));
     snapshot.objects.forEach(object => this.spawnObject(object.kind, object.x, object.y, object.hp, object.maxHp, object.active));
     const spring = this.objects.find(object => object.kind === 'coolant');
-    const deliveryForge = this.objects.find(object => object.kind === 'forge' && object.maxHp <= 3 && object.hp > 0);
+    const deliveryForge = this.objects.find(object => isDeliveryForge(object) && object.hp > 0);
     if (spring && deliveryForge && !spring.active && !deliveryForge.active) {
       spring.hp = 2; spring.active = true; spring.view.setAlpha(1); spring.ring?.setVisible(true);
       spring.label.setText('FILL FLASK · 0/2s'); this.coolantCarryRemaining = 0;
@@ -496,8 +497,7 @@ export class GroveScene extends Phaser.Scene {
     for (let i = 0; i < 8; i++) {
       const target = this.nextRequiredObjective();
       if (!target) break;
-      if (target.kind === 'pump' || target.kind === 'waylight' || target.kind === 'seedheart' || target.kind === 'coolant'
-        || target.kind === 'moonflame' || target.kind === 'forge' && target.maxHp <= 3 || target.kind === 'altar' && target.maxHp <= 6) {
+      if (isChanneledObjective(target)) {
         if (target.kind === 'coolant') this.coolantCarryRemaining = 12;
         target.hp = 0; this.completeObject(target);
       }
@@ -600,9 +600,7 @@ export class GroveScene extends Phaser.Scene {
     const gathering = target === cache;
     const reach = Math.max(...this.weapons.map(weapon => WEAPON_INFO[weapon.id].range)) * this.stats.reach;
     const direction = pilotDirection({ player: { x: this.hero.x, y: this.hero.y }, target,
-      desiredDistance: enteringGate || gathering || (target === objective && (objective.kind === 'pump'
-        || objective.kind === 'coolant' || objective.kind === 'moonflame' || objective.kind === 'forge' && objective.maxHp <= 3
-        || objective.kind === 'waylight' || objective.kind === 'seedheart' || objective.kind === 'stag' || objective.kind === 'altar' && objective.maxHp <= 6))
+      desiredDistance: enteringGate || gathering || (target === objective && (isChanneledObjective(objective) || objective.kind === 'stag'))
         ? 0 : Math.min(210, reach * 0.7),
       enemies: this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })),
       orbitSign: this.seed % 2 ? 1 : -1, avoidance: enteringGate ? 0.1 : gathering ? 0.35 : 1 });
@@ -1246,9 +1244,7 @@ export class GroveScene extends Phaser.Scene {
     const focused = this.focusedWeapon === weapon.id;
     const range = info.range * this.stats.reach * (commanded ? weapon.id === 'bow' ? 2.05 : 1.38 : 1);
     const targetObjects = this.objects.filter(candidate => candidate.active && candidate.hp > 0
-      && candidate.kind !== 'pump' && candidate.kind !== 'waylight' && candidate.kind !== 'seedheart'
-      && candidate.kind !== 'coolant' && candidate.kind !== 'moonflame' && !(candidate.kind === 'forge' && candidate.maxHp <= 3)
-      && !(candidate.kind === 'altar' && candidate.maxHp <= 6)
+      && !isChanneledObjective(candidate)
       && (!isTerrainField(candidate) || candidate === this.markedField));
     const markedIndex = this.markedField?.active && this.markedField.hp > 0
       && this.distance(this.hero.x, this.hero.y, this.markedField.x, this.markedField.y) < range
@@ -1547,7 +1543,7 @@ export class GroveScene extends Phaser.Scene {
     enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.charge?.marker?.destroy();
     enemy.sprite.destroy(); this.enemies.splice(this.enemies.indexOf(enemy), 1);
     this.kills++;
-    const rite = this.objects.find(object => object.kind === 'altar' && object.active && object.hp > 0 && object.maxHp <= 6);
+    const rite = this.objects.find(object => isRitualAltar(object) && object.active && object.hp > 0);
     if (rite && this.distance(x, y, rite.x, rite.y) < 250) {
       rite.hp = Math.max(0, rite.hp - 1);
       this.floatText('MOON SPARK', x, y - 55, '#d9ccff');
@@ -1662,9 +1658,7 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private hitObject(object: WorldObject, damage: number): void {
-    if (!object.active || object.hp <= 0 || object.kind === 'pump' || object.kind === 'waylight' || object.kind === 'seedheart'
-      || object.kind === 'coolant' || object.kind === 'moonflame' || object.kind === 'forge' && object.maxHp <= 3
-      || object.kind === 'altar' && object.maxHp <= 6) return;
+    if (!object.active || object.hp <= 0 || isChanneledObjective(object)) return;
     if (object.kind === 'stag') {
       const strike = strikeBriarStag(object.hp, object.maxHp, damage);
       this.metrics.objectDamage += strike.dealt;
@@ -1703,7 +1697,7 @@ export class GroveScene extends Phaser.Scene {
     object.hp = 0;
     if (object.kind === 'coolant') {
       object.active = false; object.view.setAlpha(0.35); object.ring?.setVisible(false);
-      const forge = this.objects.find(item => item.kind === 'forge' && item.maxHp <= 3 && item.hp > 0);
+      const forge = this.objects.find(item => isDeliveryForge(item) && item.hp > 0);
       if (forge) { forge.active = true; forge.view.setAlpha(1); forge.ring?.setVisible(true); }
       this.coolantCarryRemaining = 12;
       soundFx.play('ward'); this.burst(object.x, object.y, '#9cf5ec', 10);
@@ -1872,7 +1866,7 @@ export class GroveScene extends Phaser.Scene {
       if (seedheart.hp <= 0) this.completeObject(seedheart);
     }
     const pump = this.objects.find(object => object.kind === 'pump' && object.active && object.hp > 0);
-    const rite = this.objects.find(object => object.kind === 'altar' && object.active && object.hp > 0 && object.maxHp <= 6);
+    const rite = this.objects.find(object => isRitualAltar(object) && object.active && object.hp > 0);
     if (rite && dt > 0) {
       this.ritualClock += dt;
       if (this.ritualClock >= 4.5 && this.enemies.length < 68) {
@@ -1895,7 +1889,7 @@ export class GroveScene extends Phaser.Scene {
     }
     const spring = this.objects.find(object => object.kind === 'coolant');
     const coolant = spring?.active && spring.hp > 0 ? spring : undefined;
-    const deliveryForge = this.objects.find(object => object.kind === 'forge' && object.maxHp <= 3 && object.hp > 0);
+    const deliveryForge = this.objects.find(object => isDeliveryForge(object) && object.hp > 0);
     if (coolant && dt > 0 && this.distance(this.hero.x, this.hero.y, coolant.x, coolant.y) < 96) {
       coolant.hp = Math.max(0, coolant.hp - dt);
       coolant.label.setText(`FILL FLASK · ${Math.min(2, Math.floor(2 - coolant.hp))}/2s`);
@@ -2131,7 +2125,7 @@ export class GroveScene extends Phaser.Scene {
         .map(weapon => ({ weapon: weapon.id, resonance: resonanceFor(this.commandChain!.weapon, weapon.id)! })) : [],
       special: HERO_INFO[this.heroId].special, specialCooldown: this.specialCooldown,
       objectivesLeft: this.requiredLeft(), objectiveName: currentObjective?.kind ?? null,
-      ritualActive: currentObjective?.kind === 'altar' && currentObjective.maxHp <= 6,
+      ritualActive: !!currentObjective && isRitualAltar(currentObjective),
       coolantCarryRemaining: this.coolantCarryRemaining,
       surge: wildSurge(this.region, this.stageSeconds, REGIONS[this.region].duration),
       moonflowRemaining: this.moonflowRemaining,
