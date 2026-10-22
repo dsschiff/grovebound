@@ -43,6 +43,20 @@ The dev server prints a local address. `?debug=1` displays FPS; on localhost onl
 
 With `npm run dev -- --port 4178` running, use `npm run profile:browser -- profile.json`. The profiler runs 600 fixed 60 Hz steps through the real scene and renderer for seed 24 Verge, seed 88 Quarry surge, and seed 144 Moonfen boss scenarios. Its JSON includes frame/render CPU timings, HUD mutations, browser identity, errors, and full final snapshots for gameplay comparison. These are desktop CPU measurements, not mobile FPS or GPU completion timings.
 
+#### Pilot matrix
+
+`npm run pilot:matrix` (the same as `node scripts/pilot-matrix.mjs`) plays full runs headlessly with the debug pilot: heroes x Verge contracts x Quarry routes x Moonfen routes. It starts its own dev server on port 4191 and uses desktop Chrome (or `PLAYWRIGHT_CHANNEL=chromium`). It is not part of `npm run test:browser`; one cell takes about 10.5 minutes of game time. Results are saved after every cell to `reports/pilot-matrix/pilot-matrix.json` with a Markdown summary beside it, and a rerun skips cells already in the file. Pass flags after `--`, for example `npm run pilot:matrix -- --limit 1`.
+
+- `--out <file.json>` sets the output file; the summary goes to the same name with `.md`.
+- `--heroes`, `--contracts`, `--quarry`, `--moon` take comma lists (defaults `warden,ranger,ember`, `waylight,seedheart,stag`, `coolantRun,forgeAssault`, `moonflame,altarRite`).
+- `--seed-set A|B|C` picks a fixed seed per contract (default `A`). `wN` runs Waylight on seed N and needs `--contracts waylight`; a comma list such as `w1,w3,w5` runs several sets at once.
+- `--repeats N`, `--limit N`, `--concurrency N` (default 3), `--port N` (default 4191), `--rerun` (replay cells already recorded), `--render` (step the whole game including rendering; slower, same logic).
+- `--commands on` lets the pilot fire weapon commands. With it, `--pairing off` never chains a resonance and `--focus restore` re-focuses the starting weapon after each command.
+- `--skill reactionMs[:actEvery]` is the weak-pilot arm: the pilot's movement and presses are delayed by `reactionMs` of game time and it takes only every `actEvery`-th chance to press the special or a command (for example `--skill 250:2`). Without it the pilot is unchanged.
+- `--baseline <earlier.json>` reports, per run, whether the outcome matches the same run in an earlier file.
+
+Each report in `reports/pilot-matrix/` gives the exact command that produced it; `weak-pilot.md` is the weak-pilot slice. These are bot runs on desktop Chrome, not human or Android evidence.
+
 #### Budgets
 
 `npm run profile:budget` (same server requirement) runs the profiler with `--budget` and exits nonzero on a breach, printing measured vs budget per seed. The limits are desktop Chrome CPU milliseconds per frame, not Android FPS: median at 3x and p95 at 2x the WORKLOG baseline, rounded up. Seed 24: median 3.9, p95 4.6. Seed 88: median 8.1, p95 9.4. Seed 144: median 9.0, p95 10.8. The baselines are median 1.3/2.7/3.0 and p95 2.3/4.7/5.4. A breach on a heavily loaded machine may be noise; rerun on an idle machine before changing a limit. `GROVE_BUDGET_SCALE=0.1` forces a breach for checking the gate.
@@ -64,6 +78,8 @@ git add src public scripts tests docs README.md GOAL.md ROADMAP.md WORKLOG.md
 ```
 
 The staging command replaces `docs/` with the verified `dist/` build and adds `.nojekyll`. Commit source and `docs/` together, push, then verify the live page. The current GitHub token cannot push workflow changes, so this repository uses `main:/docs` instead of a Pages workflow.
+
+To check whether the live page is serving the build in `docs/`, run `npm run check:pages`. It compares the hashed `assets/index-*.js` and `.css` names in the live `index.html` with `docs/index.html`, then prints the bundle name and the repository HEAD for the phone checklist header. Exit code 0 means they match, 1 means they differ (it names the last commit that touched `docs/`), and 2 means the fetch or parse failed. `--url <url>` or `GROVE_PAGES_URL` checks another address; `--docs <path>` compares another file. GitHub Pages can take a few minutes to update after a push.
 
 ## Project state
 

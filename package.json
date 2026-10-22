@@ -12,7 +12,8 @@
     "test": "vitest run tests",
     "test:browser": "playwright test",
     "profile:browser": "node scripts/profile-browser.mjs",
-    "profile:budget": "node scripts/profile-browser.mjs --budget profile.json"
+    "profile:budget": "node scripts/profile-browser.mjs --budget profile.json",
+    "pilot:matrix": "node scripts/pilot-matrix.mjs"
   },
   "dependencies": {
     "phaser": "4.2.1"
