@@ -66,7 +66,7 @@ describe('check-pages-live content hash', () => {
     const text = formatContentReport(names, c);
     expect(text).toContain('names:   DIFFER');
     expect(text).toContain('content: ERROR');
-    expect(exitCodeFor(names, c)).toBe(2);
+    expect(exitCodeFor(names, c)).toBe(1);
   });
 
   it('reports a live fetch failure without throwing', async () => {
@@ -74,6 +74,7 @@ describe('check-pages-live content hash', () => {
     const c = await compareContent(['index-A.js'], PAGE, io);
     expect(c.status).toBe('error');
     expect(c.files[0].error).toContain('live fetch failed: HTTP 404');
+    expect(exitCodeFor(compareBundles(page('index-A.js'), page('index-A.js')), c)).toBe(2);
   });
 
   it('treats an empty bundle list as an error and an absent content check as unchecked', async () => {
@@ -81,6 +82,6 @@ describe('check-pages-live content hash', () => {
     expect(c.status).toBe('error');
     const names = compareBundles(page('index-A.js'), page('index-A.js'));
     expect(formatContentReport(names, undefined)).toBe('names:   MATCH\ncontent: UNCHECKED');
-    expect(exitCodeFor(names, undefined)).toBe(1);
+    expect(exitCodeFor(names, undefined)).toBe(2);
   });
 });

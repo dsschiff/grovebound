@@ -85,21 +85,25 @@ const short = h => (h ? h.slice(0, 12) : '-');
 /** Pure: report lines for the name check and the content check, kept separate. */
 export function formatContentReport(nameResult, content) {
   const nameLine = 'names:   ' + ({ equal: 'MATCH', differ: 'DIFFER', error: 'ERROR' }[nameResult.status] ?? nameResult.status);
-  if (!content) return [nameLine, 'content: UNCHECKED'].join('
-');
+  if (!content) return [nameLine, 'content: UNCHECKED'].join('\n');
   const label = { equal: 'MATCH', differ: 'DIFFER', error: 'ERROR' }[content.status];
   const lines = [nameLine, 'content: ' + label + (content.files.length ? '' : ' (no JS bundle to hash)')];
   for (const f of content.files) {
     lines.push('  ' + f.name + ' live sha256 ' + short(f.live) + ' docs sha256 ' + short(f.docs) + (f.error ? ' (' + f.error + ')' : f.match ? '' : ' MISMATCH'));
   }
-  return lines.join('
-');
+  return lines.join('\n');
 }
 
-/** Pure: exit code from both checks. 0 only if names and content both match; 2 on any error. */
+/**
+ * Pure: exit code from both checks. 0 only if names and content both match. Names differing is 1 even
+ * though the content check then errors (docs has no file by the live name). 2 on a name-check error, or
+ * on a content error while names match (cannot confirm the bytes).
+ */
 export function exitCodeFor(nameResult, content) {
-  if (nameResult.status === 'error' || content?.status === 'error') return 2;
-  return nameResult.status === 'equal' && content?.status === 'equal' ? 0 : 1;
+  if (nameResult.status === 'error') return 2;
+  if (nameResult.status === 'differ') return 1;
+  if (!content || content.status === 'error') return 2;
+  return content.status === 'equal' ? 0 : 1;
 }
 
 const names = b => [...b.js, ...b.css].join(', ') || '(none)';
