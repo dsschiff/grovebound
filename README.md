@@ -41,6 +41,12 @@ The dev server prints a local address. `?debug=1` displays FPS; on localhost onl
 
 With `npm run dev -- --port 4178` running, use `npm run profile:browser -- profile.json`. The profiler runs 600 fixed 60 Hz steps through the real scene and renderer for seed 24 Verge, seed 88 Quarry surge, and seed 144 Moonfen boss scenarios. Its JSON includes frame/render CPU timings, HUD mutations, browser identity, errors, and full final snapshots for gameplay comparison. These are desktop CPU measurements, not mobile FPS or GPU completion timings.
 
+#### Budgets
+
+`npm run profile:budget` (same server requirement) runs the profiler with `--budget` and exits nonzero on a breach, printing measured vs budget per seed. The limits are desktop Chrome CPU milliseconds per frame, not Android FPS: median at 3x and p95 at 2x the WORKLOG baseline, rounded up. Seed 24: median 3.9, p95 4.6. Seed 88: median 8.1, p95 9.4. Seed 144: median 9.0, p95 10.8. The baselines are median 1.3/2.7/3.0 and p95 2.3/4.7/5.4. A breach on a heavily loaded machine may be noise; rerun on an idle machine before changing a limit. `GROVE_BUDGET_SCALE=0.1` forces a breach for checking the gate.
+
+`npm run stage:pages` now fails when the staged files exceed 5,000,000 bytes (the GOAL.md transfer target), listing every file largest first. It prints the total on success. `GROVE_PAGES_MAX_BYTES` overrides the limit only to test the gate.
+
 The static floor uses one replaceable 1800 × 1800 texture instead of redrawing its geometry each frame. Its uncompressed RGBA payload is about 12.4 MiB; browser/GPU overhead is additional. A regression checks that repeated region loads do not accumulate floor textures. Real Android memory and performance testing remains open.
 
 Keyboard users can Tab between the field and HUD controls. Space activates the focused button; movement and the special shortcut apply while the field has focus. Weapon focus changes retain the selected button's keyboard focus. Escape opens or closes Pause, whose controls support Tab, Shift+Tab, Enter, and Space.
