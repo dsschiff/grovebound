@@ -20,6 +20,7 @@ import { advanceSeedheart, moonMission, nextObjective, objectiveName, objectives
 import { advanceWaylight, waylightProgress } from './waylight';
 import { advanceBriarStag, stagLeg, strikeBriarStag } from './briarStag';
 import { RESONANCE_INFO, advanceCommandChain, commandChainResult, resonanceFor, type CommandChain, type Resonance } from './resonance';
+import { ENEMY_STATS, enemyKindForRoll, enemyMaxHp, spawnDistance, wavePaused } from './enemySpawns';
 import { ROUTE_GATE_RADIUS, healOnRoute, routeChoiceAfter, selectRoute, type RouteChoiceRegion } from './routeChoice';
 import { MARK_REACH, MINE_REACH, fieldHitColor, fieldReward, isTerrainField, mineTarget, nearestTerrainField, tappedTerrainField } from './fieldMarking';
 
@@ -961,7 +962,7 @@ export class GroveScene extends Phaser.Scene {
       this.floatText('WILD SURGE', this.hero.x, this.hero.y - 100, '#f7c47a');
       this.saveSnapshot();
     }
-    const wavePause = !surge && this.stageSeconds % 45 > 38;
+    const wavePause = wavePaused(surge, this.stageSeconds);
     const interval = waveInterval(this.region, this.stageSeconds, surge);
     if (!this.gatekeeperSpawned && !wavePause && this.spawnClock >= interval && this.enemies.length < 70) {
       this.spawnClock = 0;
@@ -984,11 +985,8 @@ export class GroveScene extends Phaser.Scene {
   private chooseEnemyKind(): EnemyKind {
     const roll = this.random.next();
     const surge = wildSurge(this.region, this.stageSeconds, REGIONS[this.region].duration);
-    if (this.stageSeconds > 40 && roll < 0.12 + this.region * 0.03
-      && this.enemies.filter(enemy => enemy.kind === 'thornback').length < 3) return 'thornback';
-    if (this.stageSeconds > 55 && roll < 0.26 + this.region * 0.05) return 'brute';
-    if (this.stageSeconds > 25 && roll < 0.5 + this.region * 0.05 + (surge ? 0.16 : 0)) return 'wisp';
-    return 'gnarl';
+    return enemyKindForRoll(roll, this.region, this.stageSeconds, surge,
+      this.enemies.filter(enemy => enemy.kind === 'thornback').length);
   }
 
   private spawnPoint(distance = 430): { x: number; y: number } {
@@ -997,16 +995,9 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private spawnEnemy(kind: EnemyKind, position?: { x: number; y: number }, saved?: EnemySave): void {
-    const values = {
-      gnarl: { hp: 27, speed: 77, damage: 8, radius: 23, size: 48, texture: 'gnarl-v2' },
-      wisp: { hp: 17, speed: 126, damage: 6, radius: 17, size: 43, texture: 'wisp-v2' },
-      brute: { hp: 82, speed: 53, damage: 15, radius: 31, size: 67, texture: 'brute-v2' },
-      thornback: { hp: 110, speed: 92, damage: 17, radius: 30, size: 74, texture: 'thornback-v1' },
-      gatekeeper: { hp: 420, speed: 67, damage: 18, radius: 38, size: 91, texture: 'brute-v2' },
-      boss: { hp: 1150, speed: 63, damage: 22, radius: 54, size: 125, texture: 'briar-king-v2' },
-    }[kind];
-    const point = position ?? this.spawnPoint(kind === 'thornback' ? 280 : 430);
-    const hp = saved?.maxHp ?? Math.round(values.hp * (kind === 'boss' || kind === 'gatekeeper' ? 1 : 1 + this.region * 0.25 + this.stageSeconds / 700));
+    const values = ENEMY_STATS[kind];
+    const point = position ?? this.spawnPoint(spawnDistance(kind));
+    const hp = saved?.maxHp ?? enemyMaxHp(kind, this.region, this.stageSeconds);
     const sprite = this.add.image(point.x, point.y, values.texture).setDisplaySize(values.size, values.size).setDepth(4);
     if (kind === 'gatekeeper') sprite.setTint(0xf1bd8d);
     if (this.region === 2 && kind === 'wisp') sprite.setTint(0xb2e4e6);
