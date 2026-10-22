@@ -4,6 +4,8 @@ A portrait-first wilderness roguelite for short phone sessions. [Play the curren
 
 [All games](https://dsschiff.github.io/games/) provides a public landing page for Grovebound and future projects.
 
+Before a phone playtest, follow [PHONE-SESSION-CHECKLIST.md](PHONE-SESSION-CHECKLIST.md).
+
 Drag on the field to move, or use WASD/arrow keys. Both starting weapons attack automatically. **Tap an equipped slot** to fire its named command at a target and focus that weapon. Crescent Sweep cleaves and knocks back foes in front of you; Root Volley fans out and binds them; Dawnshot reaches distant enemies with a guaranteed critical hit and extra elite damage; Ember Field leaves burning ground for four seconds. Each slot has its own eight-second command recharge; the label, bar, and countdown show when it is ready again. Fire a different slot within four seconds to trigger a **weapon resonance**. The camp previews the pair's effect; the combat cue names the second slot and time remaining. All six weapon pairs have a different payoff: roots, elite damage, knockback and fire, multi-target strikes, root and burn, or a wide fire burst. The focused weapon also gains 25% damage on automatic shots while other weapons deal 10% less. Tap the large special button, or press Space, to use a hero ability. Pause at any time; the browser saves the run and offers Resume after a reload. Progress stays on this browser and does not sync between devices.
 
 ## The run
