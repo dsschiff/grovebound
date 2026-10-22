@@ -126,10 +126,12 @@ describe('pilot solo arm (pairing off)', () => {
 
 describe('pilot focus restore', () => {
   it('restores focus to the starting weapon only when that tap cannot fire a command', () => {
-    expect(pilotShouldRestoreFocus({ focused: 'bow', start: 'axe', startCommandCooldown: 5 })).toBe(true);
-    // Starting weapon ready: the tap would fire a new command, so the restore waits.
-    expect(pilotShouldRestoreFocus({ focused: 'bow', start: 'axe', startCommandCooldown: 0 })).toBe(false);
+    expect(pilotShouldRestoreFocus({ focused: 'bow', start: 'axe', startCommandCooldown: 5, startHasTarget: true })).toBe(true);
+    // Ready but nothing in its command range: the tap only focuses.
+    expect(pilotShouldRestoreFocus({ focused: 'bow', start: 'axe', startCommandCooldown: 0, startHasTarget: false })).toBe(true);
+    // Ready with a target: the tap would fire a new command, so the restore waits.
+    expect(pilotShouldRestoreFocus({ focused: 'bow', start: 'axe', startCommandCooldown: 0, startHasTarget: true })).toBe(false);
     // Already focused on the starting weapon: nothing to do.
-    expect(pilotShouldRestoreFocus({ focused: 'axe', start: 'axe', startCommandCooldown: 5 })).toBe(false);
+    expect(pilotShouldRestoreFocus({ focused: 'axe', start: 'axe', startCommandCooldown: 5, startHasTarget: false })).toBe(false);
   });
 });

@@ -106,11 +106,11 @@ export function pilotCommand(input: PilotCommandInput): PilotCommandChoice | nul
 
 // Pilot-matrix "restore" arm. A command tap also focuses the commanded weapon (GroveScene.focusWeapon), which changes
 // auto-attack damage until focus moves again. The restore arm taps the run's starting weapon afterwards through the
-// same player path. That tap only changes focus when the starting weapon's command is recharging; when it is ready it
-// would fire a new command (and could land a resonance), so the restore waits. The matrix measures that wait as
-// off-focus seconds.
-export interface PilotFocusInput { focused: Weapon; start: Weapon; startCommandCooldown: number }
+// same player path. That tap only changes focus when the starting weapon's command is recharging or has no target in
+// command range; otherwise it would fire a new command (and could land a resonance), so the restore waits. The matrix
+// measures that wait as off-focus seconds.
+export interface PilotFocusInput { focused: Weapon; start: Weapon; startCommandCooldown: number; startHasTarget: boolean }
 
 export function pilotShouldRestoreFocus(input: PilotFocusInput): boolean {
-  return input.focused !== input.start && input.startCommandCooldown > 0;
+  return input.focused !== input.start && (input.startCommandCooldown > 0 || !input.startHasTarget);
 }

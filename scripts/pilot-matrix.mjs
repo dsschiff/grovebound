@@ -387,7 +387,8 @@ async function runCell(cell) {
       minHealthFractionAt: pm.minHealthFractionAt, minHealthFractionHp: pm.minHealthFractionHp, minHealthFractionMax: pm.minHealthFractionMax, maxStall: pm.maxStall, stallAt: pm.stallAt, steps: pm.steps, startHero: pm.startHero,
       contract: pm.contract, quarryRoute: s.quarryRoute, moonRoute: s.moonRoute, seconds: s.seconds, region: s.region,
       metrics: s.metrics, kills: s.kills, level: s.level, health: s.health, weapons: s.weapons.map(w => `${w.id}:${w.rank}`),
-      commands: pm.commands, commandsByWeapon: pm.commandsByWeapon, offFocusSeconds: pm.offFocusSeconds, startWeapon: s.weapons[0].id };
+      commands: pm.commands, commandsByWeapon: pm.commandsByWeapon, offFocusSeconds: pm.offFocusSeconds, startWeapon: s.weapons[0].id,
+      restoreFires: s.pilotRestoreFires ?? 0 };
   });
   await context.close();
   const result = final.result;
@@ -414,7 +415,7 @@ async function runCell(cell) {
     pilotCommands: cell.pilotCommands, commands: final.commands, commandsByWeapon: final.commandsByWeapon,
     resonances: metrics.resonances ?? 0,
     arm: cell.arm, pilotPairing: cell.pilotPairing, pilotFocus: cell.pilotFocus, startWeapon: final.startWeapon,
-    offFocusSeconds: Math.round(final.offFocusSeconds * 10) / 10,
+    offFocusSeconds: Math.round(final.offFocusSeconds * 10) / 10, restoreFires: final.restoreFires,
     pageErrors: errors, wallSeconds: Math.round((Date.now() - started) / 1000), finishedAt: new Date().toISOString(),
   };
 }

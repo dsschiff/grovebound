@@ -150,6 +150,8 @@ export class GroveScene extends Phaser.Scene {
   private pilotCommandsEnabled = false;
   private pilotPairing = true;
   private pilotFocusRestore = false;
+  /** Debug pilot only: focus-restore taps that fired a command (expected 0; read by scripts/pilot-matrix.mjs). */
+  pilotRestoreFires = 0;
   private slowed = false;
   private waylightAmbush = false;
   private ritualClock = 0;
@@ -617,7 +619,21 @@ export class GroveScene extends Phaser.Scene {
     // Runs before this frame's auto attacks (update), so a restored focus applies to all of them.
     const start = this.weapons[0];
     if (this.pilotFocusRestore && this.running && pilotShouldRestoreFocus({ focused: this.focusedWeapon, start: start.id,
-      startCommandCooldown: start.commandCooldown ?? 0 })) this.focusWeapon(start.id);
+      startCommandCooldown: start.commandCooldown ?? 0, startHasTarget: this.pilotCommandHasTarget(start) })) {
+      const before = start.commandCooldown ?? 0;
+      this.focusWeapon(start.id);
+      // Should stay 0: a restore tap that fired would be an extra command. The pilot matrix reports it.
+      if ((start.commandCooldown ?? 0) > before) this.pilotRestoreFires++;
+    }
+  }
+
+  /** Debug pilot only: whether a commanded attack by this weapon would find a target (autoAttack's commanded targeting). */
+  private pilotCommandHasTarget(weapon: EquippedWeapon): boolean {
+    const range = WEAPON_INFO[weapon.id].range * this.stats.reach * (weapon.id === 'bow' ? 2.05 : 1.38);
+    const objects = this.objects.filter(candidate => candidate.active && candidate.hp > 0 && !isChanneledObjective(candidate)
+      && (!isTerrainField(candidate) || candidate === this.markedField));
+    return chooseAutoTarget({ x: this.hero.x, y: this.hero.y }, range,
+      this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })), objects) !== null;
   }
 
   private updateDebugPilot(): void {
