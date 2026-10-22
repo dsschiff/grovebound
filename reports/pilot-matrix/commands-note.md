@@ -43,4 +43,4 @@ In practice this policy fires almost on cooldown. Sunbow, the longest-range comm
 
 ## Limits
 
-This is one decision policy on desktop Chrome with scene-only stepping and 18 pairs. It is automated route evidence. It is not human balance, and it is not Android evidence. To isolate what resonances add on top of plain commands, run a variant policy with pairing disabled (see the track ideas file).
+This is one decision policy on desktop Chrome with scene-only stepping and 18 pairs. It is automated route evidence. It is not human balance, and it is not Android evidence. To isolate what resonances add on top of plain commands, run a variant policy with pairing disabled (see the track ideas file). Done in `resonance-split-note.md`: plain commands, resonance, and focus measured separately.
