@@ -18,10 +18,80 @@ async function scan(page: Page, testInfo: TestInfo, label: string): Promise<void
       targets: violation.nodes.map(node => node.target.join(' ')) }));
   await testInfo.attach(`axe-${label}`, {
     body: JSON.stringify({ blocking, all: results.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.length })),
-      incomplete: results.incomplete.map(v => ({ id: v.id, nodes: v.nodes.length })) }, null, 2),
+      // "incomplete" is what axe could not decide (mostly contrast over gradients or art); kept for manual review.
+      incomplete: results.incomplete.map(v => ({ id: v.id, nodes: v.nodes.map(node => ({ target: node.target.join(' '),
+        reason: node.any.concat(node.all, node.none).map(check => check.message).join(' ') })) })) }, null, 2),
     contentType: 'application/json',
   });
   expect(blocking, `${label}: serious/critical axe violations`).toEqual([]);
+  const undecided = results.incomplete.filter(rule => rule.id === 'color-contrast')
+    .flatMap(rule => rule.nodes.map(node => node.target.join(' ')));
+  const low = await renderedContrast(page, undecided);
+  await testInfo.attach(`contrast-${label}`, { body: JSON.stringify(low, null, 2), contentType: 'application/json' });
+  expect(low.filter(item => item.ratio < item.needed), `${label}: rendered text contrast below WCAG AA`).toEqual([]);
+}
+
+// axe leaves contrast "incomplete" when text sits on a gradient, blurred backdrop or pseudo-element, which is most
+// of this UI. For those nodes only, measure the rendered pixels: hide all text, screenshot, and compare the text
+// colour with the background pixels under each text run. The 2nd-percentile (near-worst) background pixel is used so
+// a stray anti-aliased border pixel cannot decide the result.
+async function renderedContrast(page: Page, targets: string[]) {
+  const runs = await page.evaluate(selectors => selectors.map(selector => {
+    const node = document.querySelector<HTMLElement>(selector);
+    if (!node || node.closest('[disabled], [aria-hidden="true"]')) return null;
+    const style = getComputedStyle(node);
+    const size = parseFloat(style.fontSize), weight = Number(style.fontWeight) || 400;
+    const rects: { x: number; y: number; w: number; h: number }[] = [];
+    for (const child of Array.from(node.childNodes)) {
+      // Ornament glyphs (❧ ✦ ➜) are decorative, not text; axe also leaves them undecided for that reason.
+      if (child.nodeType !== Node.TEXT_NODE || !/[\p{L}\p{N}]/u.test(child.textContent ?? '')) continue;
+      const range = document.createRange(); range.selectNodeContents(child);
+      for (const rect of Array.from(range.getClientRects())) {
+        // Sample the glyph band (one font-size tall, centred in the line box), not the leading above and below it,
+        // which can touch a neighbouring card's border.
+        const band = Math.min(rect.height, size);
+        const top = rect.top + (rect.height - band) / 2;
+        const x = Math.max(0, rect.left + 1), y = Math.max(0, top);
+        const w = Math.min(innerWidth, rect.right - 1) - x, h = Math.min(innerHeight, top + band) - y;
+        if (w >= 1 && h >= 1) rects.push({ x, y, w, h });
+      }
+    }
+    if (rects.length === 0) return null;
+    return { selector, color: style.color, rects, large: size >= 24 || (size >= 18.66 && weight >= 700) };
+  }).filter(run => run !== null), targets);
+  if (runs.length === 0) return [];
+  const hide = await page.addStyleTag({ content: '#ui *,#ui *::before,#ui *::after{color:transparent!important;'
+    + '-webkit-text-fill-color:transparent!important;text-shadow:none!important;caret-color:transparent!important}' });
+  const shot = (await page.screenshot()).toString('base64');
+  await hide.evaluate(node => node.remove());
+  return page.evaluate(async ({ runs, shot }) => {
+    const bitmap = await createImageBitmap(await (await fetch(`data:image/png;base64,${shot}`)).blob());
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const context = canvas.getContext('2d')!; context.drawImage(bitmap, 0, 0);
+    const scale = bitmap.width / innerWidth;
+    const pixels = context.getImageData(0, 0, bitmap.width, bitmap.height).data;
+    const channel = (v: number) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+    const luminance = (r: number, g: number, b: number) => 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+    return runs.map(run => {
+      const [r, g, b, a = 1] = run.color.match(/[\d.]+/g)!.map(Number);
+      const ratios: number[] = [];
+      for (const rect of run.rects) {
+        for (let y = Math.floor(rect.y * scale); y < Math.floor((rect.y + rect.h) * scale); y++) {
+          for (let x = Math.floor(rect.x * scale); x < Math.floor((rect.x + rect.w) * scale); x++) {
+            const i = (y * bitmap.width + x) * 4;
+            const [br, bg, bb] = [pixels[i], pixels[i + 1], pixels[i + 2]];
+            const fg = luminance(r * a + br * (1 - a), g * a + bg * (1 - a), b * a + bb * (1 - a));
+            const back = luminance(br, bg, bb);
+            ratios.push((Math.max(fg, back) + 0.05) / (Math.min(fg, back) + 0.05));
+          }
+        }
+      }
+      ratios.sort((p, q) => p - q);
+      const ratio = ratios[Math.floor(ratios.length * 0.02)];
+      return { target: run.selector, color: run.color, ratio: Math.round(ratio * 100) / 100,
+        min: Math.round(ratios[0] * 100) / 100, needed: run.large ? 3 : 4.5 };
+    });
+  }, { runs, shot });
 }
 
 async function sceneCall(page: Page, body: string): Promise<void> {
@@ -59,6 +129,9 @@ async function enterRun(page: Page): Promise<void> {
   await page.locator('#start-button').click();
   await expect(page.locator('#game canvas')).toBeFocused();
   await sceneCall(page, 'game.loop.sleep();');
+  // The region-start toast sits above dialogs for 2.5 s and can cover a dialog title (logged as a finding, not
+  // fixed here: where event toasts go during a choice is a design call). Scan the dialogs once it has cleared.
+  await expect(page.locator('#toast')).toBeHidden({ timeout: 5000 });
 }
 
 for (const size of sizes) {
@@ -67,6 +140,9 @@ for (const size of sizes) {
   test(`camp screen has no serious axe violations at ${tag}`, async ({ page }, testInfo) => {
     await openCamp(page, size);
     await scan(page, testInfo, `camp-${tag}`);
+    // The camp scrolls on short phones; rendered-contrast sampling only sees what is on screen.
+    await page.locator('#menu').evaluate(menu => menu.scrollTo(0, menu.scrollHeight));
+    await scan(page, testInfo, `camp-bottom-${tag}`);
   });
 
   test(`pause dialog: axe, focus trap and focus return at ${tag}`, async ({ page }, testInfo) => {

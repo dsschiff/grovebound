@@ -186,7 +186,7 @@ function refreshMenu(): void {
     const info = CAMP_KIT_INFO[kit];
     const unlocked = progress.unlockedKits.includes(kit);
     const label = unlocked ? kit === progress.selectedKit ? 'EQUIPPED' : 'SELECT' : `UNLOCK · ✦${info.cost}`;
-    return `<button class="kit-option ${kit === progress.selectedKit ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-kit="${kit}" aria-pressed="${kit === progress.selectedKit}" aria-label="${info.name}. ${info.description} ${label}"><img src="${import.meta.env.BASE_URL}art/${info.art}" alt=""/><strong>${info.name}</strong><small>${label}</small></button>`;
+    return `<button class="kit-option ${kit === progress.selectedKit ? 'selected' : ''} ${unlocked ? '' : 'locked'}" data-kit="${kit}" aria-pressed="${kit === progress.selectedKit}" aria-label="${info.name} ${label}. ${info.description}"><img src="${import.meta.env.BASE_URL}art/${info.art}" alt=""/><strong>${info.name}</strong> <small>${label}</small></button>`;
   }).join('');
   el('#kit-hint').textContent = CAMP_KIT_INFO[progress.selectedKit].description.toUpperCase();
   el('#kit-options').querySelectorAll<HTMLButtonElement>('[data-kit]').forEach(button => button.addEventListener('click', () => {
