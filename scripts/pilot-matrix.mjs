@@ -69,6 +69,15 @@ const SEED_SETS = {
   C: { waylight: 2021, seedheart: 3010, stag: 10015 },
 };
 const seedSet = opt('seed-set', 'A');
+// --seed-set wN runs the Waylight contract on seed N (objectives.ts vergeMission: odd, and bits 0x18 not both set), to
+// widen a waylight-only slice beyond sets A-C. Other contracts have no seed in such a set.
+const waylightSeed = /^w(\d+)$/.exec(seedSet);
+if (waylightSeed) {
+  const n = Number(waylightSeed[1]);
+  if (n % 2 === 0 || (n & 0x18) === 0x18) throw new Error(`--seed-set ${seedSet}: seed ${n} is not a Waylight seed`);
+  if (contracts.some(contract => contract !== 'waylight')) throw new Error(`--seed-set ${seedSet} needs --contracts waylight`);
+  SEED_SETS[seedSet] = { waylight: n };
+}
 if (!SEED_SETS[seedSet]) throw new Error('unknown --seed-set ' + seedSet);
 const CONTRACT_SEEDS = SEED_SETS[seedSet];
 const idSuffix = (seedSet === 'A' ? '' : '@' + seedSet) + (arm === 'off' ? '' : '+' + arm);
