@@ -120,7 +120,7 @@ if (isMain) console.log(`pilot-matrix: ${cells.length} cells in scope, ${cells.f
 const server = isMain ? await createServer({ root, logLevel: 'error', server: { host: '127.0.0.1', port, strictPort: true } }) : null;
 await server?.listen();
 const baseURL = `http://127.0.0.1:${port}`;
-const browser = isMain ? await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' }) : null;
+const browser = isMain ? await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome', args: ['--mute-audio'] }) : null;
 
 async function save() {
   store.meta = { updated: new Date().toISOString(), script: 'scripts/pilot-matrix.mjs', stepHz: 60, seedSets: SEED_SETS,
