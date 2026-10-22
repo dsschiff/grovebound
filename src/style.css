@@ -238,4 +238,4 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .clock-wrap,.health-caption,.loadout-heading{background:rgba(15,48,39,.82);border-radius:10px}
 .clock-wrap{padding:4px 10px 5px}
 .health-caption{padding:2px 8px;margin-bottom:5px}
-.loadout-heading{padding:3px 8px;margin-bottom:4px}
+.loadout-heading{padding:3px 8px;margin-bottom:4px}@media(max-width:365px){.loadout-heading{flex-wrap:wrap;row-gap:1px}.loadout-heading span{white-space:normal}}
