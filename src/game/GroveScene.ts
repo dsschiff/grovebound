@@ -8,7 +8,7 @@ import { clearRunSnapshot, emptyRunMetrics, emptyWeaponDamage, saveRunSnapshot, 
 import { soundFx } from './audio';
 import { advanceEmberField, bossPhaseFor, bowCriticalChance, chooseAutoTarget, pickUpgradeChoices, pierceTargets, ricochetTarget, targetsInArc,
   shouldSpawnGuardian, staffBurn, thornPierceCount, weaponDamage, weaponPathEffects, weaponSplash } from './combat';
-import { pilotDirection } from './pilot';
+import { pilotCommand, pilotDirection } from './pilot';
 import { hazardSites, ventPhase, type VentPhase } from './hazards';
 import { enemyFieldModifiers, terrainRupture, terrainSites, type TerrainKind } from './terrain';
 import { BOSS_STRIKE_WINDUP, bossStrikeCooldown, bossStrikeRadius, bossStrikeTarget, insideBossStrike, type BossStrikeState } from './bossStrike';
@@ -147,6 +147,7 @@ export class GroveScene extends Phaser.Scene {
   private joyVector = new Phaser.Math.Vector2();
   private moveDirection = new Phaser.Math.Vector2();
   private pilotEnabled = false;
+  private pilotCommandsEnabled = false;
   private slowed = false;
   private waylightAmbush = false;
   private ritualClock = 0;
@@ -586,6 +587,25 @@ export class GroveScene extends Phaser.Scene {
     this.pilotEnabled = enabled;
     if (!enabled) this.releaseJoystick();
   }
+  /** Debug pilot only: also tap weapon command slots (off by default; the pilot matrix turns it on with --commands on). */
+  setDebugPilotCommands(enabled: boolean): void {
+    this.pilotCommandsEnabled = enabled;
+  }
+
+  private updatePilotCommands(): void {
+    const choice = pilotCommand({
+      hero: { x: this.hero.x, y: this.hero.y },
+      // Command range as autoAttack computes it for a commanded attack.
+      slots: this.weapons.map(weapon => ({ weapon: weapon.id, cooldown: weapon.commandCooldown ?? 0,
+        range: WEAPON_INFO[weapon.id].range * this.stats.reach * (weapon.id === 'bow' ? 2.05 : 1.38) })),
+      enemies: this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y,
+        elite: enemy.kind === 'brute' || enemy.kind === 'thornback' || enemy.kind === 'gatekeeper' || enemy.kind === 'boss' })),
+      chain: this.commandChain,
+      chainWindow: this.campKit === 'conductor' ? 6 : 4,
+    });
+    // Same entry point as a slot tap or keyboard press (main.ts), so no separate damage path.
+    if (choice) this.focusWeapon(choice.weapon);
+  }
 
   private updateDebugPilot(): void {
     const gate = this.objects.find(object => object.kind === 'gate')!;
@@ -605,6 +625,10 @@ export class GroveScene extends Phaser.Scene {
       enemies: this.enemies.map(enemy => ({ x: enemy.sprite.x, y: enemy.sprite.y })),
       orbitSign: this.seed % 2 ? 1 : -1, avoidance: enteringGate ? 0.1 : gathering ? 0.35 : 1 });
     this.joyVector.set(direction.x, direction.y);
+    if (this.pilotCommandsEnabled) {
+      this.updatePilotCommands();
+      if (!this.running) return;
+    }
     if (this.specialCooldown > 0) return;
     const specialRange = this.heroId === 'ember' ? 190 : this.heroId === 'warden' ? 145 : 300;
     const closeEnemies = this.enemies.filter(enemy => this.distance(this.hero.x, this.hero.y, enemy.sprite.x, enemy.sprite.y) < specialRange);
