@@ -143,6 +143,8 @@ export interface Progress {
   bestRegion: number;
   mastery: Record<Hero, number>;
   reducedEffects: boolean;
+  /** True once the player has toggled Reduced effects; until then the OS reduced-motion setting decides. */
+  reducedEffectsSet: boolean;
   muted: boolean;
   autoSpecialEnabled: boolean;
   heroLook: HeroLook;
@@ -155,7 +157,7 @@ export type HeroLook = 'expedition' | 'wildkin' | 'classic';
 
 export const EMPTY_PROGRESS: Progress = {
   seeds: 0, thornsUnlocked: false, bestKills: 0, bestSeconds: 0, victories: 0,
-  bestRegion: 0, mastery: { warden: 0, ranger: 0, ember: 0 }, reducedEffects: false, muted: false,
+  bestRegion: 0, mastery: { warden: 0, ranger: 0, ember: 0 }, reducedEffects: false, reducedEffectsSet: false, muted: false,
   autoSpecialEnabled: true,
   heroLook: 'expedition', appearanceVersion: 1,
   unlockedKits: ['breaker'], selectedKit: 'breaker',
@@ -166,6 +168,15 @@ export const LEGACY_SAVE_KEY = 'grovebound-progress-v1';
 
 function validNumber(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
+}
+
+export function osPrefersReducedMotion(win: { matchMedia?: (query: string) => { matches: boolean } } | undefined = typeof window === 'undefined' ? undefined : window): boolean {
+  try { return win?.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true; } catch { return false; }
+}
+
+/** Stored explicit choice wins; otherwise follow the OS reduced-motion setting. */
+export function effectiveReducedEffects(progress: Pick<Progress, 'reducedEffects' | 'reducedEffectsSet'>, osReduce: boolean = osPrefersReducedMotion()): boolean {
+  return progress.reducedEffectsSet ? progress.reducedEffects : osReduce;
 }
 
 export function parseProgress(value: unknown): Progress {
@@ -181,6 +192,9 @@ export function parseProgress(value: unknown): Progress {
       warden: validNumber(data.mastery?.warden), ranger: validNumber(data.mastery?.ranger), ember: validNumber(data.mastery?.ember),
     },
     reducedEffects: data.reducedEffects === true,
+    // Saves written before the marker existed: a stored `true` can only be a deliberate choice;
+    // a stored `false` is indistinguishable from the old default, so it stays unset and follows the OS.
+    reducedEffectsSet: data.reducedEffectsSet === true || data.reducedEffects === true,
     muted: data.muted === true,
     autoSpecialEnabled: data.autoSpecialEnabled !== false,
     heroLook: data.heroLook === 'classic' ? 'classic'

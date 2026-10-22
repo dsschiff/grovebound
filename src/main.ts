@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { GroveScene, type HudState, type RunResult } from './game/GroveScene';
 import {
   CAMP_KITS, CAMP_KIT_INFO, HERO_INFO, HERO_KEYS, REGIONS, STAT_INFO, THORNS_COST, WEAPON_COMMAND, WEAPON_FOCUS, WEAPON_INFO, WEAPON_PATH_INFO, WEAPON_RANKS,
-  addRunToProgress, availableHero, availableWeapon, chooseCampKit, masteryRank, readProgress,
+  addRunToProgress, availableHero, effectiveReducedEffects, availableWeapon, chooseCampKit, masteryRank, readProgress,
   saveProgress, seedsForRun, unlockThorns,
   type CampKit, type Hero, type HeroLook, type Upgrade, type Weapon,
 } from './game/logic';
@@ -171,7 +171,7 @@ function notify(message: string): void {
 }
 
 function refreshMenu(): void {
-  root.classList.toggle('reduced-effects', progress.reducedEffects);
+  root.classList.toggle('reduced-effects', effectiveReducedEffects(progress));
   el('#seed-count').textContent = `✦ ${progress.seeds} SEEDS`;
   if (!availableHero(progress, selectedHero)) selectedHero = 'warden';
   if (!availableWeapon(progress, selectedWeapon)) selectedWeapon = HERO_INFO[selectedHero].weapon;
@@ -250,7 +250,7 @@ function refreshMenu(): void {
   show('#unlock-button', !progress.thornsUnlocked && progress.seeds >= THORNS_COST && progress.bestRegion < 1);
   show('#skin-button', rank >= 3);
   el('#skin-button').textContent = selectedSkin ? 'USE CLASSIC HERO + WEAPON' : 'USE GOLDEN HERO + WEAPON';
-  el<HTMLInputElement>('#reduced-effects').checked = progress.reducedEffects;
+  el<HTMLInputElement>('#reduced-effects').checked = effectiveReducedEffects(progress);
   el<HTMLInputElement>('#muted').checked = progress.muted;
   el<HTMLInputElement>('#auto-special').checked = progress.autoSpecialEnabled;
   show('#auto-special-row', rank >= 5);
@@ -617,7 +617,7 @@ function startRun(): void {
     ? Number(new URLSearchParams(location.search).get('seed')) : undefined;
   const randomSeed = (Math.random() * 0xffffffff) >>> 0 || 1;
   const contractSeed = seedForVergeContract(randomSeed, selectedContract);
-  scene.beginRun(selectedHero, selectedWeapon, rank, available, progress.reducedEffects, selectedSkin, progress.autoSpecialEnabled,
+  scene.beginRun(selectedHero, selectedWeapon, rank, available, effectiveReducedEffects(progress), selectedSkin, progress.autoSpecialEnabled,
     selectedSupport, localSeed || contractSeed, progress.heroLook, progress.selectedKit);
   setModal(null);
 }
@@ -634,8 +634,8 @@ el('#hero-look-button').addEventListener('click', () => {
   saveProgress(progress); refreshMenu();
 });
 el<HTMLInputElement>('#reduced-effects').addEventListener('change', event => {
-  progress = { ...progress, reducedEffects: (event.target as HTMLInputElement).checked };
-  root.classList.toggle('reduced-effects', progress.reducedEffects);
+  progress = { ...progress, reducedEffects: (event.target as HTMLInputElement).checked, reducedEffectsSet: true };
+  root.classList.toggle('reduced-effects', effectiveReducedEffects(progress));
   saveProgress(progress);
 });
 el<HTMLInputElement>('#muted').addEventListener('change', event => {
