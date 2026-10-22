@@ -10,7 +10,8 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run tests",
     "test:browser": "playwright test",
-    "profile:browser": "node scripts/profile-browser.mjs"
+    "profile:browser": "node scripts/profile-browser.mjs",
+    "profile:budget": "node scripts/profile-browser.mjs --budget profile.json"
   },
   "dependencies": {
     "phaser": "4.2.1"

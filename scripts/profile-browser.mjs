@@ -1,6 +1,16 @@
 import { chromium } from 'playwright';
 import { writeFile } from 'node:fs/promises';
 
+// --budget: fail when desktop-CPU frame timings regress past generous limits.
+// Limits come from the WORKLOG baseline (median/p95 ms, seeds 24/88/144): median 1.3/2.7/3.0 at 3x, p95 2.3/4.7/5.4 at 2x,
+// rounded up to 0.1 ms. Desktop Chrome CPU only; not Android FPS or GPU time.
+// GROVE_BUDGET_SCALE multiplies every limit (for forcing a breach in checks); do not commit a changed value.
+const args = process.argv.slice(2);
+const budgetMode = args.includes('--budget');
+const outputPath = args.find(arg => !arg.startsWith('--')) || 'profile.json';
+const BUDGETS = { 24: { median: 3.9, p95: 4.6 }, 88: { median: 8.1, p95: 9.4 }, 144: { median: 9.0, p95: 10.8 } };
+const budgetScale = Number(process.env.GROVE_BUDGET_SCALE || 1);
+
 const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 const errors = [];
@@ -65,6 +75,20 @@ const results = await page.evaluate(async () => {
   return { renderer: game.renderer.type, userAgent: navigator.userAgent, results };
 });
 const output = { ...results, errors, note: 'Desktop Chrome, 390x844. 600 fixed 60Hz steps per seeded scenario including real Phaser rendering; CPU timings are not Android FPS or GPU completion timings.' };
-await writeFile(process.argv[2] || 'profile.json', JSON.stringify(output, null, 2));
+await writeFile(outputPath, JSON.stringify(output, null, 2));
 console.log(JSON.stringify(output.results.map(({ name, frames, render, methods, statsMutations }) => ({ name, frames, render, methods, statsMutations })), null, 2));
 await browser.close();
+if (budgetMode) {
+  let breached = errors.length > 0;
+  for (const e of errors) console.log('page error: ' + e);
+  console.log('Budget (desktop CPU ms per frame, not Android FPS), scale ' + budgetScale);
+  for (const r of output.results) {
+    const b = BUDGETS[r.seed];
+    const checks = [['median', r.frames.medianMs, b.median * budgetScale], ['p95', r.frames.p95Ms, b.p95 * budgetScale]];
+    for (const [label, got, limit] of checks) {
+      const ok = got <= limit; if (!ok) breached = true;
+      console.log('  seed ' + r.seed + ' ' + r.name + ' ' + label + ': ' + got.toFixed(2) + ' ms vs budget ' + limit.toFixed(2) + ' ms ' + (ok ? 'PASS' : 'FAIL'));
+    }
+  }
+  if (breached) { console.error('Performance budget breached'); process.exitCode = 1; }
+}
