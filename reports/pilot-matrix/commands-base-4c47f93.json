@@ -1,0 +1,1331 @@
+{
+  "cells": {
+    "warden/waylight/forgeAssault/moonflame": {
+      "id": "warden/waylight/forgeAssault/moonflame",
+      "cell": "warden/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 633.0666666664196,
+      "endRegion": 3,
+      "damageTaken": 85,
+      "foeDamage": 41045,
+      "kills": 629,
+      "level": 22,
+      "regionSeconds": [
+        181.25000000003638,
+        210.75000000005986,
+        241.06666666675065
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.999999999994543,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.25000000003638,
+          "stageSeconds": 181.25000000003638,
+          "gateDistance": 40.003279150589435,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.99999999997215,
+          "stageSeconds": 210.75000000005986,
+          "gateDistance": 81.09140683001165,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "minHealth": 84,
+      "minHealthFraction": 0.766,
+      "minHealthAtSeconds": 183.01666666670445,
+      "minHealthFractionAtSeconds": 183.01666666670445,
+      "minHealthFractionHp": 84,
+      "minHealthFractionMaxHp": 110,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37984,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T07:05:34.423Z"
+    },
+    "warden/waylight/coolantRun/moonflame": {
+      "id": "warden/waylight/coolantRun/moonflame",
+      "cell": "warden/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 636.6499999997496,
+      "endRegion": 3,
+      "damageTaken": 118,
+      "foeDamage": 42284,
+      "kills": 631,
+      "level": 23,
+      "regionSeconds": [
+        181.25000000003638,
+        211.0500000000601,
+        244.3500000000866
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.999999999994543,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.25000000003638,
+          "stageSeconds": 181.25000000003638,
+          "gateDistance": 40.003279150589435,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 392.2999999999719,
+          "stageSeconds": 211.0500000000601,
+          "gateDistance": 80.7259319189982,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "minHealth": 84,
+      "minHealthFraction": 0.766,
+      "minHealthAtSeconds": 183.01666666670445,
+      "minHealthFractionAtSeconds": 183.01666666670445,
+      "minHealthFractionHp": 84,
+      "minHealthFractionMaxHp": 110,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38199,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T07:05:34.541Z"
+    },
+    "ranger/waylight/coolantRun/moonflame": {
+      "id": "ranger/waylight/coolantRun/moonflame",
+      "cell": "ranger/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 638.499999999748,
+      "endRegion": 3,
+      "damageTaken": 103,
+      "foeDamage": 43617,
+      "kills": 637,
+      "level": 23,
+      "regionSeconds": [
+        182.61666666670413,
+        210.75000000005986,
+        245.13333333342055
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.0000000000023874,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.61666666670413,
+          "stageSeconds": 182.61666666670413,
+          "gateDistance": 81.2336055747813,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 393.36666666663757,
+          "stageSeconds": 210.75000000005986,
+          "gateDistance": 81.61849728992885,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "minHealth": 85,
+      "minHealthFraction": 0.768,
+      "minHealthAtSeconds": 0.016666666666666666,
+      "minHealthFractionAtSeconds": 638.0999999997483,
+      "minHealthFractionHp": 142,
+      "minHealthFractionMaxHp": 185,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38310,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T07:05:34.773Z"
+    },
+    "ember/waylight/coolantRun/moonflame": {
+      "id": "ember/waylight/coolantRun/moonflame",
+      "cell": "ember/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.1333333330889,
+      "endRegion": 3,
+      "damageTaken": 127,
+      "foeDamage": 41430,
+      "kills": 613,
+      "level": 22,
+      "regionSeconds": [
+        180.00000000003539,
+        208.91666666672506,
+        241.21666666675077
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.00000000003539,
+          "stageSeconds": 180.00000000003539,
+          "gateDistance": 79.79821453216073,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.9166666666416,
+          "stageSeconds": 208.91666666672506,
+          "gateDistance": 79.54140144358065,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "minHealth": 64,
+      "minHealthFraction": 0.669,
+      "minHealthAtSeconds": 181.76666666670346,
+      "minHealthFractionAtSeconds": 181.76666666670346,
+      "minHealthFractionHp": 64,
+      "minHealthFractionMaxHp": 95,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37808,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T07:05:39.011Z"
+    },
+    "ember/waylight/forgeAssault/moonflame": {
+      "id": "ember/waylight/forgeAssault/moonflame",
+      "cell": "ember/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.699999999755,
+      "endRegion": 3,
+      "damageTaken": 32,
+      "foeDamage": 42262,
+      "kills": 619,
+      "level": 22,
+      "regionSeconds": [
+        180.00000000003539,
+        210.28333333339282,
+        240.41666666675013
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.0000000000023874,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.00000000003539,
+          "stageSeconds": 180.00000000003539,
+          "gateDistance": 79.79821453216073,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.28333333330704,
+          "stageSeconds": 210.28333333339282,
+          "gateDistance": 80.26870994669811,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "minHealth": 64,
+      "minHealthFraction": 0.669,
+      "minHealthAtSeconds": 181.76666666670346,
+      "minHealthFractionAtSeconds": 181.76666666670346,
+      "minHealthFractionHp": 64,
+      "minHealthFractionMaxHp": 95,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37842,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T07:05:39.109Z"
+    },
+    "ranger/waylight/forgeAssault/moonflame": {
+      "id": "ranger/waylight/forgeAssault/moonflame",
+      "cell": "ranger/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 639.7166666664135,
+      "endRegion": 3,
+      "damageTaken": 53,
+      "foeDamage": 43588,
+      "kills": 631,
+      "level": 23,
+      "regionSeconds": [
+        182.61666666670413,
+        214.00000000006244,
+        243.1000000000856
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 2.5000000000019895,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.61666666670413,
+          "stageSeconds": 182.61666666670413,
+          "gateDistance": 81.2336055747813,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 396.6166666666346,
+          "stageSeconds": 214.00000000006244,
+          "gateDistance": 81.47967410272055,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "minHealth": 85,
+      "minHealthFraction": 0.81,
+      "minHealthAtSeconds": 0.016666666666666666,
+      "minHealthFractionAtSeconds": 383.7999999999796,
+      "minHealthFractionHp": 85,
+      "minHealthFractionMaxHp": 105,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38383,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T07:05:39.166Z"
+    },
+    "warden/waylight/forgeAssault/moonflame@B": {
+      "id": "warden/waylight/forgeAssault/moonflame@B",
+      "cell": "warden/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 639.6499999997469,
+      "endRegion": 3,
+      "damageTaken": 106,
+      "foeDamage": 41216,
+      "kills": 622,
+      "level": 22,
+      "regionSeconds": [
+        184.8000000000392,
+        209.70000000005902,
+        245.15000000008723
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 184.8000000000392,
+          "stageSeconds": 184.8000000000392,
+          "gateDistance": 79.78170545234086,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 394.4999999999699,
+          "stageSeconds": 209.70000000005902,
+          "gateDistance": 80.4116241214693,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "minHealth": 81,
+      "minHealthFraction": 0.732,
+      "minHealthAtSeconds": 228.70000000007414,
+      "minHealthFractionAtSeconds": 228.70000000007414,
+      "minHealthFractionHp": 81,
+      "minHealthFractionMaxHp": 110,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38379,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T07:05:50.972Z"
+    },
+    "warden/waylight/coolantRun/moonflame@B": {
+      "id": "warden/waylight/coolantRun/moonflame@B",
+      "cell": "warden/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.4333333330886,
+      "endRegion": 3,
+      "damageTaken": 52,
+      "foeDamage": 40033,
+      "kills": 609,
+      "level": 21,
+      "regionSeconds": [
+        184.8000000000392,
+        208.45000000005803,
+        237.18333333341423
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 184.8000000000392,
+          "stageSeconds": 184.8000000000392,
+          "gateDistance": 79.78170545234086,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 393.249999999971,
+          "stageSeconds": 208.45000000005803,
+          "gateDistance": 81.185653752787,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "minHealth": 93,
+      "minHealthFraction": 0.845,
+      "minHealthAtSeconds": 242.41666666675172,
+      "minHealthFractionAtSeconds": 242.41666666675172,
+      "minHealthFractionHp": 93,
+      "minHealthFractionMaxHp": 110,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37826,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T07:05:51.488Z"
+    },
+    "ranger/waylight/coolantRun/moonflame@B": {
+      "id": "ranger/waylight/coolantRun/moonflame@B",
+      "cell": "ranger/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 634.5166666664182,
+      "endRegion": 3,
+      "damageTaken": 103,
+      "foeDamage": 43894,
+      "kills": 632,
+      "level": 23,
+      "regionSeconds": [
+        181.78333333337014,
+        209.8833333333925,
+        242.8500000000854
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.78333333337014,
+          "stageSeconds": 181.78333333337014,
+          "gateDistance": 80.39365969932581,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.6666666666391,
+          "stageSeconds": 209.8833333333925,
+          "gateDistance": 81.25227022479717,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "minHealth": 69,
+      "minHealthFraction": 0.817,
+      "minHealthAtSeconds": 21.716666666666715,
+      "minHealthFractionAtSeconds": 21.716666666666715,
+      "minHealthFractionHp": 69,
+      "minHealthFractionMaxHp": 85,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38071,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T07:05:51.919Z"
+    },
+    "ranger/waylight/forgeAssault/moonflame@B": {
+      "id": "ranger/waylight/forgeAssault/moonflame@B",
+      "cell": "ranger/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 631.183333333088,
+      "endRegion": 3,
+      "damageTaken": 75,
+      "foeDamage": 44141,
+      "kills": 621,
+      "level": 23,
+      "regionSeconds": [
+        181.78333333337014,
+        208.66666666672486,
+        240.73333333341705
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.5000000000027853,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.78333333337014,
+          "stageSeconds": 181.78333333337014,
+          "gateDistance": 80.39365969932581,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.44999999997356,
+          "stageSeconds": 208.66666666672486,
+          "gateDistance": 80.97218522849525,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "minHealth": 69,
+      "minHealthFraction": 0.771,
+      "minHealthAtSeconds": 21.716666666666715,
+      "minHealthFractionAtSeconds": 616.0499999997684,
+      "minHealthFractionHp": 81,
+      "minHealthFractionMaxHp": 105,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37871,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T07:05:56.186Z"
+    },
+    "ember/waylight/coolantRun/moonflame@B": {
+      "id": "ember/waylight/coolantRun/moonflame@B",
+      "cell": "ember/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 628.599999999757,
+      "endRegion": 3,
+      "damageTaken": 112,
+      "foeDamage": 41227,
+      "kills": 621,
+      "level": 21,
+      "regionSeconds": [
+        180.33333333336898,
+        209.86666666672582,
+        238.40000000008186
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.33333333336898,
+          "stageSeconds": 180.33333333336898,
+          "gateDistance": 80.17616353089116,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.1999999999738,
+          "stageSeconds": 209.86666666672582,
+          "gateDistance": 79.66264785560081,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "minHealth": 63,
+      "minHealthFraction": 0.652,
+      "minHealthAtSeconds": 364.08333333333087,
+      "minHealthFractionAtSeconds": 628.166666666424,
+      "minHealthFractionHp": 88,
+      "minHealthFractionMaxHp": 135,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37716,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T07:05:56.831Z"
+    },
+    "ember/waylight/forgeAssault/moonflame@B": {
+      "id": "ember/waylight/forgeAssault/moonflame@B",
+      "cell": "ember/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.749999999755,
+      "endRegion": 3,
+      "damageTaken": 69,
+      "foeDamage": 43139,
+      "kills": 630,
+      "level": 22,
+      "regionSeconds": [
+        180.33333333336898,
+        209.78333333339242,
+        240.63333333341697
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.33333333336898,
+          "stageSeconds": 180.33333333336898,
+          "gateDistance": 80.17616353089116,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.1166666666405,
+          "stageSeconds": 209.78333333339242,
+          "gateDistance": 81.24968479248535,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "minHealth": 78,
+      "minHealthFraction": 0.821,
+      "minHealthAtSeconds": 54.94999999999816,
+      "minHealthFractionAtSeconds": 54.94999999999816,
+      "minHealthFractionHp": 78,
+      "minHealthFractionMaxHp": 95,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37845,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T07:05:57.232Z"
+    },
+    "warden/waylight/coolantRun/moonflame@C": {
+      "id": "warden/waylight/coolantRun/moonflame@C",
+      "cell": "warden/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 641.6166666664118,
+      "endRegion": 3,
+      "damageTaken": 149,
+      "foeDamage": 42136,
+      "kills": 641,
+      "level": 23,
+      "regionSeconds": [
+        185.81666666670668,
+        214.66666666672964,
+        241.13333333341737
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 185.81666666670668,
+          "stageSeconds": 185.81666666670668,
+          "gateDistance": 80.0278619011245,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 400.48333333329776,
+          "stageSeconds": 214.66666666672964,
+          "gateDistance": 81.02678962461032,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "minHealth": 78,
+      "minHealthFraction": 0.709,
+      "minHealthAtSeconds": 224.40000000007072,
+      "minHealthFractionAtSeconds": 224.40000000007072,
+      "minHealthFractionHp": 78,
+      "minHealthFractionMaxHp": 110,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38497,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T07:06:04.564Z"
+    },
+    "warden/waylight/forgeAssault/moonflame@C": {
+      "id": "warden/waylight/forgeAssault/moonflame@C",
+      "cell": "warden/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 642.5833333330776,
+      "endRegion": 3,
+      "damageTaken": 120,
+      "foeDamage": 44160,
+      "kills": 630,
+      "level": 23,
+      "regionSeconds": [
+        185.81666666670668,
+        212.60000000006133,
+        244.16666666675312
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 11.000000000008754,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 185.81666666670668,
+          "stageSeconds": 185.81666666670668,
+          "gateDistance": 80.0278619011245,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 398.416666666633,
+          "stageSeconds": 212.60000000006133,
+          "gateDistance": 78.72972331934648,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "minHealth": 80,
+      "minHealthFraction": 0.729,
+      "minHealthAtSeconds": 187.58333333337475,
+      "minHealthFractionAtSeconds": 187.58333333337475,
+      "minHealthFractionHp": 80,
+      "minHealthFractionMaxHp": 110,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38555,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T07:06:04.963Z"
+    },
+    "ranger/waylight/coolantRun/moonflame@C": {
+      "id": "ranger/waylight/coolantRun/moonflame@C",
+      "cell": "ranger/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 641.5499999997452,
+      "endRegion": 3,
+      "damageTaken": 286,
+      "foeDamage": 41222,
+      "kills": 634,
+      "level": 23,
+      "regionSeconds": [
+        181.26666666670306,
+        215.63333333339708,
+        244.65000000008683
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.5000000000027853,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.26666666670306,
+          "stageSeconds": 181.26666666670306,
+          "gateDistance": 81.09666056244913,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 396.8999999999677,
+          "stageSeconds": 215.63333333339708,
+          "gateDistance": 79.23311330937015,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "minHealth": 85,
+      "minHealthFraction": 0.636,
+      "minHealthAtSeconds": 0.016666666666666666,
+      "minHealthFractionAtSeconds": 641.1333333330789,
+      "minHealthFractionHp": 105,
+      "minHealthFractionMaxHp": 165,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38493,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 7,
+      "finishedAt": "2026-10-22T07:06:05.661Z"
+    },
+    "ember/waylight/coolantRun/moonflame@C": {
+      "id": "ember/waylight/coolantRun/moonflame@C",
+      "cell": "ember/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 637.4499999997489,
+      "endRegion": 3,
+      "damageTaken": 211,
+      "foeDamage": 42605,
+      "kills": 629,
+      "level": 23,
+      "regionSeconds": [
+        180.88333333336942,
+        210.2166666667261,
+        246.3500000000882
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.88333333336942,
+          "stageSeconds": 180.88333333336942,
+          "gateDistance": 79.65820374568666,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.09999999997297,
+          "stageSeconds": 210.2166666667261,
+          "gateDistance": 79.08732857098502,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "minHealth": 83,
+      "minHealthFraction": 0.697,
+      "minHealthAtSeconds": 182.6500000000375,
+      "minHealthFractionAtSeconds": 635.8333333330837,
+      "minHealthFractionHp": 108,
+      "minHealthFractionMaxHp": 155,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38247,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T07:06:10.014Z"
+    },
+    "ranger/waylight/forgeAssault/moonflame@C": {
+      "id": "ranger/waylight/forgeAssault/moonflame@C",
+      "cell": "ranger/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 646.7833333330738,
+      "endRegion": 3,
+      "damageTaken": 370,
+      "foeDamage": 40778,
+      "kills": 629,
+      "level": 23,
+      "regionSeconds": [
+        181.26666666670306,
+        213.033333333395,
+        252.4833333334264
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 2.9999999999972715,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.26666666670306,
+          "stageSeconds": 181.26666666670306,
+          "gateDistance": 81.09666056244913,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 394.29999999997005,
+          "stageSeconds": 213.033333333395,
+          "gateDistance": 79.97999876897909,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "minHealth": 85,
+      "minHealthFraction": 0.654,
+      "minHealthAtSeconds": 0.016666666666666666,
+      "minHealthFractionAtSeconds": 599.1999999997837,
+      "minHealthFractionHp": 134,
+      "minHealthFractionMaxHp": 205,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38807,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T07:06:10.059Z"
+    },
+    "ember/waylight/forgeAssault/moonflame@C": {
+      "id": "ember/waylight/forgeAssault/moonflame@C",
+      "cell": "ember/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 633.4166666664192,
+      "endRegion": 3,
+      "damageTaken": 156,
+      "foeDamage": 42676,
+      "kills": 626,
+      "level": 23,
+      "regionSeconds": [
+        180.88333333336942,
+        209.91666666672586,
+        242.61666666675188
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.88333333336942,
+          "stageSeconds": 180.88333333336942,
+          "gateDistance": 79.65820374568666,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.79999999997324,
+          "stageSeconds": 209.91666666672586,
+          "gateDistance": 79.51323270728525,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "minHealth": 78,
+      "minHealthFraction": 0.576,
+      "minHealthAtSeconds": 628.7666666664235,
+      "minHealthFractionAtSeconds": 628.7666666664235,
+      "minHealthFractionHp": 78,
+      "minHealthFractionMaxHp": 135,
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38005,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T07:06:10.271Z"
+    }
+  },
+  "meta": {
+    "updated": "2026-10-22T07:06:10.285Z",
+    "script": "scripts/pilot-matrix.mjs",
+    "stepHz": 60,
+    "seedSets": {
+      "A": {
+        "waylight": 101,
+        "seedheart": 202,
+        "stag": 155
+      },
+      "B": {
+        "waylight": 7,
+        "seedheart": 1000,
+        "stag": 4123
+      },
+      "C": {
+        "waylight": 2021,
+        "seedheart": 3010,
+        "stag": 10015
+      }
+    },
+    "stepping": "fixed 1000/60 ms steps driven from the page; see cell.stepping",
+    "softlockRule": "no change for 60s of game time in region, fork state, required-objective hp/position/count, gate state, or guardian hp, excluding the guardian countdown after objectives are done",
+    "gameCapSeconds": 960,
+    "progressProfiles": {
+      "warden": null,
+      "ranger": {
+        "bestRegion": 1,
+        "muted": true
+      },
+      "ember": {
+        "bestRegion": 1,
+        "victories": 1,
+        "muted": true
+      }
+    }
+  }
+}
