@@ -50,6 +50,13 @@ export function formatReport(result, docsInfo = '') {
   return ['LIVE != DOCS', '  live: ' + names(result.live), '  docs: ' + names(result.docs), '  docs last commit: ' + (docsInfo || '(unknown)')].join('\n');
 }
 
+/** Pure: the paste-into-checklist line. Uses the live JS bundle name; head is a short sha or falsy for unknown. */
+export function formatBundleLine(result, head) {
+  const js = result?.live?.js ?? [];
+  const bundle = js.length ? js.map(n => 'assets/' + n).join(', ') : '(none)';
+  return 'bundle: ' + bundle + ' | repo HEAD: ' + (head || 'unknown');
+}
+
 const parseArgs = argv => {
   const out = { url: process.env.GROVE_PAGES_URL || DEFAULT_URL, docs: 'docs/index.html' };
   for (let i = 0; i < argv.length; i++) {
@@ -82,6 +89,13 @@ async function main() {
   }
   const text = formatReport(result, info);
   (result.status === 'error' ? console.error : console.log)(text);
+  if (result.status !== 'error') {
+    let head = '';
+    try {
+      head = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    } catch { /* unknown */ }
+    console.log(formatBundleLine(result, head));
+  }
   return { equal: 0, differ: 1, error: 2 }[result.status];
 }
 

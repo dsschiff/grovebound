@@ -6,7 +6,7 @@ Time: about 45 minutes. Needs the phone, a desktop with this repo, and two full 
 
 ## 0. Open the live build and confirm it is current
 
-1. On the desktop, in the repo on `main`, run `npm run check:pages`. It prints `LIVE == DOCS (assets/index-....js, ...)` when the live site serves the bundle in `docs/index.html`. Exit 1 prints `LIVE != DOCS`: stop, the phone would test an old build. Exit 2 is a fetch error. Write the bundle name in the header.
+1. On the desktop, in the repo on `main`, run `npm run check:pages`. It prints `LIVE == DOCS (assets/index-....js, ...)` when the live site serves the bundle in `docs/index.html`. Exit 1 prints `LIVE != DOCS`: stop, the phone would test an old build. Exit 2 is a fetch error. Paste the `bundle:` line from `npm run check:pages` into the header.
 2. Make sure the release you want tested is in `docs/` on `main` (see ROADMAP.md L32-34, "Release gate"). `check:pages` only compares live to the repo, so it cannot tell you a newer source change was never staged.
 3. On the phone, open `https://dsschiff.github.io/grovebound/` (README.md L3) in Chrome. Close the tab and reopen it so Chrome does not show a cached copy. Optional: add `?debug=1` for the FPS readout (README.md L36).
 
