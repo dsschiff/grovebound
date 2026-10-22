@@ -166,6 +166,48 @@ for (const size of sizes) {
     expect(button.filter(item => item.ratio < item.needed), 'special button text contrast').toEqual([]);
   });
 
+  test(`HUD backplate text keeps AA contrast over the brightest terrain at ${tag}`, async ({ page }, testInfo) => {
+    await openCamp(page, size);
+    await enterRun(page);
+    const targets = ['#timer', '#timer-heading', '#stage-timer', '#health-number', '#health-max',
+      '.health-caption > span:last-child', '#level-number', '.loadout-heading strong', '.loadout-heading span'];
+    // Each plate must exist as a real background, not only a text-shadow.
+    const alphas = await page.evaluate(() => ['.clock-wrap', '.health-caption', '.loadout-heading'].map(selector => {
+      const channels = getComputedStyle(document.querySelector(selector)!).backgroundColor.match(/[\d.]+/g)!.map(Number);
+      return { selector, alpha: channels.length > 3 ? channels[3] : 1 };
+    }));
+    expect(alphas.filter(item => item.alpha <= 0), 'HUD text plates have a background').toEqual([]);
+    // Worst case for light text is the lightest backdrop. Sample the live canvas under the three plates with the
+    // HUD hidden and take the lightest 2% of pixels, then also try pure white.
+    const hidden = await page.addStyleTag({ content: '#ui{visibility:hidden!important}' });
+    const lightest = await page.evaluate(async shot => {
+      const bitmap = await createImageBitmap(await (await fetch(`data:image/png;base64,${shot.png}`)).blob());
+      const scale = bitmap.width / innerWidth;
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+      const context = canvas.getContext('2d')!; context.drawImage(bitmap, 0, 0);
+      const colours: { l: number; rgb: number[] }[] = [];
+      for (const selector of ['.clock-wrap', '.health-caption', '.loadout-heading']) {
+        const rect = document.querySelector(selector)!.getBoundingClientRect();
+        const data = context.getImageData(Math.floor(rect.left * scale), Math.floor(rect.top * scale),
+          Math.max(1, Math.floor(rect.width * scale)), Math.max(1, Math.floor(rect.height * scale))).data;
+        for (let i = 0; i < data.length; i += 4) colours.push({ l: data[i] * 0.2126 + data[i + 1] * 0.7152 + data[i + 2] * 0.0722,
+          rgb: [data[i], data[i + 1], data[i + 2]] });
+      }
+      colours.sort((p, q) => q.l - p.l);
+      return colours[Math.floor(colours.length * 0.02)].rgb;
+    }, { png: (await page.screenshot()).toString('base64') });
+    await hidden.evaluate(node => node.remove());
+    const results: { backdrop: string; target: string; ratio: number; needed: number }[] = [];
+    for (const backdrop of ['rgb(255,255,255)', `rgb(${lightest.join(',')})`]) {
+      const style = await page.addStyleTag({ content: `#game canvas{visibility:hidden!important}#game{background:${backdrop}!important}` });
+      for (const item of await renderedContrast(page, targets)) results.push({ backdrop, target: item.target, ratio: item.ratio, needed: item.needed });
+      await style.evaluate(node => node.remove());
+    }
+    await testInfo.attach(`hud-backplate-contrast-${tag}`, { body: JSON.stringify(results, null, 2), contentType: 'application/json' });
+    expect(new Set(results.map(item => item.target)).size, 'every HUD plate text run was measured').toBe(targets.length);
+    expect(results.filter(item => item.ratio < item.needed), 'HUD plate text contrast below WCAG AA').toEqual([]);
+  });
+
   test(`pause dialog: axe, focus trap and focus return at ${tag}`, async ({ page }, testInfo) => {
     await openCamp(page, size);
     await enterRun(page);
