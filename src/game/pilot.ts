@@ -56,21 +56,32 @@ export interface PilotCommandInput {
   chainWindow: number;
   /** Foes in range that justify a command whose partner cannot follow inside the chain window. Default 3. */
   minCluster?: number;
+  /**
+   * Default true (the PR #9 policy). False is the pilot-matrix "solo" arm: the pilot never lands a chain. Every
+   * distinct weapon pair resonates (resonance.ts PAIRS), so while a chain is open it withholds every other slot; the
+   * firing moments are otherwise the same rules 2 and 3 below, so the command rate stays comparable.
+   */
+  pairing?: boolean;
 }
-export type PilotCommandReason = 'resonance' | 'open-pair' | 'cluster' | 'elite';
+export type PilotCommandReason = 'resonance' | 'open-pair' | 'solo' | 'cluster' | 'elite';
 export interface PilotCommandChoice { weapon: Weapon; resonance: Resonance | null; reason: PilotCommandReason }
 
 export function pilotCommand(input: PilotCommandInput): PilotCommandChoice | null {
   const minCluster = input.minCluster ?? 3;
-  const fireable = input.slots.filter(slot => slot.cooldown <= 0).map(slot => ({
-    slot,
-    targets: input.enemies.filter(enemy => Math.hypot(enemy.x - input.hero.x, enemy.y - input.hero.y) <= slot.range),
-  })).filter(option => option.targets.length > 0);
+  const pairing = input.pairing ?? true;
+  const chain = input.chain;
+  const chainOpen = !!chain && chain.remaining > 0;
+  const fireable = input.slots.filter(slot => slot.cooldown <= 0)
+    // Solo arm: a different weapon inside an open chain would land a resonance, so it is not a candidate.
+    .filter(slot => pairing || !chainOpen || slot.weapon === chain!.weapon || resonanceFor(chain!.weapon, slot.weapon) === null)
+    .map(slot => ({
+      slot,
+      targets: input.enemies.filter(enemy => Math.hypot(enemy.x - input.hero.x, enemy.y - input.hero.y) <= slot.range),
+    })).filter(option => option.targets.length > 0);
   if (!fireable.length) return null;
 
   // 1. A chain is open: tap a different ready slot to land the resonance.
-  const chain = input.chain;
-  if (chain && chain.remaining > 0) {
+  if (pairing && chain && chainOpen) {
     for (const option of fireable) {
       const resonance = option.slot.weapon !== chain.weapon ? resonanceFor(chain.weapon, option.slot.weapon) : null;
       if (resonance) return { weapon: option.slot.weapon, resonance, reason: 'resonance' };
@@ -84,10 +95,22 @@ export function pilotCommand(input: PilotCommandInput): PilotCommandChoice | nul
   // 2. Open a chain when a partner slot will be ready before the window closes.
   const partner = input.slots.some(slot => slot.weapon !== weapon && resonanceFor(weapon, slot.weapon) !== null
     && slot.cooldown < input.chainWindow);
-  if (partner) return { weapon, resonance: null, reason: 'open-pair' };
+  // The solo arm keeps this trigger (another command will be ready soon) but the chain it opens is never landed.
+  if (partner) return { weapon, resonance: null, reason: pairing ? 'open-pair' : 'solo' };
 
   // 3. No pairing possible: spend a command alone only on a dense cluster or an elite.
   if (best.targets.length >= minCluster) return { weapon, resonance: null, reason: 'cluster' };
   const elite = fireable.find(option => option.targets.some(enemy => enemy.elite));
   return elite ? { weapon: elite.slot.weapon, resonance: null, reason: 'elite' } : null;
+}
+
+// Pilot-matrix "restore" arm. A command tap also focuses the commanded weapon (GroveScene.focusWeapon), which changes
+// auto-attack damage until focus moves again. The restore arm taps the run's starting weapon afterwards through the
+// same player path. That tap only changes focus when the starting weapon's command is recharging; when it is ready it
+// would fire a new command (and could land a resonance), so the restore waits. The matrix measures that wait as
+// off-focus seconds.
+export interface PilotFocusInput { focused: Weapon; start: Weapon; startCommandCooldown: number }
+
+export function pilotShouldRestoreFocus(input: PilotFocusInput): boolean {
+  return input.focused !== input.start && input.startCommandCooldown > 0;
 }
