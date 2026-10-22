@@ -1,0 +1,12 @@
+{
+  "shapeCommit": "60abfba",
+  "shapeNote": "Build Grovebound phone-playable forest roguelite: localStorage key grovebound-progress-v1, five-field Progress",
+  "storageKey": "grovebound-progress-v1",
+  "blob": {
+    "seeds": 14,
+    "thornsUnlocked": true,
+    "bestKills": 131,
+    "bestSeconds": 412,
+    "victories": 2
+  }
+}

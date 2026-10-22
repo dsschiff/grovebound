@@ -1,0 +1,184 @@
+{
+  "shapeCommit": "b27bab7",
+  "shapeNote": "Give every weapon a distinct active command; parent of 411c20a which added commandChain",
+  "snapshot": {
+    "version": 1,
+    "seed": 3141592653,
+    "rngState": 2718281828,
+    "hero": "ranger",
+    "skin": true,
+    "unlockedWeapons": [
+      "axe",
+      "bow"
+    ],
+    "masteryRank": 2,
+    "weapons": [
+      {
+        "id": "bow",
+        "rank": 2,
+        "cooldown": 0.4,
+        "path": "a",
+        "commandCooldown": 3.5
+      },
+      {
+        "id": "axe",
+        "rank": 1,
+        "cooldown": 0.1
+      }
+    ],
+    "focusedWeapon": "bow",
+    "weaponSlots": 2,
+    "splashBonus": 4,
+    "pet": true,
+    "petClock": 1.5,
+    "autoSpecial": true,
+    "specialCooldown": 6,
+    "reducedEffects": false,
+    "stats": {
+      "speed": 150,
+      "regen": 0.4,
+      "attack": 18,
+      "defense": 0.1,
+      "maxHealth": 120,
+      "reach": 1.2
+    },
+    "health": 88,
+    "xp": 12,
+    "level": 7,
+    "kills": 96,
+    "seconds": 301,
+    "region": 1,
+    "stageSeconds": 80,
+    "spawnClock": 0.6,
+    "cacheClock": 4,
+    "x": 900,
+    "y": 1010,
+    "invulnerability": 0.3,
+    "gatekeeperSpawned": false,
+    "bossSpawned": false,
+    "choosing": false,
+    "upgradeOptions": [],
+    "enemies": [
+      {
+        "kind": "gnarl",
+        "x": 940,
+        "y": 1000,
+        "hp": 14,
+        "maxHp": 30,
+        "phase": 1,
+        "burnRemaining": 2,
+        "burnTickClock": 0.2,
+        "burnDamage": 5,
+        "tangleRemaining": 0,
+        "burnSource": "axe"
+      },
+      {
+        "kind": "wisp",
+        "x": 700,
+        "y": 800,
+        "hp": 10,
+        "maxHp": 18,
+        "phase": 0,
+        "burnRemaining": 0,
+        "burnTickClock": 0,
+        "burnDamage": 0,
+        "tangleRemaining": 1.5,
+        "wispLance": {
+          "cooldown": 2,
+          "windup": 0.5,
+          "fromX": 700,
+          "fromY": 800,
+          "toX": 900,
+          "toY": 1000
+        }
+      },
+      {
+        "kind": "boss",
+        "x": 1200,
+        "y": 1200,
+        "hp": 900,
+        "maxHp": 1200,
+        "phase": 2,
+        "burnRemaining": 0,
+        "burnTickClock": 0,
+        "burnDamage": 0,
+        "tangleRemaining": 0,
+        "bossStrike": {
+          "cooldown": 3,
+          "windup": 0.8,
+          "x": 900,
+          "y": 1000,
+          "radius": 90
+        }
+      }
+    ],
+    "objects": [
+      {
+        "kind": "pump",
+        "x": 600,
+        "y": 700,
+        "hp": 40,
+        "maxHp": 60,
+        "active": true
+      },
+      {
+        "kind": "bramble",
+        "x": 650,
+        "y": 720,
+        "hp": 20,
+        "maxHp": 20,
+        "active": false
+      }
+    ],
+    "orbs": [
+      {
+        "x": 910,
+        "y": 1020,
+        "value": 2
+      }
+    ],
+    "caches": [
+      {
+        "x": 800,
+        "y": 900,
+        "stat": "speed"
+      }
+    ],
+    "waylightAmbush": false,
+    "ritualClock": 0,
+    "coolantCarryRemaining": 0,
+    "moonflowRemaining": 0,
+    "emberFields": [
+      {
+        "x": 870,
+        "y": 980,
+        "remaining": 2.5,
+        "tickClock": 0.1,
+        "damage": 12
+      }
+    ],
+    "metrics": {
+      "foeDamage": 800,
+      "objectDamage": 60,
+      "damageTaken": 90,
+      "caches": 3,
+      "blessings": 1,
+      "wards": 2,
+      "hazards": 1,
+      "terrain": 2,
+      "lancesEvaded": 4,
+      "lanceHits": 1,
+      "weaponDamage": {
+        "axe": 300,
+        "thorns": 0,
+        "bow": 500,
+        "staff": 0
+      },
+      "regionSeconds": [
+        150,
+        null,
+        null
+      ]
+    }
+  }
+}
