@@ -49,6 +49,8 @@ Result: ________
 
 Play two full runs on the live build (run 1 with ?debug=1, doing the section 2 FPS check). Tap weapon commands and chain two within 4 s on purpose in at least one. After a run, answer the four questions below.
 
+Before you play, read `reports/pilot-matrix/m3-feel-evidence.md` (one page): what the pilot runs already show for each question, what they cannot, and one recommendation each.
+
 ROADMAP.md L38 names the target: "human feedback on the Expedition art, command timing and mission variety". ROADMAP.md does not contain the four questions as written. They come from the Milestone 3 decision packet (decision 5, agentic-workflow `outputs/marathon/g4-gb-m3-decision-packet/packet.md`), quoted here:
 
 1. "Is each Expedition hero readable at phone size mid-fight?" Answer: ________
