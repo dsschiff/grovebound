@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { pilotCommand, pilotDirection, pilotShouldRestoreFocus, type PilotCommandInput } from '../src/game/pilot';
+import { createPilotSkillFilter, pilotCommand, pilotDirection, pilotShouldRestoreFocus, type PilotAction, type PilotCommandInput,
+  type PilotIntent } from '../src/game/pilot';
 
 describe('local full-run pilot', () => {
   it('travels toward objectives, avoids nearby danger, and commits to an open gate', () => {
@@ -133,5 +134,61 @@ describe('pilot focus restore', () => {
     expect(pilotShouldRestoreFocus({ focused: 'bow', start: 'axe', startCommandCooldown: 0, startHasTarget: true })).toBe(false);
     // Already focused on the starting weapon: nothing to do.
     expect(pilotShouldRestoreFocus({ focused: 'axe', start: 'axe', startCommandCooldown: 5, startHasTarget: false })).toBe(false);
+  });
+});
+
+describe('pilot skill filter (weak-pilot arm)', () => {
+  const step = 1 / 60;
+  const dir = (x: number, y = 0) => ({ x, y });
+
+  it('is the identity with no delay and every chance taken', () => {
+    const filter = createPilotSkillFilter();
+    const intents: PilotIntent[] = [
+      { direction: dir(1), actions: [{ kind: 'special' }] },
+      { direction: dir(0, 1), actions: [{ kind: 'special' }, { kind: 'command', weapon: 'axe' }] },
+      { direction: dir(-1), actions: [] },
+      { direction: dir(1), actions: [{ kind: 'special' }] },
+    ];
+    // A press repeats only when a new chance starts (the scene ignores a repeat press anyway: cooldown).
+    expect(intents.map((intent, i) => filter(i * step, intent))).toEqual([
+      { direction: dir(1), actions: [{ kind: 'special' }] },
+      { direction: dir(0, 1), actions: [{ kind: 'command', weapon: 'axe' }] },
+      { direction: dir(-1), actions: [] },
+      { direction: dir(1), actions: [{ kind: 'special' }] },
+    ]);
+  });
+
+  it('follows the stick direction chosen reactionMs ago, standing still until then', () => {
+    const filter = createPilotSkillFilter({ reactionMs: 250 });
+    const out = Array.from({ length: 40 }, (_, i) => filter(10 + i * step, { direction: dir(i < 20 ? 1 : -1), actions: [] }));
+    expect(out[0].direction).toEqual(dir(0));
+    expect(out[14].direction).toEqual(dir(0));
+    expect(out[15].direction).toEqual(dir(1)); // 15 frames = 250 ms
+    expect(out[34].direction).toEqual(dir(1));
+    expect(out[35].direction).toEqual(dir(-1));
+  });
+
+  it('presses reactionMs after the chance starts, once per chance', () => {
+    const filter = createPilotSkillFilter({ reactionMs: 100 });
+    const pressedAt: number[] = [];
+    for (let i = 0; i < 30; i++) {
+      const out = filter(i * step, { direction: dir(1), actions: i >= 2 && i < 20 ? [{ kind: 'special' }] : [] });
+      if (out.actions.length) pressedAt.push(i);
+    }
+    expect(pressedAt).toEqual([8]);
+  });
+
+  it('acts on every Nth chance per action, counting each action separately', () => {
+    const filter = createPilotSkillFilter({ actEvery: 3 });
+    const taken: string[] = [];
+    for (let i = 0; i < 24; i++) {
+      // The special is wanted on alternate frames (a new chance each time); the axe command on every fourth frame.
+      const actions: PilotAction[] = [];
+      if (i % 2 === 0) actions.push({ kind: 'special' });
+      if (i % 4 === 0) actions.push({ kind: 'command', weapon: 'axe' });
+      for (const action of filter(i * step, { direction: dir(1), actions }).actions)
+        taken.push(`${i}:${action.kind === 'special' ? 'special' : action.weapon}`);
+    }
+    expect(taken).toEqual(['4:special', '8:axe', '10:special', '16:special', '20:axe', '22:special']);
   });
 });
