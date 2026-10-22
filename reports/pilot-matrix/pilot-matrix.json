@@ -1,0 +1,7133 @@
+{
+  "cells": {
+    "warden/waylight/forgeAssault/moonflame": {
+      "id": "warden/waylight/forgeAssault/moonflame",
+      "cell": "warden/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 633.0666666664196,
+      "endRegion": 3,
+      "damageTaken": 85,
+      "foeDamage": 41045,
+      "kills": 629,
+      "level": 22,
+      "regionSeconds": [
+        181.25000000003638,
+        210.75000000005986,
+        241.06666666675065
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.999999999994543,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.25000000003638,
+          "stageSeconds": 181.25000000003638,
+          "gateDistance": 40.003279150589435,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.99999999997215,
+          "stageSeconds": 210.75000000005986,
+          "gateDistance": 81.09140683001165,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37984,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:02:58.327Z"
+    },
+    "warden/waylight/coolantRun/altarRite": {
+      "id": "warden/waylight/coolantRun/altarRite",
+      "cell": "warden/waylight/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 635.0499999997511,
+      "endRegion": 3,
+      "damageTaken": 136,
+      "foeDamage": 40279,
+      "kills": 625,
+      "level": 22,
+      "regionSeconds": [
+        181.25000000003638,
+        211.0500000000601,
+        242.75000000008532
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.25000000003638,
+          "stageSeconds": 181.25000000003638,
+          "gateDistance": 40.003279150589435,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 392.2999999999719,
+          "stageSeconds": 211.0500000000601,
+          "gateDistance": 80.7259319189982,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38103,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:02:58.566Z"
+    },
+    "warden/waylight/coolantRun/moonflame": {
+      "id": "warden/waylight/coolantRun/moonflame",
+      "cell": "warden/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 636.6499999997496,
+      "endRegion": 3,
+      "damageTaken": 118,
+      "foeDamage": 42284,
+      "kills": 631,
+      "level": 23,
+      "regionSeconds": [
+        181.25000000003638,
+        211.0500000000601,
+        244.3500000000866
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.999999999994543,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.25000000003638,
+          "stageSeconds": 181.25000000003638,
+          "gateDistance": 40.003279150589435,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 392.2999999999719,
+          "stageSeconds": 211.0500000000601,
+          "gateDistance": 80.7259319189982,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38199,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:02:58.585Z"
+    },
+    "warden/waylight/forgeAssault/altarRite": {
+      "id": "warden/waylight/forgeAssault/altarRite",
+      "cell": "warden/waylight/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 635.9333333330836,
+      "endRegion": 3,
+      "damageTaken": 120,
+      "foeDamage": 39997,
+      "kills": 614,
+      "level": 22,
+      "regionSeconds": [
+        181.25000000003638,
+        210.75000000005986,
+        243.9333333334196
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.25000000003638,
+          "stageSeconds": 181.25000000003638,
+          "gateDistance": 40.003279150589435,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.99999999997215,
+          "stageSeconds": 210.75000000005986,
+          "gateDistance": 81.09140683001165,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38156,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:03.506Z"
+    },
+    "warden/seedheart/coolantRun/altarRite": {
+      "id": "warden/seedheart/coolantRun/altarRite",
+      "cell": "warden/seedheart/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 640.9999999997457,
+      "endRegion": 3,
+      "damageTaken": 163,
+      "foeDamage": 43506,
+      "kills": 622,
+      "level": 23,
+      "regionSeconds": [
+        187.16666666670775,
+        212.3833333333945,
+        241.4500000000843
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.499999999995907,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 187.16666666670775,
+          "stageSeconds": 187.16666666670775,
+          "gateDistance": 79.03551203968303,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 399.5499999999653,
+          "stageSeconds": 212.3833333333945,
+          "gateDistance": 80.91574460536447,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38460,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:03:04.101Z"
+    },
+    "warden/seedheart/coolantRun/moonflame": {
+      "id": "warden/seedheart/coolantRun/moonflame",
+      "cell": "warden/seedheart/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 645.9999999997411,
+      "endRegion": 3,
+      "damageTaken": 141,
+      "foeDamage": 42535,
+      "kills": 630,
+      "level": 23,
+      "regionSeconds": [
+        187.16666666670775,
+        212.3833333333945,
+        246.45000000008827
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 187.16666666670775,
+          "stageSeconds": 187.16666666670775,
+          "gateDistance": 79.03551203968303,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 399.5499999999653,
+          "stageSeconds": 212.3833333333945,
+          "gateDistance": 80.91574460536447,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38760,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:03:04.227Z"
+    },
+    "warden/seedheart/forgeAssault/moonflame": {
+      "id": "warden/seedheart/forgeAssault/moonflame",
+      "cell": "warden/seedheart/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 653.7666666664007,
+      "endRegion": 3,
+      "damageTaken": 309,
+      "foeDamage": 41960,
+      "kills": 636,
+      "level": 23,
+      "regionSeconds": [
+        187.16666666670775,
+        215.56666666673036,
+        251.03333333342525
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 7.000000000005571,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 187.16666666670775,
+          "stageSeconds": 187.16666666670775,
+          "gateDistance": 79.03551203968303,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 402.7333333332957,
+          "stageSeconds": 215.56666666673036,
+          "gateDistance": 79.35318672978032,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 39226,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:08.495Z"
+    },
+    "warden/stag/coolantRun/moonflame": {
+      "id": "warden/stag/coolantRun/moonflame",
+      "cell": "warden/stag/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 634.383333333085,
+      "endRegion": 3,
+      "damageTaken": 30,
+      "foeDamage": 41919,
+      "kills": 637,
+      "level": 23,
+      "regionSeconds": [
+        182.8166666667043,
+        207.0666666667236,
+        244.50000000008671
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.499999999995907,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.8166666667043,
+          "stageSeconds": 182.8166666667043,
+          "gateDistance": 80.38364540308662,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.8833333333074,
+          "stageSeconds": 207.0666666667236,
+          "gateDistance": 81.34820075422836,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38063,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:08.871Z"
+    },
+    "warden/seedheart/forgeAssault/altarRite": {
+      "id": "warden/seedheart/forgeAssault/altarRite",
+      "cell": "warden/seedheart/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 650.0166666664041,
+      "endRegion": 3,
+      "damageTaken": 230,
+      "foeDamage": 40843,
+      "kills": 628,
+      "level": 23,
+      "regionSeconds": [
+        187.16666666670775,
+        215.56666666673036,
+        247.28333333342226
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 7.000000000005571,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 187.16666666670775,
+          "stageSeconds": 187.16666666670775,
+          "gateDistance": 79.03551203968303,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 402.7333333332957,
+          "stageSeconds": 215.56666666673036,
+          "gateDistance": 79.35318672978032,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 39001,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:09.067Z"
+    },
+    "warden/stag/forgeAssault/moonflame": {
+      "id": "warden/stag/forgeAssault/moonflame",
+      "cell": "warden/stag/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 629.3499999997563,
+      "endRegion": 3,
+      "damageTaken": 69,
+      "foeDamage": 41617,
+      "kills": 604,
+      "level": 21,
+      "regionSeconds": [
+        182.8166666667043,
+        207.95000000005763,
+        238.58333333341534
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.8166666667043,
+          "stageSeconds": 182.8166666667043,
+          "gateDistance": 80.38364540308662,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.76666666663994,
+          "stageSeconds": 207.95000000005763,
+          "gateDistance": 79.69945152952744,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37761,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:12.784Z"
+    },
+    "warden/stag/forgeAssault/altarRite": {
+      "id": "warden/stag/forgeAssault/altarRite",
+      "cell": "warden/stag/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.5833333330885,
+      "endRegion": 3,
+      "damageTaken": 79,
+      "foeDamage": 42260,
+      "kills": 635,
+      "level": 22,
+      "regionSeconds": [
+        182.8166666667043,
+        207.95000000005763,
+        239.81666666674965
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.8166666667043,
+          "stageSeconds": 182.8166666667043,
+          "gateDistance": 80.38364540308662,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.76666666663994,
+          "stageSeconds": 207.95000000005763,
+          "gateDistance": 79.69945152952744,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37835,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:12.976Z"
+    },
+    "warden/stag/coolantRun/altarRite": {
+      "id": "warden/stag/coolantRun/altarRite",
+      "cell": "warden/stag/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.6666666664217,
+      "endRegion": 3,
+      "damageTaken": 62,
+      "foeDamage": 39908,
+      "kills": 604,
+      "level": 21,
+      "regionSeconds": [
+        182.8166666667043,
+        207.0666666667236,
+        240.7833333334171
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.0000000000023874,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.8166666667043,
+          "stageSeconds": 182.8166666667043,
+          "gateDistance": 80.38364540308662,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.8833333333074,
+          "stageSeconds": 207.0666666667236,
+          "gateDistance": 81.34820075422836,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37840,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:13.189Z"
+    },
+    "ranger/waylight/coolantRun/moonflame": {
+      "id": "ranger/waylight/coolantRun/moonflame",
+      "cell": "ranger/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 638.499999999748,
+      "endRegion": 3,
+      "damageTaken": 103,
+      "foeDamage": 43617,
+      "kills": 637,
+      "level": 23,
+      "regionSeconds": [
+        182.61666666670413,
+        210.75000000005986,
+        245.13333333342055
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.0000000000023874,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.61666666670413,
+          "stageSeconds": 182.61666666670413,
+          "gateDistance": 81.2336055747813,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 393.36666666663757,
+          "stageSeconds": 210.75000000005986,
+          "gateDistance": 81.61849728992885,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38310,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:17.042Z"
+    },
+    "ranger/waylight/coolantRun/altarRite": {
+      "id": "ranger/waylight/coolantRun/altarRite",
+      "cell": "ranger/waylight/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 635.1833333330843,
+      "endRegion": 3,
+      "damageTaken": 74,
+      "foeDamage": 43253,
+      "kills": 631,
+      "level": 23,
+      "regionSeconds": [
+        182.61666666670413,
+        210.75000000005986,
+        241.81666666675125
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.0000000000023874,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.61666666670413,
+          "stageSeconds": 182.61666666670413,
+          "gateDistance": 81.2336055747813,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 393.36666666663757,
+          "stageSeconds": 210.75000000005986,
+          "gateDistance": 81.61849728992885,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38111,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:17.164Z"
+    },
+    "ranger/waylight/forgeAssault/moonflame": {
+      "id": "ranger/waylight/forgeAssault/moonflame",
+      "cell": "ranger/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 639.7166666664135,
+      "endRegion": 3,
+      "damageTaken": 53,
+      "foeDamage": 43588,
+      "kills": 631,
+      "level": 23,
+      "regionSeconds": [
+        182.61666666670413,
+        214.00000000006244,
+        243.1000000000856
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 2.5000000000019895,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.61666666670413,
+          "stageSeconds": 182.61666666670413,
+          "gateDistance": 81.2336055747813,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 396.6166666666346,
+          "stageSeconds": 214.00000000006244,
+          "gateDistance": 81.47967410272055,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38383,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:17.510Z"
+    },
+    "ranger/seedheart/coolantRun/moonflame": {
+      "id": "ranger/seedheart/coolantRun/moonflame",
+      "cell": "ranger/seedheart/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 635.9333333330836,
+      "endRegion": 3,
+      "damageTaken": 161,
+      "foeDamage": 41342,
+      "kills": 632,
+      "level": 23,
+      "regionSeconds": [
+        179.78333333336855,
+        210.01666666672594,
+        246.13333333342135
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.78333333336855,
+          "stageSeconds": 179.78333333336855,
+          "gateDistance": 79.76928246286711,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.79999999997415,
+          "stageSeconds": 210.01666666672594,
+          "gateDistance": 79.06293761954787,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38156,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:21.850Z"
+    },
+    "ranger/waylight/forgeAssault/altarRite": {
+      "id": "ranger/waylight/forgeAssault/altarRite",
+      "cell": "ranger/waylight/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 650.2833333330706,
+      "endRegion": 3,
+      "damageTaken": 238,
+      "foeDamage": 42839,
+      "kills": 633,
+      "level": 23,
+      "regionSeconds": [
+        182.61666666670413,
+        214.00000000006244,
+        253.66666666676068
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.499999999995907,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.61666666670413,
+          "stageSeconds": 182.61666666670413,
+          "gateDistance": 81.2336055747813,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 396.6166666666346,
+          "stageSeconds": 214.00000000006244,
+          "gateDistance": 81.47967410272055,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 39017,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:22.036Z"
+    },
+    "ranger/seedheart/coolantRun/altarRite": {
+      "id": "ranger/seedheart/coolantRun/altarRite",
+      "cell": "ranger/seedheart/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 639.6999999997469,
+      "endRegion": 3,
+      "damageTaken": 171,
+      "foeDamage": 41161,
+      "kills": 626,
+      "level": 23,
+      "regionSeconds": [
+        179.78333333336855,
+        210.01666666672594,
+        249.900000000091
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.78333333336855,
+          "stageSeconds": 179.78333333336855,
+          "gateDistance": 79.76928246286711,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.79999999997415,
+          "stageSeconds": 210.01666666672594,
+          "gateDistance": 79.06293761954787,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38382,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:22.441Z"
+    },
+    "ranger/seedheart/forgeAssault/moonflame": {
+      "id": "ranger/seedheart/forgeAssault/moonflame",
+      "cell": "ranger/seedheart/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 641.1499999997455,
+      "endRegion": 3,
+      "damageTaken": 224,
+      "foeDamage": 42293,
+      "kills": 633,
+      "level": 23,
+      "regionSeconds": [
+        179.78333333336855,
+        215.2833333333968,
+        246.0833333334213
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.0000000000023874,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.78333333336855,
+          "stageSeconds": 179.78333333336855,
+          "gateDistance": 79.76928246286711,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 395.066666666636,
+          "stageSeconds": 215.2833333333968,
+          "gateDistance": 79.58929399076008,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38469,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:26.658Z"
+    },
+    "ranger/stag/coolantRun/moonflame": {
+      "id": "ranger/stag/coolantRun/moonflame",
+      "cell": "ranger/stag/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 634.4833333330849,
+      "endRegion": 3,
+      "damageTaken": 66,
+      "foeDamage": 40386,
+      "kills": 622,
+      "level": 22,
+      "regionSeconds": [
+        179.71666666670183,
+        210.20000000005942,
+        244.56666666675343
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 2.5000000000019895,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.71666666670183,
+          "stageSeconds": 179.71666666670183,
+          "gateDistance": 80.11621993053296,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.9166666666407,
+          "stageSeconds": 210.20000000005942,
+          "gateDistance": 80.43391309788156,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38069,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:26.786Z"
+    },
+    "ranger/seedheart/forgeAssault/altarRite": {
+      "id": "ranger/seedheart/forgeAssault/altarRite",
+      "cell": "ranger/seedheart/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 638.499999999748,
+      "endRegion": 3,
+      "damageTaken": 220,
+      "foeDamage": 39607,
+      "kills": 627,
+      "level": 22,
+      "regionSeconds": [
+        179.78333333336855,
+        215.2833333333968,
+        243.4333333334192
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.9999999999954525,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.78333333336855,
+          "stageSeconds": 179.78333333336855,
+          "gateDistance": 79.76928246286711,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 395.066666666636,
+          "stageSeconds": 215.2833333333968,
+          "gateDistance": 79.58929399076008,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38310,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:26.900Z"
+    },
+    "ranger/stag/forgeAssault/moonflame": {
+      "id": "ranger/stag/forgeAssault/moonflame",
+      "cell": "ranger/stag/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.2666666664221,
+      "endRegion": 3,
+      "damageTaken": 0,
+      "foeDamage": 42179,
+      "kills": 623,
+      "level": 22,
+      "regionSeconds": [
+        179.71666666670183,
+        211.8833333333941,
+        238.66666666674874
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.71666666670183,
+          "stageSeconds": 179.71666666670183,
+          "gateDistance": 80.11621993053296,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.5999999999725,
+          "stageSeconds": 211.8833333333941,
+          "gateDistance": 80.484822626176,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37816,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:31.384Z"
+    },
+    "ranger/stag/forgeAssault/altarRite": {
+      "id": "ranger/stag/forgeAssault/altarRite",
+      "cell": "ranger/stag/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 633.0666666664196,
+      "endRegion": 3,
+      "damageTaken": 0,
+      "foeDamage": 41689,
+      "kills": 636,
+      "level": 22,
+      "regionSeconds": [
+        179.71666666670183,
+        211.8833333333941,
+        241.46666666675097
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.71666666670183,
+          "stageSeconds": 179.71666666670183,
+          "gateDistance": 80.11621993053296,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.5999999999725,
+          "stageSeconds": 211.8833333333941,
+          "gateDistance": 80.484822626176,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37984,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:31.522Z"
+    },
+    "ranger/stag/coolantRun/altarRite": {
+      "id": "ranger/stag/coolantRun/altarRite",
+      "cell": "ranger/stag/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 629.6166666664227,
+      "endRegion": 3,
+      "damageTaken": 54,
+      "foeDamage": 41982,
+      "kills": 623,
+      "level": 22,
+      "regionSeconds": [
+        179.71666666670183,
+        210.20000000005942,
+        239.7000000000829
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 2.9999999999972715,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.71666666670183,
+          "stageSeconds": 179.71666666670183,
+          "gateDistance": 80.11621993053296,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.9166666666407,
+          "stageSeconds": 210.20000000005942,
+          "gateDistance": 80.43391309788156,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37777,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:31.707Z"
+    },
+    "ember/waylight/coolantRun/moonflame": {
+      "id": "ember/waylight/coolantRun/moonflame",
+      "cell": "ember/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.1333333330889,
+      "endRegion": 3,
+      "damageTaken": 127,
+      "foeDamage": 41430,
+      "kills": 613,
+      "level": 22,
+      "regionSeconds": [
+        180.00000000003539,
+        208.91666666672506,
+        241.21666666675077
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.00000000003539,
+          "stageSeconds": 180.00000000003539,
+          "gateDistance": 79.79821453216073,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.9166666666416,
+          "stageSeconds": 208.91666666672506,
+          "gateDistance": 79.54140144358065,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37808,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:35.735Z"
+    },
+    "ember/waylight/forgeAssault/moonflame": {
+      "id": "ember/waylight/forgeAssault/moonflame",
+      "cell": "ember/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.699999999755,
+      "endRegion": 3,
+      "damageTaken": 32,
+      "foeDamage": 42262,
+      "kills": 619,
+      "level": 22,
+      "regionSeconds": [
+        180.00000000003539,
+        210.28333333339282,
+        240.41666666675013
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.0000000000023874,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.00000000003539,
+          "stageSeconds": 180.00000000003539,
+          "gateDistance": 79.79821453216073,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.28333333330704,
+          "stageSeconds": 210.28333333339282,
+          "gateDistance": 80.26870994669811,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37842,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:35.747Z"
+    },
+    "ember/waylight/coolantRun/altarRite": {
+      "id": "ember/waylight/coolantRun/altarRite",
+      "cell": "ember/waylight/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 629.7666666664226,
+      "endRegion": 3,
+      "damageTaken": 134,
+      "foeDamage": 41476,
+      "kills": 620,
+      "level": 22,
+      "regionSeconds": [
+        180.00000000003539,
+        208.91666666672506,
+        240.8500000000838
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.00000000003539,
+          "stageSeconds": 180.00000000003539,
+          "gateDistance": 79.79821453216073,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.9166666666416,
+          "stageSeconds": 208.91666666672506,
+          "gateDistance": 79.54140144358065,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37786,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:03:36.042Z"
+    },
+    "ember/waylight/forgeAssault/altarRite": {
+      "id": "ember/waylight/forgeAssault/altarRite",
+      "cell": "ember/waylight/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 629.4666666664228,
+      "endRegion": 3,
+      "damageTaken": 78,
+      "foeDamage": 43132,
+      "kills": 622,
+      "level": 22,
+      "regionSeconds": [
+        180.00000000003539,
+        210.28333333339282,
+        239.18333333341582
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.00000000003539,
+          "stageSeconds": 180.00000000003539,
+          "gateDistance": 79.79821453216073,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.28333333330704,
+          "stageSeconds": 210.28333333339282,
+          "gateDistance": 80.26870994669811,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37768,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:39.954Z"
+    },
+    "ember/seedheart/coolantRun/moonflame": {
+      "id": "ember/seedheart/coolantRun/moonflame",
+      "cell": "ember/seedheart/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 633.7833333330856,
+      "endRegion": 3,
+      "damageTaken": 172,
+      "foeDamage": 41912,
+      "kills": 629,
+      "level": 22,
+      "regionSeconds": [
+        181.4000000000365,
+        209.40000000005878,
+        242.98333333341884
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.4000000000365,
+          "stageSeconds": 181.4000000000365,
+          "gateDistance": 79.58519780508793,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.79999999997324,
+          "stageSeconds": 209.40000000005878,
+          "gateDistance": 80.87361276011308,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38027,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:40.113Z"
+    },
+    "ember/seedheart/coolantRun/altarRite": {
+      "id": "ember/seedheart/coolantRun/altarRite",
+      "cell": "ember/seedheart/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 631.6166666664209,
+      "endRegion": 3,
+      "damageTaken": 147,
+      "foeDamage": 40934,
+      "kills": 613,
+      "level": 22,
+      "regionSeconds": [
+        181.4000000000365,
+        209.40000000005878,
+        240.81666666675045
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.4000000000365,
+          "stageSeconds": 181.4000000000365,
+          "gateDistance": 79.58519780508793,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.79999999997324,
+          "stageSeconds": 209.40000000005878,
+          "gateDistance": 80.87361276011308,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37897,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 7,
+      "finishedAt": "2026-10-22T04:03:42.716Z"
+    },
+    "ember/seedheart/forgeAssault/moonflame": {
+      "id": "ember/seedheart/forgeAssault/moonflame",
+      "cell": "ember/seedheart/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.9999999997548,
+      "endRegion": 3,
+      "damageTaken": 32,
+      "foeDamage": 41678,
+      "kills": 622,
+      "level": 21,
+      "regionSeconds": [
+        181.4000000000365,
+        209.31666666672538,
+        240.2833333334167
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.5000000000027853,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.4000000000365,
+          "stageSeconds": 181.4000000000365,
+          "gateDistance": 79.58519780508793,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.71666666664,
+          "stageSeconds": 209.31666666672538,
+          "gateDistance": 81.85463318922326,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37860,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:44.146Z"
+    },
+    "ember/seedheart/forgeAssault/altarRite": {
+      "id": "ember/seedheart/forgeAssault/altarRite",
+      "cell": "ember/seedheart/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 202,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 636.1333333330834,
+      "endRegion": 3,
+      "damageTaken": 138,
+      "foeDamage": 42070,
+      "kills": 616,
+      "level": 22,
+      "regionSeconds": [
+        181.4000000000365,
+        209.31666666672538,
+        245.4166666667541
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.5000000000027853,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.4000000000365,
+          "stageSeconds": 181.4000000000365,
+          "gateDistance": 79.58519780508793,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.71666666664,
+          "stageSeconds": 209.31666666672538,
+          "gateDistance": 81.85463318922326,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38168,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:44.356Z"
+    },
+    "ember/stag/coolantRun/moonflame": {
+      "id": "ember/stag/coolantRun/moonflame",
+      "cell": "ember/stag/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 629.2166666664231,
+      "endRegion": 3,
+      "damageTaken": 116,
+      "foeDamage": 40965,
+      "kills": 625,
+      "level": 22,
+      "regionSeconds": [
+        179.35000000003487,
+        209.86666666672582,
+        240.00000000008313
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.0000000000023874,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.35000000003487,
+          "stageSeconds": 179.35000000003487,
+          "gateDistance": 80.58486277372208,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.21666666664134,
+          "stageSeconds": 209.86666666672582,
+          "gateDistance": 79.4879914083307,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37753,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:47.083Z"
+    },
+    "ember/stag/forgeAssault/moonflame": {
+      "id": "ember/stag/forgeAssault/moonflame",
+      "cell": "ember/stag/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 624.5666666664273,
+      "endRegion": 3,
+      "damageTaken": 51,
+      "foeDamage": 40554,
+      "kills": 615,
+      "level": 21,
+      "regionSeconds": [
+        179.35000000003487,
+        207.4000000000572,
+        237.81666666674806
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.35000000003487,
+          "stageSeconds": 179.35000000003487,
+          "gateDistance": 80.58486277372208,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 386.7499999999769,
+          "stageSeconds": 207.4000000000572,
+          "gateDistance": 79.37171074381672,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37474,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:48.219Z"
+    },
+    "ember/stag/coolantRun/altarRite": {
+      "id": "ember/stag/coolantRun/altarRite",
+      "cell": "ember/stag/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 628.7833333330901,
+      "endRegion": 3,
+      "damageTaken": 105,
+      "foeDamage": 41603,
+      "kills": 632,
+      "level": 21,
+      "regionSeconds": [
+        179.35000000003487,
+        209.86666666672582,
+        239.56666666674946
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.0000000000023874,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.35000000003487,
+          "stageSeconds": 179.35000000003487,
+          "gateDistance": 80.58486277372208,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.21666666664134,
+          "stageSeconds": 209.86666666672582,
+          "gateDistance": 79.4879914083307,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37727,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:48.405Z"
+    },
+    "ember/stag/forgeAssault/altarRite": {
+      "id": "ember/stag/forgeAssault/altarRite",
+      "cell": "ember/stag/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 155,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 623.8499999997613,
+      "endRegion": 3,
+      "damageTaken": 73,
+      "foeDamage": 42056,
+      "kills": 610,
+      "level": 21,
+      "regionSeconds": [
+        179.35000000003487,
+        207.4000000000572,
+        237.10000000008083
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.35000000003487,
+          "stageSeconds": 179.35000000003487,
+          "gateDistance": 80.58486277372208,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 386.7499999999769,
+          "stageSeconds": 207.4000000000572,
+          "gateDistance": 79.37171074381672,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37431,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:03:50.941Z"
+    },
+    "warden/waylight/coolantRun/moonflame@B": {
+      "id": "warden/waylight/coolantRun/moonflame@B",
+      "cell": "warden/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.4333333330886,
+      "endRegion": 3,
+      "damageTaken": 52,
+      "foeDamage": 40033,
+      "kills": 609,
+      "level": 21,
+      "regionSeconds": [
+        184.8000000000392,
+        208.45000000005803,
+        237.18333333341423
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 184.8000000000392,
+          "stageSeconds": 184.8000000000392,
+          "gateDistance": 79.78170545234086,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 393.249999999971,
+          "stageSeconds": 208.45000000005803,
+          "gateDistance": 81.185653752787,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37826,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:03:59.886Z"
+    },
+    "warden/waylight/coolantRun/altarRite@B": {
+      "id": "warden/waylight/coolantRun/altarRite@B",
+      "cell": "warden/waylight/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 635.1333333330844,
+      "endRegion": 3,
+      "damageTaken": 66,
+      "foeDamage": 40565,
+      "kills": 619,
+      "level": 22,
+      "regionSeconds": [
+        184.8000000000392,
+        208.45000000005803,
+        241.88333333341797
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 184.8000000000392,
+          "stageSeconds": 184.8000000000392,
+          "gateDistance": 79.78170545234086,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 393.249999999971,
+          "stageSeconds": 208.45000000005803,
+          "gateDistance": 81.185653752787,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38108,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 7,
+      "finishedAt": "2026-10-22T04:04:00.251Z"
+    },
+    "warden/waylight/forgeAssault/moonflame@B": {
+      "id": "warden/waylight/forgeAssault/moonflame@B",
+      "cell": "warden/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 639.6499999997469,
+      "endRegion": 3,
+      "damageTaken": 106,
+      "foeDamage": 41216,
+      "kills": 622,
+      "level": 22,
+      "regionSeconds": [
+        184.8000000000392,
+        209.70000000005902,
+        245.15000000008723
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 184.8000000000392,
+          "stageSeconds": 184.8000000000392,
+          "gateDistance": 79.78170545234086,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 394.4999999999699,
+          "stageSeconds": 209.70000000005902,
+          "gateDistance": 80.4116241214693,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38379,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 7,
+      "finishedAt": "2026-10-22T04:04:00.265Z"
+    },
+    "warden/waylight/forgeAssault/altarRite@B": {
+      "id": "warden/waylight/forgeAssault/altarRite@B",
+      "cell": "warden/waylight/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 636.5666666664164,
+      "endRegion": 3,
+      "damageTaken": 110,
+      "foeDamage": 42470,
+      "kills": 618,
+      "level": 23,
+      "regionSeconds": [
+        184.8000000000392,
+        209.70000000005902,
+        242.06666666675144
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 184.8000000000392,
+          "stageSeconds": 184.8000000000392,
+          "gateDistance": 79.78170545234086,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 394.4999999999699,
+          "stageSeconds": 209.70000000005902,
+          "gateDistance": 80.4116241214693,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38194,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:04.757Z"
+    },
+    "warden/seedheart/coolantRun/moonflame@B": {
+      "id": "warden/seedheart/coolantRun/moonflame@B",
+      "cell": "warden/seedheart/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 641.2999999997454,
+      "endRegion": 3,
+      "damageTaken": 162,
+      "foeDamage": 41150,
+      "kills": 614,
+      "level": 23,
+      "regionSeconds": [
+        185.65000000003988,
+        211.08333333339345,
+        244.56666666675343
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 185.65000000003988,
+          "stageSeconds": 185.65000000003988,
+          "gateDistance": 79.92017316865433,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 396.7333333333012,
+          "stageSeconds": 211.08333333339345,
+          "gateDistance": 78.9024047623257,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38478,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:05.017Z"
+    },
+    "warden/seedheart/coolantRun/altarRite@B": {
+      "id": "warden/seedheart/coolantRun/altarRite@B",
+      "cell": "warden/seedheart/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 654.1166666664004,
+      "endRegion": 3,
+      "damageTaken": 220,
+      "foeDamage": 40169,
+      "kills": 615,
+      "level": 22,
+      "regionSeconds": [
+        185.65000000003988,
+        211.08333333339345,
+        257.3833333334279
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 185.65000000003988,
+          "stageSeconds": 185.65000000003988,
+          "gateDistance": 79.92017316865433,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 396.7333333333012,
+          "stageSeconds": 211.08333333339345,
+          "gateDistance": 78.9024047623257,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 39247,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:05.413Z"
+    },
+    "warden/seedheart/forgeAssault/moonflame@B": {
+      "id": "warden/seedheart/forgeAssault/moonflame@B",
+      "cell": "warden/seedheart/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 642.1833333330779,
+      "endRegion": 3,
+      "damageTaken": 164,
+      "foeDamage": 41971,
+      "kills": 622,
+      "level": 23,
+      "regionSeconds": [
+        185.65000000003988,
+        215.21666666673008,
+        241.31666666675085
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 6.000000000004775,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 185.65000000003988,
+          "stageSeconds": 185.65000000003988,
+          "gateDistance": 79.92017316865433,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 400.86666666663075,
+          "stageSeconds": 215.21666666673008,
+          "gateDistance": 80.71954450670567,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38531,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:10.063Z"
+    },
+    "warden/seedheart/forgeAssault/altarRite@B": {
+      "id": "warden/seedheart/forgeAssault/altarRite@B",
+      "cell": "warden/seedheart/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 646.2999999997409,
+      "endRegion": 3,
+      "damageTaken": 234,
+      "foeDamage": 42844,
+      "kills": 611,
+      "level": 23,
+      "regionSeconds": [
+        185.65000000003988,
+        215.21666666673008,
+        245.4333333334208
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 6.000000000004775,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 185.65000000003988,
+          "stageSeconds": 185.65000000003988,
+          "gateDistance": 79.92017316865433,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 400.86666666663075,
+          "stageSeconds": 215.21666666673008,
+          "gateDistance": 80.71954450670567,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38778,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:10.234Z"
+    },
+    "warden/stag/coolantRun/moonflame@B": {
+      "id": "warden/stag/coolantRun/moonflame@B",
+      "cell": "warden/stag/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 635.3333333330842,
+      "endRegion": 3,
+      "damageTaken": 95,
+      "foeDamage": 42782,
+      "kills": 625,
+      "level": 22,
+      "regionSeconds": [
+        180.9000000000361,
+        211.33333333339365,
+        243.1000000000856
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.9000000000361,
+          "stageSeconds": 180.9000000000361,
+          "gateDistance": 81.31595169767448,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 392.23333333330527,
+          "stageSeconds": 211.33333333339365,
+          "gateDistance": 81.36751296600049,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38120,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:10.611Z"
+    },
+    "warden/stag/forgeAssault/moonflame@B": {
+      "id": "warden/stag/forgeAssault/moonflame@B",
+      "cell": "warden/stag/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 632.1999999997537,
+      "endRegion": 3,
+      "damageTaken": 53,
+      "foeDamage": 43409,
+      "kills": 634,
+      "level": 22,
+      "regionSeconds": [
+        180.9000000000361,
+        210.15000000005938,
+        241.15000000008405
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 6.500000000005173,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.9000000000361,
+          "stageSeconds": 180.9000000000361,
+          "gateDistance": 81.31595169767448,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.049999999973,
+          "stageSeconds": 210.15000000005938,
+          "gateDistance": 79.11258691965993,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37932,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:14.963Z"
+    },
+    "warden/stag/forgeAssault/altarRite@B": {
+      "id": "warden/stag/forgeAssault/altarRite@B",
+      "cell": "warden/stag/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 629.8499999997558,
+      "endRegion": 3,
+      "damageTaken": 46,
+      "foeDamage": 44711,
+      "kills": 630,
+      "level": 22,
+      "regionSeconds": [
+        180.9000000000361,
+        210.15000000005938,
+        238.80000000008218
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 6.500000000005173,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.9000000000361,
+          "stageSeconds": 180.9000000000361,
+          "gateDistance": 81.31595169767448,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.049999999973,
+          "stageSeconds": 210.15000000005938,
+          "gateDistance": 79.11258691965993,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37791,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:15.817Z"
+    },
+    "warden/stag/coolantRun/altarRite@B": {
+      "id": "warden/stag/coolantRun/altarRite@B",
+      "cell": "warden/stag/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 637.5833333330821,
+      "endRegion": 3,
+      "damageTaken": 65,
+      "foeDamage": 41438,
+      "kills": 622,
+      "level": 22,
+      "regionSeconds": [
+        180.9000000000361,
+        211.33333333339365,
+        245.3500000000874
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.9000000000361,
+          "stageSeconds": 180.9000000000361,
+          "gateDistance": 81.31595169767448,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 392.23333333330527,
+          "stageSeconds": 211.33333333339365,
+          "gateDistance": 81.36751296600049,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38255,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:04:16.090Z"
+    },
+    "ranger/waylight/coolantRun/moonflame@B": {
+      "id": "ranger/waylight/coolantRun/moonflame@B",
+      "cell": "ranger/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 634.5166666664182,
+      "endRegion": 3,
+      "damageTaken": 103,
+      "foeDamage": 43894,
+      "kills": 632,
+      "level": 23,
+      "regionSeconds": [
+        181.78333333337014,
+        209.8833333333925,
+        242.8500000000854
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.78333333337014,
+          "stageSeconds": 181.78333333337014,
+          "gateDistance": 80.39365969932581,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.6666666666391,
+          "stageSeconds": 209.8833333333925,
+          "gateDistance": 81.25227022479717,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38071,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:20.121Z"
+    },
+    "ranger/waylight/coolantRun/altarRite@B": {
+      "id": "ranger/waylight/coolantRun/altarRite@B",
+      "cell": "ranger/waylight/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 634.3166666664184,
+      "endRegion": 3,
+      "damageTaken": 114,
+      "foeDamage": 43412,
+      "kills": 634,
+      "level": 23,
+      "regionSeconds": [
+        181.78333333337014,
+        209.8833333333925,
+        242.65000000008524
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.78333333337014,
+          "stageSeconds": 181.78333333337014,
+          "gateDistance": 80.39365969932581,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.6666666666391,
+          "stageSeconds": 209.8833333333925,
+          "gateDistance": 81.25227022479717,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38059,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:20.725Z"
+    },
+    "ranger/waylight/forgeAssault/moonflame@B": {
+      "id": "ranger/waylight/forgeAssault/moonflame@B",
+      "cell": "ranger/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 631.183333333088,
+      "endRegion": 3,
+      "damageTaken": 75,
+      "foeDamage": 44141,
+      "kills": 621,
+      "level": 23,
+      "regionSeconds": [
+        181.78333333337014,
+        208.66666666672486,
+        240.73333333341705
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.5000000000027853,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.78333333337014,
+          "stageSeconds": 181.78333333337014,
+          "gateDistance": 80.39365969932581,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.44999999997356,
+          "stageSeconds": 208.66666666672486,
+          "gateDistance": 80.97218522849525,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37871,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:21.294Z"
+    },
+    "ranger/waylight/forgeAssault/altarRite@B": {
+      "id": "ranger/waylight/forgeAssault/altarRite@B",
+      "cell": "ranger/waylight/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 632.283333333087,
+      "endRegion": 3,
+      "damageTaken": 51,
+      "foeDamage": 41694,
+      "kills": 610,
+      "level": 22,
+      "regionSeconds": [
+        181.78333333337014,
+        208.66666666672486,
+        241.83333333341793
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.78333333337014,
+          "stageSeconds": 181.78333333337014,
+          "gateDistance": 80.39365969932581,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.44999999997356,
+          "stageSeconds": 208.66666666672486,
+          "gateDistance": 80.97218522849525,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37937,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:25.018Z"
+    },
+    "ranger/seedheart/coolantRun/moonflame@B": {
+      "id": "ranger/seedheart/coolantRun/moonflame@B",
+      "cell": "ranger/seedheart/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.9999999997548,
+      "endRegion": 3,
+      "damageTaken": 35,
+      "foeDamage": 39322,
+      "kills": 625,
+      "level": 22,
+      "regionSeconds": [
+        179.5833333333684,
+        210.28333333339282,
+        241.13333333341737
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.5833333333684,
+          "stageSeconds": 179.5833333333684,
+          "gateDistance": 81.14562273855213,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.86666666664075,
+          "stageSeconds": 210.28333333339282,
+          "gateDistance": 81.01672069627413,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37860,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:04:25.222Z"
+    },
+    "ranger/seedheart/coolantRun/altarRite@B": {
+      "id": "ranger/seedheart/coolantRun/altarRite@B",
+      "cell": "ranger/seedheart/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 636.29999999975,
+      "endRegion": 3,
+      "damageTaken": 117,
+      "foeDamage": 41327,
+      "kills": 617,
+      "level": 22,
+      "regionSeconds": [
+        179.5833333333684,
+        210.28333333339282,
+        246.4333333334216
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.5833333333684,
+          "stageSeconds": 179.5833333333684,
+          "gateDistance": 81.14562273855213,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.86666666664075,
+          "stageSeconds": 210.28333333339282,
+          "gateDistance": 81.01672069627413,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38178,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:26.019Z"
+    },
+    "ranger/seedheart/forgeAssault/moonflame@B": {
+      "id": "ranger/seedheart/forgeAssault/moonflame@B",
+      "cell": "ranger/seedheart/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 634.5333333330849,
+      "endRegion": 3,
+      "damageTaken": 30,
+      "foeDamage": 40355,
+      "kills": 624,
+      "level": 22,
+      "regionSeconds": [
+        179.5833333333684,
+        211.68333333339393,
+        243.2666666667524
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.5833333333684,
+          "stageSeconds": 179.5833333333684,
+          "gateDistance": 81.14562273855213,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.2666666666395,
+          "stageSeconds": 211.68333333339393,
+          "gateDistance": 80.44029059037464,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38072,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:04:29.483Z"
+    },
+    "ranger/seedheart/forgeAssault/altarRite@B": {
+      "id": "ranger/seedheart/forgeAssault/altarRite@B",
+      "cell": "ranger/seedheart/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 632.3666666664202,
+      "endRegion": 3,
+      "damageTaken": 35,
+      "foeDamage": 42578,
+      "kills": 632,
+      "level": 23,
+      "regionSeconds": [
+        179.5833333333684,
+        211.68333333339393,
+        241.100000000084
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.5833333333684,
+          "stageSeconds": 179.5833333333684,
+          "gateDistance": 81.14562273855213,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.2666666666395,
+          "stageSeconds": 211.68333333339393,
+          "gateDistance": 80.44029059037464,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37942,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:04:30.757Z"
+    },
+    "ranger/stag/coolantRun/moonflame@B": {
+      "id": "ranger/stag/coolantRun/moonflame@B",
+      "cell": "ranger/stag/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 635.6166666664172,
+      "endRegion": 3,
+      "damageTaken": 36,
+      "foeDamage": 43223,
+      "kills": 653,
+      "level": 22,
+      "regionSeconds": [
+        180.28333333336894,
+        211.40000000006037,
+        243.9333333334196
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.28333333336894,
+          "stageSeconds": 180.28333333336894,
+          "gateDistance": 81.66150252557581,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.68333333330577,
+          "stageSeconds": 211.40000000006037,
+          "gateDistance": 66.04994678399794,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38137,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:31.344Z"
+    },
+    "ranger/stag/coolantRun/altarRite@B": {
+      "id": "ranger/stag/coolantRun/altarRite@B",
+      "cell": "ranger/stag/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 635.5999999997506,
+      "endRegion": 3,
+      "damageTaken": 144,
+      "foeDamage": 45257,
+      "kills": 652,
+      "level": 23,
+      "regionSeconds": [
+        180.28333333336894,
+        211.40000000006037,
+        243.91666666675292
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.28333333336894,
+          "stageSeconds": 180.28333333336894,
+          "gateDistance": 81.66150252557581,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.68333333330577,
+          "stageSeconds": 211.40000000006037,
+          "gateDistance": 66.04994678399794,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38136,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:34.461Z"
+    },
+    "ranger/stag/forgeAssault/moonflame@B": {
+      "id": "ranger/stag/forgeAssault/moonflame@B",
+      "cell": "ranger/stag/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 633.8499999997522,
+      "endRegion": 3,
+      "damageTaken": 72,
+      "foeDamage": 40638,
+      "kills": 634,
+      "level": 21,
+      "regionSeconds": [
+        180.28333333336894,
+        210.2166666667261,
+        243.3500000000858
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.28333333336894,
+          "stageSeconds": 180.28333333336894,
+          "gateDistance": 81.66150252557581,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.4999999999735,
+          "stageSeconds": 210.2166666667261,
+          "gateDistance": 78.81609788528597,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38031,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:35.629Z"
+    },
+    "ranger/stag/forgeAssault/altarRite@B": {
+      "id": "ranger/stag/forgeAssault/altarRite@B",
+      "cell": "ranger/stag/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 634.6333333330848,
+      "endRegion": 3,
+      "damageTaken": 38,
+      "foeDamage": 40522,
+      "kills": 622,
+      "level": 21,
+      "regionSeconds": [
+        180.28333333336894,
+        210.2166666667261,
+        244.13333333341976
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.28333333336894,
+          "stageSeconds": 180.28333333336894,
+          "gateDistance": 81.66150252557581,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.4999999999735,
+          "stageSeconds": 210.2166666667261,
+          "gateDistance": 78.81609788528597,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38078,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:36.345Z"
+    },
+    "ember/waylight/coolantRun/moonflame@B": {
+      "id": "ember/waylight/coolantRun/moonflame@B",
+      "cell": "ember/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 628.599999999757,
+      "endRegion": 3,
+      "damageTaken": 112,
+      "foeDamage": 41227,
+      "kills": 621,
+      "level": 21,
+      "regionSeconds": [
+        180.33333333336898,
+        209.86666666672582,
+        238.40000000008186
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.33333333336898,
+          "stageSeconds": 180.33333333336898,
+          "gateDistance": 80.17616353089116,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.1999999999738,
+          "stageSeconds": 209.86666666672582,
+          "gateDistance": 79.66264785560081,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37716,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:39.057Z"
+    },
+    "ember/waylight/coolantRun/altarRite@B": {
+      "id": "ember/waylight/coolantRun/altarRite@B",
+      "cell": "ember/waylight/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 631.4833333330877,
+      "endRegion": 3,
+      "damageTaken": 100,
+      "foeDamage": 43541,
+      "kills": 631,
+      "level": 23,
+      "regionSeconds": [
+        180.33333333336898,
+        209.86666666672582,
+        241.2833333334175
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.33333333336898,
+          "stageSeconds": 180.33333333336898,
+          "gateDistance": 80.17616353089116,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.1999999999738,
+          "stageSeconds": 209.86666666672582,
+          "gateDistance": 79.66264785560081,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37889,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:40.222Z"
+    },
+    "ember/waylight/forgeAssault/moonflame@B": {
+      "id": "ember/waylight/forgeAssault/moonflame@B",
+      "cell": "ember/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.749999999755,
+      "endRegion": 3,
+      "damageTaken": 69,
+      "foeDamage": 43139,
+      "kills": 630,
+      "level": 22,
+      "regionSeconds": [
+        180.33333333336898,
+        209.78333333339242,
+        240.63333333341697
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.33333333336898,
+          "stageSeconds": 180.33333333336898,
+          "gateDistance": 80.17616353089116,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.1166666666405,
+          "stageSeconds": 209.78333333339242,
+          "gateDistance": 81.24968479248535,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37845,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:04:40.759Z"
+    },
+    "ember/waylight/forgeAssault/altarRite@B": {
+      "id": "ember/waylight/forgeAssault/altarRite@B",
+      "cell": "ember/waylight/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 7,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 628.6833333330902,
+      "endRegion": 3,
+      "damageTaken": 111,
+      "foeDamage": 41032,
+      "kills": 623,
+      "level": 21,
+      "regionSeconds": [
+        180.33333333336898,
+        209.78333333339242,
+        238.56666666674866
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.499999999995907,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.33333333336898,
+          "stageSeconds": 180.33333333336898,
+          "gateDistance": 80.17616353089116,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.1166666666405,
+          "stageSeconds": 209.78333333339242,
+          "gateDistance": 81.24968479248535,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37721,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:04:43.478Z"
+    },
+    "ember/seedheart/coolantRun/moonflame@B": {
+      "id": "ember/seedheart/coolantRun/moonflame@B",
+      "cell": "ember/seedheart/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 631.6833333330875,
+      "endRegion": 3,
+      "damageTaken": 115,
+      "foeDamage": 41934,
+      "kills": 628,
+      "level": 22,
+      "regionSeconds": [
+        180.35000000003566,
+        210.35000000005954,
+        240.98333333341725
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.500000000004377,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.35000000003566,
+          "stageSeconds": 180.35000000003566,
+          "gateDistance": 80.54034149226379,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.69999999997333,
+          "stageSeconds": 210.35000000005954,
+          "gateDistance": 80.2201431152246,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37901,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:45.083Z"
+    },
+    "ember/seedheart/coolantRun/altarRite@B": {
+      "id": "ember/seedheart/coolantRun/altarRite@B",
+      "cell": "ember/seedheart/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 632.3833333330869,
+      "endRegion": 3,
+      "damageTaken": 100,
+      "foeDamage": 43183,
+      "kills": 621,
+      "level": 22,
+      "regionSeconds": [
+        180.35000000003566,
+        210.35000000005954,
+        241.6833333334178
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.500000000004377,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.35000000003566,
+          "stageSeconds": 180.35000000003566,
+          "gateDistance": 80.54034149226379,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.69999999997333,
+          "stageSeconds": 210.35000000005954,
+          "gateDistance": 80.2201431152246,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37943,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:45.641Z"
+    },
+    "ember/seedheart/forgeAssault/moonflame@B": {
+      "id": "ember/seedheart/forgeAssault/moonflame@B",
+      "cell": "ember/seedheart/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.1666666664222,
+      "endRegion": 3,
+      "damageTaken": 84,
+      "foeDamage": 43426,
+      "kills": 638,
+      "level": 22,
+      "regionSeconds": [
+        180.35000000003566,
+        210.60000000005974,
+        239.21666666674918
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.35000000003566,
+          "stageSeconds": 180.35000000003566,
+          "gateDistance": 80.54034149226379,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.9499999999731,
+          "stageSeconds": 210.60000000005974,
+          "gateDistance": 80.54362130565421,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37810,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:48.202Z"
+    },
+    "ember/seedheart/forgeAssault/altarRite@B": {
+      "id": "ember/seedheart/forgeAssault/altarRite@B",
+      "cell": "ember/seedheart/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 1000,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 628.7833333330901,
+      "endRegion": 3,
+      "damageTaken": 50,
+      "foeDamage": 42044,
+      "kills": 629,
+      "level": 21,
+      "regionSeconds": [
+        180.35000000003566,
+        210.60000000005974,
+        237.83333333341474
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.35000000003566,
+          "stageSeconds": 180.35000000003566,
+          "gateDistance": 80.54034149226379,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.9499999999731,
+          "stageSeconds": 210.60000000005974,
+          "gateDistance": 80.54362130565421,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37727,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:49.695Z"
+    },
+    "ember/stag/coolantRun/moonflame@B": {
+      "id": "ember/stag/coolantRun/moonflame@B",
+      "cell": "ember/stag/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.8666666664216,
+      "endRegion": 3,
+      "damageTaken": 110,
+      "foeDamage": 44298,
+      "kills": 637,
+      "level": 22,
+      "regionSeconds": [
+        179.61666666670175,
+        210.1333333333927,
+        241.1166666667507
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.500000000004377,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.61666666670175,
+          "stageSeconds": 179.61666666670175,
+          "gateDistance": 80.2834989240779,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.7499999999742,
+          "stageSeconds": 210.1333333333927,
+          "gateDistance": 81.97571346754354,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37852,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:50.367Z"
+    },
+    "ember/stag/coolantRun/altarRite@B": {
+      "id": "ember/stag/coolantRun/altarRite@B",
+      "cell": "ember/stag/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 628.7999999997568,
+      "endRegion": 3,
+      "damageTaken": 99,
+      "foeDamage": 40526,
+      "kills": 621,
+      "level": 22,
+      "regionSeconds": [
+        179.61666666670175,
+        210.1333333333927,
+        239.05000000008238
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.500000000004377,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.61666666670175,
+          "stageSeconds": 179.61666666670175,
+          "gateDistance": 80.2834989240779,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.7499999999742,
+          "stageSeconds": 210.1333333333927,
+          "gateDistance": 81.97571346754354,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37728,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:52.723Z"
+    },
+    "ember/stag/forgeAssault/moonflame@B": {
+      "id": "ember/stag/forgeAssault/moonflame@B",
+      "cell": "ember/stag/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 629.1333333330898,
+      "endRegion": 3,
+      "damageTaken": 34,
+      "foeDamage": 43008,
+      "kills": 622,
+      "level": 22,
+      "regionSeconds": [
+        179.61666666670175,
+        209.5500000000589,
+        239.96666666674977
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.61666666670175,
+          "stageSeconds": 179.61666666670175,
+          "gateDistance": 80.2834989240779,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.1666666666414,
+          "stageSeconds": 209.5500000000589,
+          "gateDistance": 80.50896272949785,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37748,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:04:54.567Z"
+    },
+    "ember/stag/forgeAssault/altarRite@B": {
+      "id": "ember/stag/forgeAssault/altarRite@B",
+      "cell": "ember/stag/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "B",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 4123,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 628.549999999757,
+      "endRegion": 3,
+      "damageTaken": 54,
+      "foeDamage": 41604,
+      "kills": 628,
+      "level": 21,
+      "regionSeconds": [
+        179.61666666670175,
+        209.5500000000589,
+        239.38333333341598
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.61666666670175,
+          "stageSeconds": 179.61666666670175,
+          "gateDistance": 80.2834989240779,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.1666666666414,
+          "stageSeconds": 209.5500000000589,
+          "gateDistance": 80.50896272949785,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37713,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:04:54.639Z"
+    },
+    "warden/waylight/coolantRun/altarRite@C": {
+      "id": "warden/waylight/coolantRun/altarRite@C",
+      "cell": "warden/waylight/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 638.399999999748,
+      "endRegion": 3,
+      "damageTaken": 118,
+      "foeDamage": 40969,
+      "kills": 628,
+      "level": 22,
+      "regionSeconds": [
+        185.81666666670668,
+        214.66666666672964,
+        237.91666666674814
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 185.81666666670668,
+          "stageSeconds": 185.81666666670668,
+          "gateDistance": 80.0278619011245,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 400.48333333329776,
+          "stageSeconds": 214.66666666672964,
+          "gateDistance": 81.02678962461032,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38304,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:03.075Z"
+    },
+    "warden/waylight/forgeAssault/moonflame@C": {
+      "id": "warden/waylight/forgeAssault/moonflame@C",
+      "cell": "warden/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 642.5833333330776,
+      "endRegion": 3,
+      "damageTaken": 120,
+      "foeDamage": 44160,
+      "kills": 630,
+      "level": 23,
+      "regionSeconds": [
+        185.81666666670668,
+        212.60000000006133,
+        244.16666666675312
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 11.000000000008754,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 185.81666666670668,
+          "stageSeconds": 185.81666666670668,
+          "gateDistance": 80.0278619011245,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 398.416666666633,
+          "stageSeconds": 212.60000000006133,
+          "gateDistance": 78.72972331934648,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38555,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:05:03.284Z"
+    },
+    "warden/waylight/coolantRun/moonflame@C": {
+      "id": "warden/waylight/coolantRun/moonflame@C",
+      "cell": "warden/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 641.6166666664118,
+      "endRegion": 3,
+      "damageTaken": 149,
+      "foeDamage": 42136,
+      "kills": 641,
+      "level": 23,
+      "regionSeconds": [
+        185.81666666670668,
+        214.66666666672964,
+        241.13333333341737
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 185.81666666670668,
+          "stageSeconds": 185.81666666670668,
+          "gateDistance": 80.0278619011245,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 400.48333333329776,
+          "stageSeconds": 214.66666666672964,
+          "gateDistance": 81.02678962461032,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38497,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:05:03.563Z"
+    },
+    "warden/waylight/forgeAssault/altarRite@C": {
+      "id": "warden/waylight/forgeAssault/altarRite@C",
+      "cell": "warden/waylight/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 639.8333333330801,
+      "endRegion": 3,
+      "damageTaken": 201,
+      "foeDamage": 43271,
+      "kills": 617,
+      "level": 23,
+      "regionSeconds": [
+        185.81666666670668,
+        212.60000000006133,
+        241.41666666675093
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 11.000000000008754,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 185.81666666670668,
+          "stageSeconds": 185.81666666670668,
+          "gateDistance": 80.0278619011245,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 398.416666666633,
+          "stageSeconds": 212.60000000006133,
+          "gateDistance": 78.72972331934648,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38390,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:07.878Z"
+    },
+    "warden/seedheart/coolantRun/altarRite@C": {
+      "id": "warden/seedheart/coolantRun/altarRite@C",
+      "cell": "warden/seedheart/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 650.0999999997374,
+      "endRegion": 3,
+      "damageTaken": 137,
+      "foeDamage": 39918,
+      "kills": 619,
+      "level": 22,
+      "regionSeconds": [
+        187.1333333333744,
+        214.283333333396,
+        248.68333333342338
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 6.9999999999936335,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 187.1333333333744,
+          "stageSeconds": 187.1333333333744,
+          "gateDistance": 80.59975313573207,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 401.41666666663025,
+          "stageSeconds": 214.283333333396,
+          "gateDistance": 78.81515006204384,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 39006,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:08.430Z"
+    },
+    "warden/seedheart/coolantRun/moonflame@C": {
+      "id": "warden/seedheart/coolantRun/moonflame@C",
+      "cell": "warden/seedheart/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 647.1833333330734,
+      "endRegion": 3,
+      "damageTaken": 50,
+      "foeDamage": 40454,
+      "kills": 628,
+      "level": 23,
+      "regionSeconds": [
+        187.1333333333744,
+        214.283333333396,
+        245.7666666667544
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 187.1333333333744,
+          "stageSeconds": 187.1333333333744,
+          "gateDistance": 80.59975313573207,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 401.41666666663025,
+          "stageSeconds": 214.283333333396,
+          "gateDistance": 78.81515006204384,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38831,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:08.611Z"
+    },
+    "warden/seedheart/forgeAssault/moonflame@C": {
+      "id": "warden/seedheart/forgeAssault/moonflame@C",
+      "cell": "warden/seedheart/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 639.5166666664137,
+      "endRegion": 3,
+      "damageTaken": 98,
+      "foeDamage": 40235,
+      "kills": 618,
+      "level": 22,
+      "regionSeconds": [
+        187.1333333333744,
+        210.26666666672614,
+        242.11666666675148
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 7.000000000005571,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 187.1333333333744,
+          "stageSeconds": 187.1333333333744,
+          "gateDistance": 80.59975313573207,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 397.39999999996724,
+          "stageSeconds": 210.26666666672614,
+          "gateDistance": 81.164129765768,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38371,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:13.086Z"
+    },
+    "warden/seedheart/forgeAssault/altarRite@C": {
+      "id": "warden/seedheart/forgeAssault/altarRite@C",
+      "cell": "warden/seedheart/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 636.2833333330833,
+      "endRegion": 3,
+      "damageTaken": 99,
+      "foeDamage": 42985,
+      "kills": 621,
+      "level": 23,
+      "regionSeconds": [
+        187.1333333333744,
+        210.26666666672614,
+        238.88333333341558
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 7.000000000005571,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 187.1333333333744,
+          "stageSeconds": 187.1333333333744,
+          "gateDistance": 80.59975313573207,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 397.39999999996724,
+          "stageSeconds": 210.26666666672614,
+          "gateDistance": 81.164129765768,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38177,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:13.563Z"
+    },
+    "warden/stag/coolantRun/moonflame@C": {
+      "id": "warden/stag/coolantRun/moonflame@C",
+      "cell": "warden/stag/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.8499999997549,
+      "endRegion": 3,
+      "damageTaken": 35,
+      "foeDamage": 42405,
+      "kills": 621,
+      "level": 22,
+      "regionSeconds": [
+        180.03333333336874,
+        210.41666666672626,
+        240.40000000008345
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.9999999999954525,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.03333333336874,
+          "stageSeconds": 180.03333333336874,
+          "gateDistance": 49.17061554709118,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.44999999997356,
+          "stageSeconds": 210.41666666672626,
+          "gateDistance": 81.62603278634508,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37851,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:13.698Z"
+    },
+    "warden/stag/coolantRun/altarRite@C": {
+      "id": "warden/stag/coolantRun/altarRite@C",
+      "cell": "warden/stag/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.4833333330886,
+      "endRegion": 3,
+      "damageTaken": 16,
+      "foeDamage": 42485,
+      "kills": 613,
+      "level": 22,
+      "regionSeconds": [
+        180.03333333336874,
+        210.41666666672626,
+        240.0333333334165
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.4999999999968168,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.03333333336874,
+          "stageSeconds": 180.03333333336874,
+          "gateDistance": 49.17061554709118,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.44999999997356,
+          "stageSeconds": 210.41666666672626,
+          "gateDistance": 81.62603278634508,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37829,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:17.873Z"
+    },
+    "warden/stag/forgeAssault/moonflame@C": {
+      "id": "warden/stag/forgeAssault/moonflame@C",
+      "cell": "warden/stag/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 627.0999999997583,
+      "endRegion": 3,
+      "damageTaken": 50,
+      "foeDamage": 43344,
+      "kills": 625,
+      "level": 22,
+      "regionSeconds": [
+        180.03333333336874,
+        209.1333333333919,
+        237.93333333341482
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 8.500000000006764,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.03333333336874,
+          "stageSeconds": 180.03333333336874,
+          "gateDistance": 49.17061554709118,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.1666666666414,
+          "stageSeconds": 209.1333333333919,
+          "gateDistance": 79.95161117854381,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37626,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:18.230Z"
+    },
+    "warden/stag/forgeAssault/altarRite@C": {
+      "id": "warden/stag/forgeAssault/altarRite@C",
+      "cell": "warden/stag/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "warden",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 627.1666666664249,
+      "endRegion": 3,
+      "damageTaken": 124,
+      "foeDamage": 42302,
+      "kills": 626,
+      "level": 22,
+      "regionSeconds": [
+        180.03333333336874,
+        209.1333333333919,
+        238.00000000008154
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 8.500000000006764,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.03333333336874,
+          "stageSeconds": 180.03333333336874,
+          "gateDistance": 49.17061554709118,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 389.1666666666414,
+          "stageSeconds": 209.1333333333919,
+          "gateDistance": 79.95161117854381,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37630,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:18.500Z"
+    },
+    "ranger/waylight/coolantRun/altarRite@C": {
+      "id": "ranger/waylight/coolantRun/altarRite@C",
+      "cell": "ranger/waylight/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 641.2166666664122,
+      "endRegion": 3,
+      "damageTaken": 241,
+      "foeDamage": 42866,
+      "kills": 636,
+      "level": 23,
+      "regionSeconds": [
+        181.26666666670306,
+        215.63333333339708,
+        244.31666666675324
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.26666666670306,
+          "stageSeconds": 181.26666666670306,
+          "gateDistance": 81.09666056244913,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 396.8999999999677,
+          "stageSeconds": 215.63333333339708,
+          "gateDistance": 79.23311330937015,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38473,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:23.227Z"
+    },
+    "ranger/waylight/forgeAssault/moonflame@C": {
+      "id": "ranger/waylight/forgeAssault/moonflame@C",
+      "cell": "ranger/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 646.7833333330738,
+      "endRegion": 3,
+      "damageTaken": 370,
+      "foeDamage": 40778,
+      "kills": 629,
+      "level": 23,
+      "regionSeconds": [
+        181.26666666670306,
+        213.033333333395,
+        252.4833333334264
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 2.9999999999972715,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.26666666670306,
+          "stageSeconds": 181.26666666670306,
+          "gateDistance": 81.09666056244913,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 394.29999999997005,
+          "stageSeconds": 213.033333333395,
+          "gateDistance": 79.97999876897909,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38807,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:23.438Z"
+    },
+    "ranger/waylight/coolantRun/moonflame@C": {
+      "id": "ranger/waylight/coolantRun/moonflame@C",
+      "cell": "ranger/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 641.5499999997452,
+      "endRegion": 3,
+      "damageTaken": 286,
+      "foeDamage": 41222,
+      "kills": 634,
+      "level": 23,
+      "regionSeconds": [
+        181.26666666670306,
+        215.63333333339708,
+        244.65000000008683
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.5000000000027853,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.26666666670306,
+          "stageSeconds": 181.26666666670306,
+          "gateDistance": 81.09666056244913,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 396.8999999999677,
+          "stageSeconds": 215.63333333339708,
+          "gateDistance": 79.23311330937015,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38493,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:05:23.636Z"
+    },
+    "ranger/seedheart/coolantRun/moonflame@C": {
+      "id": "ranger/seedheart/coolantRun/moonflame@C",
+      "cell": "ranger/seedheart/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.6833333330884,
+      "endRegion": 3,
+      "damageTaken": 24,
+      "foeDamage": 41362,
+      "kills": 625,
+      "level": 22,
+      "regionSeconds": [
+        178.85000000003447,
+        208.66666666672486,
+        243.16666666675232
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 178.85000000003447,
+          "stageSeconds": 178.85000000003447,
+          "gateDistance": 80.90326562731921,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 387.5166666666429,
+          "stageSeconds": 208.66666666672486,
+          "gateDistance": 79.96836087337941,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37841,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:28.025Z"
+    },
+    "ranger/seedheart/coolantRun/altarRite@C": {
+      "id": "ranger/seedheart/coolantRun/altarRite@C",
+      "cell": "ranger/seedheart/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 627.0999999997583,
+      "endRegion": 3,
+      "damageTaken": 85,
+      "foeDamage": 44664,
+      "kills": 645,
+      "level": 23,
+      "regionSeconds": [
+        178.85000000003447,
+        208.66666666672486,
+        239.58333333341614
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 178.85000000003447,
+          "stageSeconds": 178.85000000003447,
+          "gateDistance": 80.90326562731921,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 387.5166666666429,
+          "stageSeconds": 208.66666666672486,
+          "gateDistance": 79.96836087337941,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37626,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:28.388Z"
+    },
+    "ranger/waylight/forgeAssault/altarRite@C": {
+      "id": "ranger/waylight/forgeAssault/altarRite@C",
+      "cell": "ranger/waylight/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 641.6833333330784,
+      "endRegion": 3,
+      "damageTaken": 284,
+      "foeDamage": 41314,
+      "kills": 641,
+      "level": 23,
+      "regionSeconds": [
+        181.26666666670306,
+        213.033333333395,
+        247.38333333342234
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.26666666670306,
+          "stageSeconds": 181.26666666670306,
+          "gateDistance": 81.09666056244913,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 394.29999999997005,
+          "stageSeconds": 213.033333333395,
+          "gateDistance": 79.97999876897909,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38501,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:28.588Z"
+    },
+    "ranger/seedheart/forgeAssault/moonflame@C": {
+      "id": "ranger/seedheart/forgeAssault/moonflame@C",
+      "cell": "ranger/seedheart/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 633.8499999997522,
+      "endRegion": 3,
+      "damageTaken": 77,
+      "foeDamage": 43089,
+      "kills": 645,
+      "level": 23,
+      "regionSeconds": [
+        178.85000000003447,
+        210.06666666672598,
+        244.9333333334204
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.5000000000027853,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 178.85000000003447,
+          "stageSeconds": 178.85000000003447,
+          "gateDistance": 80.90326562731921,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.9166666666416,
+          "stageSeconds": 210.06666666672598,
+          "gateDistance": 78.8855786902206,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38031,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:32.926Z"
+    },
+    "ranger/seedheart/forgeAssault/altarRite@C": {
+      "id": "ranger/seedheart/forgeAssault/altarRite@C",
+      "cell": "ranger/seedheart/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 631.6666666664208,
+      "endRegion": 3,
+      "damageTaken": 0,
+      "foeDamage": 39292,
+      "kills": 630,
+      "level": 22,
+      "regionSeconds": [
+        178.85000000003447,
+        210.06666666672598,
+        242.75000000008532
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.5000000000027853,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 178.85000000003447,
+          "stageSeconds": 178.85000000003447,
+          "gateDistance": 80.90326562731921,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.9166666666416,
+          "stageSeconds": 210.06666666672598,
+          "gateDistance": 78.8855786902206,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37900,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:33.688Z"
+    },
+    "ranger/stag/coolantRun/moonflame@C": {
+      "id": "ranger/stag/coolantRun/moonflame@C",
+      "cell": "ranger/stag/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 631.3166666664212,
+      "endRegion": 3,
+      "damageTaken": 66,
+      "foeDamage": 42867,
+      "kills": 628,
+      "level": 22,
+      "regionSeconds": [
+        178.78333333336775,
+        209.28333333339202,
+        243.25000000008572
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.499999999995907,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 178.78333333336775,
+          "stageSeconds": 178.78333333336775,
+          "gateDistance": 80.8248586768519,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.0666666666424,
+          "stageSeconds": 209.28333333339202,
+          "gateDistance": 81.73876237493151,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37879,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:33.821Z"
+    },
+    "ranger/stag/coolantRun/altarRite@C": {
+      "id": "ranger/stag/coolantRun/altarRite@C",
+      "cell": "ranger/stag/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 627.399999999758,
+      "endRegion": 3,
+      "damageTaken": 66,
+      "foeDamage": 45437,
+      "kills": 620,
+      "level": 22,
+      "regionSeconds": [
+        178.78333333336775,
+        209.28333333339202,
+        239.33333333341594
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.499999999995907,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 178.78333333336775,
+          "stageSeconds": 178.78333333336775,
+          "gateDistance": 80.8248586768519,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.0666666666424,
+          "stageSeconds": 209.28333333339202,
+          "gateDistance": 81.73876237493151,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37644,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:37.948Z"
+    },
+    "ranger/stag/forgeAssault/moonflame@C": {
+      "id": "ranger/stag/forgeAssault/moonflame@C",
+      "cell": "ranger/stag/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 625.8999999997594,
+      "endRegion": 3,
+      "damageTaken": 17,
+      "foeDamage": 44208,
+      "kills": 633,
+      "level": 22,
+      "regionSeconds": [
+        178.78333333336775,
+        208.76666666672494,
+        238.35000000008182
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 178.78333333336775,
+          "stageSeconds": 178.78333333336775,
+          "gateDistance": 80.8248586768519,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 387.5499999999762,
+          "stageSeconds": 208.76666666672494,
+          "gateDistance": 80.02496782637891,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37554,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:38.359Z"
+    },
+    "ranger/stag/forgeAssault/altarRite@C": {
+      "id": "ranger/stag/forgeAssault/altarRite@C",
+      "cell": "ranger/stag/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ranger",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 626.9666666664251,
+      "endRegion": 3,
+      "damageTaken": 60,
+      "foeDamage": 42986,
+      "kills": 637,
+      "level": 21,
+      "regionSeconds": [
+        178.78333333336775,
+        208.76666666672494,
+        239.41666666674934
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 178.78333333336775,
+          "stageSeconds": 178.78333333336775,
+          "gateDistance": 80.8248586768519,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 387.5499999999762,
+          "stageSeconds": 208.76666666672494,
+          "gateDistance": 80.02496782637891,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37618,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:38.836Z"
+    },
+    "ember/waylight/coolantRun/moonflame@C": {
+      "id": "ember/waylight/coolantRun/moonflame@C",
+      "cell": "ember/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 637.4499999997489,
+      "endRegion": 3,
+      "damageTaken": 211,
+      "foeDamage": 42605,
+      "kills": 629,
+      "level": 23,
+      "regionSeconds": [
+        180.88333333336942,
+        210.2166666667261,
+        246.3500000000882
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.88333333336942,
+          "stageSeconds": 180.88333333336942,
+          "gateDistance": 79.65820374568666,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.09999999997297,
+          "stageSeconds": 210.2166666667261,
+          "gateDistance": 79.08732857098502,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38247,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:43.230Z"
+    },
+    "ember/waylight/coolantRun/altarRite@C": {
+      "id": "ember/waylight/coolantRun/altarRite@C",
+      "cell": "ember/waylight/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 633.7999999997522,
+      "endRegion": 3,
+      "damageTaken": 66,
+      "foeDamage": 42497,
+      "kills": 615,
+      "level": 23,
+      "regionSeconds": [
+        180.88333333336942,
+        210.2166666667261,
+        242.70000000008528
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.88333333336942,
+          "stageSeconds": 180.88333333336942,
+          "gateDistance": 79.65820374568666,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.09999999997297,
+          "stageSeconds": 210.2166666667261,
+          "gateDistance": 79.08732857098502,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38028,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:05:44.030Z"
+    },
+    "ember/waylight/forgeAssault/moonflame@C": {
+      "id": "ember/waylight/forgeAssault/moonflame@C",
+      "cell": "ember/waylight/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 633.4166666664192,
+      "endRegion": 3,
+      "damageTaken": 156,
+      "foeDamage": 42676,
+      "kills": 626,
+      "level": 23,
+      "regionSeconds": [
+        180.88333333336942,
+        209.91666666672586,
+        242.61666666675188
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.88333333336942,
+          "stageSeconds": 180.88333333336942,
+          "gateDistance": 79.65820374568666,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.79999999997324,
+          "stageSeconds": 209.91666666672586,
+          "gateDistance": 79.51323270728525,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38005,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:44.198Z"
+    },
+    "ember/waylight/forgeAssault/altarRite@C": {
+      "id": "ember/waylight/forgeAssault/altarRite@C",
+      "cell": "ember/waylight/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 2021,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 632.3999999997535,
+      "endRegion": 3,
+      "damageTaken": 168,
+      "foeDamage": 43568,
+      "kills": 635,
+      "level": 22,
+      "regionSeconds": [
+        180.88333333336942,
+        209.91666666672586,
+        241.6000000000844
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.499999999995907,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.88333333336942,
+          "stageSeconds": 180.88333333336942,
+          "gateDistance": 79.65820374568666,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.79999999997324,
+          "stageSeconds": 209.91666666672586,
+          "gateDistance": 79.51323270728525,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37944,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:48.451Z"
+    },
+    "ember/seedheart/coolantRun/moonflame@C": {
+      "id": "ember/seedheart/coolantRun/moonflame@C",
+      "cell": "ember/seedheart/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 632.1333333330871,
+      "endRegion": 3,
+      "damageTaken": 89,
+      "foeDamage": 42398,
+      "kills": 626,
+      "level": 23,
+      "regionSeconds": [
+        181.43333333336986,
+        210.00000000005926,
+        240.7000000000837
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.43333333336986,
+          "stageSeconds": 181.43333333336986,
+          "gateDistance": 81.64516366316488,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.433333333306,
+          "stageSeconds": 210.00000000005926,
+          "gateDistance": 80.23077191869832,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37928,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:48.685Z"
+    },
+    "ember/seedheart/coolantRun/altarRite@C": {
+      "id": "ember/seedheart/coolantRun/altarRite@C",
+      "cell": "ember/seedheart/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.749999999755,
+      "endRegion": 3,
+      "damageTaken": 67,
+      "foeDamage": 42489,
+      "kills": 634,
+      "level": 22,
+      "regionSeconds": [
+        181.43333333336986,
+        210.00000000005926,
+        239.31666666674926
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.000000000003979,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.43333333336986,
+          "stageSeconds": 181.43333333336986,
+          "gateDistance": 81.64516366316488,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 391.433333333306,
+          "stageSeconds": 210.00000000005926,
+          "gateDistance": 80.23077191869832,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37845,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:49.163Z"
+    },
+    "ember/seedheart/forgeAssault/moonflame@C": {
+      "id": "ember/seedheart/forgeAssault/moonflame@C",
+      "cell": "ember/seedheart/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 629.983333333089,
+      "endRegion": 3,
+      "damageTaken": 52,
+      "foeDamage": 41602,
+      "kills": 626,
+      "level": 22,
+      "regionSeconds": [
+        181.43333333336986,
+        209.03333333339182,
+        239.51666666674942
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.43333333336986,
+          "stageSeconds": 181.43333333336986,
+          "gateDistance": 81.64516366316488,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.4666666666402,
+          "stageSeconds": 209.03333333339182,
+          "gateDistance": 81.06653558753732,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37799,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:53.154Z"
+    },
+    "ember/seedheart/forgeAssault/altarRite@C": {
+      "id": "ember/seedheart/forgeAssault/altarRite@C",
+      "cell": "ember/seedheart/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "seedheart",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 3010,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 627.3499999997581,
+      "endRegion": 3,
+      "damageTaken": 49,
+      "foeDamage": 40381,
+      "kills": 630,
+      "level": 21,
+      "regionSeconds": [
+        181.43333333336986,
+        209.03333333339182,
+        236.883333333414
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 20,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.000000000003183,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.43333333336986,
+          "stageSeconds": 181.43333333336986,
+          "gateDistance": 81.64516366316488,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 390.4666666666402,
+          "stageSeconds": 209.03333333339182,
+          "gateDistance": 81.06653558753732,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37641,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:53.626Z"
+    },
+    "ember/stag/coolantRun/moonflame@C": {
+      "id": "ember/stag/coolantRun/moonflame@C",
+      "cell": "ember/stag/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.1833333330889,
+      "endRegion": 3,
+      "damageTaken": 106,
+      "foeDamage": 43580,
+      "kills": 622,
+      "level": 23,
+      "regionSeconds": [
+        179.1500000000347,
+        209.85000000005914,
+        241.1833333334174
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.499999999994998,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.1500000000347,
+          "stageSeconds": 179.1500000000347,
+          "gateDistance": 79.9198339170183,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.9999999999749,
+          "stageSeconds": 209.85000000005914,
+          "gateDistance": 79.35874267165374,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37811,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:53.793Z"
+    },
+    "ember/stag/forgeAssault/altarRite@C": {
+      "id": "ember/stag/forgeAssault/altarRite@C",
+      "cell": "ember/stag/forgeAssault/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "altarRite",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 629.0666666664232,
+      "endRegion": 3,
+      "damageTaken": 53,
+      "foeDamage": 42406,
+      "kills": 633,
+      "level": 22,
+      "regionSeconds": [
+        179.1500000000347,
+        209.33333333339206,
+        240.58333333341693
+      ],
+      "objectives": 6,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.1500000000347,
+          "stageSeconds": 179.1500000000347,
+          "gateDistance": 79.9198339170183,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.4833333333087,
+          "stageSeconds": 209.33333333339206,
+          "gateDistance": 81.72188359320549,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37744,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:05:58.489Z"
+    },
+    "ember/stag/coolantRun/altarRite@C": {
+      "id": "ember/stag/coolantRun/altarRite@C",
+      "cell": "ember/stag/coolantRun/altarRite",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "coolantRun",
+      "moon": "altarRite",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 631.6999999997541,
+      "endRegion": 3,
+      "damageTaken": 150,
+      "foeDamage": 43111,
+      "kills": 627,
+      "level": 22,
+      "regionSeconds": [
+        179.1500000000347,
+        209.85000000005914,
+        242.70000000008528
+      ],
+      "objectives": 5,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.999999999996362,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.1500000000347,
+          "stageSeconds": 179.1500000000347,
+          "gateDistance": 79.9198339170183,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.9999999999749,
+          "stageSeconds": 209.85000000005914,
+          "gateDistance": 79.35874267165374,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "altarRite"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37902,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:05:58.710Z"
+    },
+    "ember/stag/forgeAssault/moonflame@C": {
+      "id": "ember/stag/forgeAssault/moonflame@C",
+      "cell": "ember/stag/forgeAssault/moonflame",
+      "run": 1,
+      "seedSet": "C",
+      "hero": "ember",
+      "contract": "stag",
+      "quarry": "forgeAssault",
+      "moon": "moonflame",
+      "seed": 10015,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 625.2666666664267,
+      "endRegion": 3,
+      "damageTaken": 35,
+      "foeDamage": 44188,
+      "kills": 639,
+      "level": 22,
+      "regionSeconds": [
+        179.1500000000347,
+        209.33333333339206,
+        236.7833333334139
+      ],
+      "objectives": 4,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.9999999999954525,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 179.1500000000347,
+          "stageSeconds": 179.1500000000347,
+          "gateDistance": 79.9198339170183,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.4833333333087,
+          "stageSeconds": 209.33333333339206,
+          "gateDistance": 81.72188359320549,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "forgeAssault",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37516,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 7,
+      "finishedAt": "2026-10-22T04:06:00.407Z"
+    }
+  },
+  "meta": {
+    "updated": "2026-10-22T04:06:00.421Z",
+    "script": "scripts/pilot-matrix.mjs",
+    "stepHz": 60,
+    "seedSets": {
+      "A": {
+        "waylight": 101,
+        "seedheart": 202,
+        "stag": 155
+      },
+      "B": {
+        "waylight": 7,
+        "seedheart": 1000,
+        "stag": 4123
+      },
+      "C": {
+        "waylight": 2021,
+        "seedheart": 3010,
+        "stag": 10015
+      }
+    },
+    "stepping": "fixed 1000/60 ms steps driven from the page; see cell.stepping",
+    "softlockRule": "no change for 60s of game time in region, fork state, required-objective hp/position/count, gate state, or guardian hp, excluding the guardian countdown after objectives are done",
+    "gameCapSeconds": 960,
+    "progressProfiles": {
+      "warden": null,
+      "ranger": {
+        "bestRegion": 1,
+        "muted": true
+      },
+      "ember": {
+        "bestRegion": 1,
+        "victories": 1,
+        "muted": true
+      }
+    }
+  }
+}

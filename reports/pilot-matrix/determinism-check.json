@@ -1,0 +1,221 @@
+{
+  "cells": {
+    "warden/waylight/coolantRun/moonflame#2": {
+      "id": "warden/waylight/coolantRun/moonflame#2",
+      "cell": "warden/waylight/coolantRun/moonflame",
+      "run": 2,
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 636.6499999997496,
+      "endRegion": 3,
+      "damageTaken": 118,
+      "foeDamage": 42284,
+      "kills": 631,
+      "level": 23,
+      "regionSeconds": [
+        181.25000000003638,
+        211.0500000000601,
+        244.3500000000866
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.999999999994543,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.25000000003638,
+          "stageSeconds": 181.25000000003638,
+          "gateDistance": 40.003279150589435,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 392.2999999999719,
+          "stageSeconds": 211.0500000000601,
+          "gateDistance": 80.7259319189982,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38199,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:02:07.287Z"
+    },
+    "warden/waylight/coolantRun/moonflame#3": {
+      "id": "warden/waylight/coolantRun/moonflame#3",
+      "cell": "warden/waylight/coolantRun/moonflame",
+      "run": 3,
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 636.6499999997496,
+      "endRegion": 3,
+      "damageTaken": 118,
+      "foeDamage": 42284,
+      "kills": 631,
+      "level": 23,
+      "regionSeconds": [
+        181.25000000003638,
+        211.0500000000601,
+        244.3500000000866
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.999999999994543,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.25000000003638,
+          "stageSeconds": 181.25000000003638,
+          "gateDistance": 40.003279150589435,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 392.2999999999719,
+          "stageSeconds": 211.0500000000601,
+          "gateDistance": 80.7259319189982,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38199,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:02:07.416Z"
+    },
+    "warden/waylight/coolantRun/moonflame": {
+      "id": "warden/waylight/coolantRun/moonflame",
+      "cell": "warden/waylight/coolantRun/moonflame",
+      "run": 1,
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 636.6499999997496,
+      "endRegion": 3,
+      "damageTaken": 118,
+      "foeDamage": 42284,
+      "kills": 631,
+      "level": 23,
+      "regionSeconds": [
+        181.25000000003638,
+        211.0500000000601,
+        244.3500000000866
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.999999999994543,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.25000000003638,
+          "stageSeconds": 181.25000000003638,
+          "gateDistance": 40.003279150589435,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 392.2999999999719,
+          "stageSeconds": 211.0500000000601,
+          "gateDistance": 80.7259319189982,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38199,
+      "stepping": "game.scene.update (no render)",
+      "pageErrors": [],
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:02:07.479Z"
+    }
+  },
+  "meta": {
+    "updated": "2026-10-22T04:02:07.488Z",
+    "script": "scripts/pilot-matrix.mjs",
+    "stepHz": 60,
+    "stepping": "fixed 1000/60 ms steps driven from the page; see cell.stepping",
+    "seeds": {
+      "waylight": 101,
+      "seedheart": 202,
+      "stag": 155
+    },
+    "softlockRule": "no change for 60s of game time in region, fork state, required-objective hp/position/count, gate state, or guardian hp, excluding the guardian countdown after objectives are done",
+    "gameCapSeconds": 960,
+    "progressProfiles": {
+      "warden": null,
+      "ranger": {
+        "bestRegion": 1,
+        "muted": true
+      },
+      "ember": {
+        "bestRegion": 1,
+        "victories": 1,
+        "muted": true
+      }
+    }
+  }
+}
