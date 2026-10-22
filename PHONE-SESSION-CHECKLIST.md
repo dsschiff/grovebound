@@ -8,7 +8,7 @@ Time: about 45 minutes. Needs the phone, a desktop with this repo, and two full 
 
 1. On the desktop, in the repo on `main`, run `npm run check:pages`. It prints `LIVE == DOCS (assets/index-....js, ...)` when the live site serves the bundle in `docs/index.html`. Exit 1 prints `LIVE != DOCS`: stop, the phone would test an old build. Exit 2 is a fetch error. Paste the `bundle:` line from `npm run check:pages` into the header.
 2. Make sure the release you want tested is in `docs/` on `main` (see ROADMAP.md L32-34, "Release gate"). `check:pages` only compares live to the repo, so it cannot tell you a newer source change was never staged.
-3. On the phone, open `https://dsschiff.github.io/grovebound/` (README.md L3) in Chrome. Close the tab and reopen it so Chrome does not show a cached copy. Optional: add `?debug=1` for the FPS readout (README.md L36).
+3. On the phone, open `https://dsschiff.github.io/grovebound/` (README.md L3) in Chrome. Close the tab and reopen it so Chrome does not show a cached copy. Optional: add `?debug=1` for the FPS / kills / resonance readout (README.md L36).
 
 Pass: step 1 says `LIVE == DOCS` and the game loads to the camp screen with the ENTER THE GROVE button. Fail: anything else.
 Result: ________
@@ -29,7 +29,7 @@ Last clock ____  Resumed clock ____  Loss ____ s  Result: ________
 
 ## 2. Frame rate in a late fight (GOAL.md L11: smooth 60 fps, no sustained drop below 30 in a dense encounter)
 
-Do this during feel run 1 in section 5, not as a separate run. Load the game with `?debug=1`. The readout `NN FPS · NN KILLS` appears on screen and updates every 0.5 s (`src/main.ts` L695-696). Stage-skip buttons only show on localhost, so reach Moonfen by playing: Verdant Verge, Ember Quarry, then Moonfen (README.md L11). Watch the readout during the Wild Surge (second half of each later region) and the Briar King fight (README.md L11, L23).
+Do this during feel run 1 in section 5, not as a separate run. Load the game with `?debug=1`. The readout `NN FPS · NN KILLS · NN RES` appears on screen and updates every 0.5 s (`src/main.ts` L694-700). RES is this run's weapon resonance count, the same number the result screen shows under WEAPON RESONANCES. Stage-skip buttons only show on localhost, so reach Moonfen by playing: Verdant Verge, Ember Quarry, then Moonfen (README.md L11). Watch the readout during the Wild Surge (second half of each later region) and the Briar King fight (README.md L11, L23).
 Pass: mostly near 60, never sustained below 30 for more than a few seconds. Fail: sustained below 30.
 Lowest sustained ____ FPS  Typical ____ FPS  Where: ________  Result: ________
 
@@ -47,7 +47,7 @@ Result: ________
 
 ## 5. Feel review
 
-Play two full runs on the live build (run 1 with ?debug=1, doing the section 2 FPS check). Tap weapon commands and chain two within 4 s on purpose in at least one. After a run, answer the four questions below.
+Play two full runs on the live build (run 1 with ?debug=1, doing the section 2 FPS check). Tap weapon commands and chain two within 4 s on purpose in at least one. In run 1, read your resonance count off the `NN RES` part of the debug readout (or the WEAPON RESONANCES line on the result screen) instead of counting from memory; the scripted pilot averages 63.8 per run for comparison (`reports/pilot-matrix/resonance-split-9seeds.md` L368). After a run, answer the four questions below.
 
 Before you play, read `reports/pilot-matrix/m3-feel-evidence.md` (one page): what the pilot runs already show for each question, what they cannot, and one recommendation each.
 
@@ -58,7 +58,7 @@ ROADMAP.md L38 names the target: "human feedback on the Expedition art, command 
 3. "Does the 4 s resonance window feel reachable?" (Window: ROADMAP.md L21.) Answer: ________
 4. "Do the Quarry and Moonfen mission choices feel different enough to matter?" (Choices: ROADMAP.md L16; the picker is the "Enter Ember Quarry" / "Enter Moonfen" dialog, `src/main.ts` L555.) Answer: ________
 
-Run 1: hero ________ result (win/loss, time) ________  Run 2: hero ________ result ________
+Run 1: hero ________ result (win/loss, time) ________ resonances (RES) ________  Run 2: hero ________ result ________
 
 ## Afterward
 
