@@ -99,17 +99,18 @@ function summarize({ cells: done }) {
     'Debug pilot on the normal timer, fixed 60 Hz steps, no stage skips, healing, or forced growth. Automated route evidence only, not human balance or Android performance.', '',
     `Wins: ${rows.filter(r => r.won).length}/${rows.length}. Wins inside 10:00–12:00: ${inWindow.length}. Softlocks: ${rows.filter(r => r.softlock).length}.`,
     `Forks offered by natural gate contact: ${rows.reduce((n, r) => n + r.forks.filter(f => f.natural).length, 0)}; by debug trigger: 0 (the script never calls it).`, '',
-    '| Cell (hero/contract/quarry/moon) | Seed | Result | Clock | In 10–12? | Splits | Damage taken | Kills | Softlock (max stall s) | Forks natural | Routes match |',
-    '|---|---|---|---|---|---|---|---|---|---|---|'];
+    '| Cell (hero/contract/quarry/moon) | Seed | Result | Clock | In 10–12? | Splits | Damage taken | Lowest HP | Kills | Softlock (max stall s) | Forks natural | Routes match |',
+    '|---|---|---|---|---|---|---|---|---|---|---|---|'];
   for (const r of rows) {
     const within = r.gameSeconds >= 600 && r.gameSeconds <= 720;
-    lines.push(`| ${r.id} | ${r.seed} | ${r.outcome} | ${clock(r.gameSeconds)} | ${r.won ? (within ? 'yes' : 'NO') : '—'} | ${r.regionSeconds.map(clock).join(' / ')} | ${Math.round(r.damageTaken)} | ${r.kills} | ${r.softlock ? 'YES' : 'no'} (${Math.round(r.maxStallSeconds)}) | ${r.forks.filter(f => f.natural).length}/${r.forks.length} | ${r.routesMatch ? 'yes' : 'NO'} |`);
+    lines.push(`| ${r.id} | ${r.seed} | ${r.outcome} | ${clock(r.gameSeconds)} | ${r.won ? (within ? 'yes' : 'NO') : '—'} | ${r.regionSeconds.map(clock).join(' / ')} | ${Math.round(r.damageTaken)} | ${r.minHealth ?? '—'} (${r.minHealthFraction !== undefined ? Math.round(r.minHealthFraction * 100) + '%' : '—'}) | ${r.kills} | ${r.softlock ? 'YES' : 'no'} (${Math.round(r.maxStallSeconds)}) | ${r.forks.filter(f => f.natural).length}/${r.forks.length} | ${r.routesMatch ? 'yes' : 'NO'} |`);
   }
-  lines.push('', '## Per hero', '', '| Hero | Runs | Wins | Clock min–max | Damage taken min / median / max |', '|---|---|---|---|---|');
+  lines.push('', '## Per hero', '', '| Hero | Runs | Wins | Clock min–max | Damage taken min / median / max | Lowest HP in any run |', '|---|---|---|---|---|---|');
   for (const hero of [...new Set(rows.map(r => r.hero))]) {
     const group = rows.filter(r => r.hero === hero);
     const secs = group.map(r => r.gameSeconds); const taken = group.map(r => Math.round(r.damageTaken)).sort((a, b) => a - b);
-    lines.push(`| ${hero} | ${group.length} | ${group.filter(r => r.won).length} | ${clock(Math.min(...secs))}–${clock(Math.max(...secs))} | ${taken[0]} / ${taken[Math.floor(taken.length / 2)]} / ${taken[taken.length - 1]} |`);
+    const lowest = Math.min(...group.map(r => r.minHealthFraction ?? 1));
+    lines.push(`| ${hero} | ${group.length} | ${group.filter(r => r.won).length} | ${clock(Math.min(...secs))}–${clock(Math.max(...secs))} | ${taken[0]} / ${taken[Math.floor(taken.length / 2)]} / ${taken[taken.length - 1]} | ${Math.round(lowest * 100)}% of max |`);
   }
   const groups = new Map();
   for (const r of rows) { const key = r.cell ?? r.id.split('#')[0]; groups.set(key, [...(groups.get(key) ?? []), r]); }
@@ -149,7 +150,7 @@ async function runCell(cell) {
     game.loop.sleep();
     document.querySelector('#start-button').click();
     const pm = window.__pm = { s, game, render, secondsAtStart: s.seconds, objectivesLeft, durations: REGIONS.map(r => r.duration), t: Number(game.loop.time) || 0, steps: 0, result: null, forks: [],
-      routeClicks: 0, upgradeFallbacks: 0, unpauses: 0, lastSig: '', lastProgressAt: s.seconds, maxStall: 0, stallAt: null };
+      routeClicks: 0, upgradeFallbacks: 0, unpauses: 0, lastSig: '', lastProgressAt: s.seconds, maxStall: 0, stallAt: null, minHealth: Infinity, minHealthFraction: 1, minHealthAt: null };
     const callbacks = s.callbacks;
     const onEnd = callbacks.onEnd; callbacks.onEnd = result => { pm.result = result; onEnd(result); };
     const onRoute = callbacks.onRouteChoice;
@@ -188,6 +189,7 @@ async function runCell(cell) {
         pm.t += frameMs;
         if (pm.render) game.step(pm.t, frameMs); else game.scene.update(pm.t, frameMs);
         pm.steps++;
+        if (s.running && s.health < pm.minHealth) { pm.minHealth = s.health; pm.minHealthFraction = s.health / s.stats.maxHealth; pm.minHealthAt = s.seconds; }
         if (pm.steps % 30 === 0) {
           const sig = pm.sig();
           // After the required objectives are done, the guardian countdown is the progress the run is waiting on.
@@ -208,7 +210,7 @@ async function runCell(cell) {
   const final = await page.evaluate(() => {
     const pm = window.__pm; const { s } = pm;
     return { result: pm.result, forks: pm.forks, routeClicks: pm.routeClicks, upgradeFallbacks: pm.upgradeFallbacks,
-      unpauses: pm.unpauses, maxStall: pm.maxStall, stallAt: pm.stallAt, steps: pm.steps, startHero: pm.startHero,
+      unpauses: pm.unpauses, minHealth: pm.minHealth, minHealthFraction: pm.minHealthFraction, minHealthAt: pm.minHealthAt, maxStall: pm.maxStall, stallAt: pm.stallAt, steps: pm.steps, startHero: pm.startHero,
       contract: pm.contract, quarryRoute: s.quarryRoute, moonRoute: s.moonRoute, seconds: s.seconds, region: s.region,
       metrics: s.metrics, kills: s.kills, level: s.level, health: s.health, weapons: s.weapons.map(w => `${w.id}:${w.rank}`) };
   });
@@ -230,7 +232,8 @@ async function runCell(cell) {
     forks: final.forks, routeClicks: final.routeClicks,
     routesMatch: (final.region < 1 || final.quarryRoute === cell.quarry) && (!reachedMoon || final.moonRoute === cell.moon),
     chosenRoutes: { quarry: final.quarryRoute, moon: final.moonRoute },
-    upgradeFallbacks: final.upgradeFallbacks, unpauses: final.unpauses, steps: final.steps,
+    minHealth: Math.round(final.minHealth), minHealthFraction: Math.round(final.minHealthFraction * 1000) / 1000,
+    minHealthAtSeconds: final.minHealthAt, upgradeFallbacks: final.upgradeFallbacks, unpauses: final.unpauses, steps: final.steps,
     stepping: render ? 'game.step (update + render)' : 'game.scene.update (no render)',
     pageErrors: errors, wallSeconds: Math.round((Date.now() - started) / 1000), finishedAt: new Date().toISOString(),
   };

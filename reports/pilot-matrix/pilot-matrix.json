@@ -57,13 +57,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 84,
+      "minHealthFraction": 0.766,
+      "minHealthAtSeconds": 183.01666666670445,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37984,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:02:58.327Z"
+      "wallSeconds": 12,
+      "finishedAt": "2026-10-22T04:11:41.484Z"
     },
     "warden/waylight/coolantRun/altarRite": {
       "id": "warden/waylight/coolantRun/altarRite",
@@ -122,13 +125,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 84,
+      "minHealthFraction": 0.766,
+      "minHealthAtSeconds": 183.01666666670445,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38103,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:02:58.566Z"
+      "wallSeconds": 11,
+      "finishedAt": "2026-10-22T04:11:41.035Z"
     },
     "warden/waylight/coolantRun/moonflame": {
       "id": "warden/waylight/coolantRun/moonflame",
@@ -187,13 +193,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 84,
+      "minHealthFraction": 0.766,
+      "minHealthAtSeconds": 183.01666666670445,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38199,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:02:58.585Z"
+      "wallSeconds": 12,
+      "finishedAt": "2026-10-22T04:11:41.473Z"
     },
     "warden/waylight/forgeAssault/altarRite": {
       "id": "warden/waylight/forgeAssault/altarRite",
@@ -252,13 +261,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 84,
+      "minHealthFraction": 0.766,
+      "minHealthAtSeconds": 183.01666666670445,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38156,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:03.506Z"
+      "wallSeconds": 7,
+      "finishedAt": "2026-10-22T04:11:47.700Z"
     },
     "warden/seedheart/coolantRun/altarRite": {
       "id": "warden/seedheart/coolantRun/altarRite",
@@ -317,13 +329,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 80,
+      "minHealthFraction": 0.729,
+      "minHealthAtSeconds": 188.93333333337583,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38460,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:03:04.101Z"
+      "finishedAt": "2026-10-22T04:11:47.601Z"
     },
     "warden/seedheart/coolantRun/moonflame": {
       "id": "warden/seedheart/coolantRun/moonflame",
@@ -382,13 +397,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 80,
+      "minHealthFraction": 0.729,
+      "minHealthAtSeconds": 188.93333333337583,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38760,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:03:04.227Z"
+      "wallSeconds": 7,
+      "finishedAt": "2026-10-22T04:11:48.229Z"
     },
     "warden/seedheart/forgeAssault/moonflame": {
       "id": "warden/seedheart/forgeAssault/moonflame",
@@ -447,13 +465,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 73,
+      "minHealthFraction": 0.664,
+      "minHealthAtSeconds": 243.600000000086,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 39226,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:08.495Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:11:53.628Z"
     },
     "warden/stag/coolantRun/moonflame": {
       "id": "warden/stag/coolantRun/moonflame",
@@ -512,13 +533,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 80,
+      "minHealthFraction": 0.729,
+      "minHealthAtSeconds": 218.73333333339954,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38063,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:08.871Z"
+      "finishedAt": "2026-10-22T04:11:53.044Z"
     },
     "warden/seedheart/forgeAssault/altarRite": {
       "id": "warden/seedheart/forgeAssault/altarRite",
@@ -577,13 +601,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 73,
+      "minHealthFraction": 0.664,
+      "minHealthAtSeconds": 243.600000000086,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 39001,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:09.067Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:11:53.231Z"
     },
     "warden/stag/forgeAssault/moonflame": {
       "id": "warden/stag/forgeAssault/moonflame",
@@ -642,13 +669,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 92,
+      "minHealthFraction": 0.836,
+      "minHealthAtSeconds": 296.00000000005946,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37761,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:12.784Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:11:57.780Z"
     },
     "warden/stag/forgeAssault/altarRite": {
       "id": "warden/stag/forgeAssault/altarRite",
@@ -707,13 +737,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 92,
+      "minHealthFraction": 0.836,
+      "minHealthAtSeconds": 296.00000000005946,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37835,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:12.976Z"
+      "finishedAt": "2026-10-22T04:11:58.121Z"
     },
     "warden/stag/coolantRun/altarRite": {
       "id": "warden/stag/coolantRun/altarRite",
@@ -772,13 +805,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 80,
+      "minHealthFraction": 0.729,
+      "minHealthAtSeconds": 218.73333333339954,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37840,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:13.189Z"
+      "finishedAt": "2026-10-22T04:11:58.040Z"
     },
     "ranger/waylight/coolantRun/moonflame": {
       "id": "ranger/waylight/coolantRun/moonflame",
@@ -838,13 +874,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38310,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:17.042Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:12:02.995Z"
     },
     "ranger/waylight/coolantRun/altarRite": {
       "id": "ranger/waylight/coolantRun/altarRite",
@@ -904,13 +943,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38111,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:17.164Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:12:03.441Z"
     },
     "ranger/waylight/forgeAssault/moonflame": {
       "id": "ranger/waylight/forgeAssault/moonflame",
@@ -970,13 +1012,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38383,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:17.510Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:12:03.639Z"
     },
     "ranger/seedheart/coolantRun/moonflame": {
       "id": "ranger/seedheart/coolantRun/moonflame",
@@ -1036,13 +1081,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 60,
+      "minHealthFraction": 0.701,
+      "minHealthAtSeconds": 181.55000000003662,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38156,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:21.850Z"
+      "finishedAt": "2026-10-22T04:12:08.524Z"
     },
     "ranger/waylight/forgeAssault/altarRite": {
       "id": "ranger/waylight/forgeAssault/altarRite",
@@ -1102,13 +1150,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 83,
+      "minHealthFraction": 0.79,
+      "minHealthAtSeconds": 516.399999999859,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 39017,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:22.036Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:12:09.089Z"
     },
     "ranger/seedheart/coolantRun/altarRite": {
       "id": "ranger/seedheart/coolantRun/altarRite",
@@ -1168,13 +1219,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 60,
+      "minHealthFraction": 0.701,
+      "minHealthAtSeconds": 181.55000000003662,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38382,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:22.441Z"
+      "finishedAt": "2026-10-22T04:12:08.750Z"
     },
     "ranger/seedheart/forgeAssault/moonflame": {
       "id": "ranger/seedheart/forgeAssault/moonflame",
@@ -1234,13 +1288,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 59,
+      "minHealthFraction": 0.696,
+      "minHealthAtSeconds": 382.9166666666471,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38469,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:26.658Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:12:14.475Z"
     },
     "ranger/stag/coolantRun/moonflame": {
       "id": "ranger/stag/coolantRun/moonflame",
@@ -1300,13 +1357,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38069,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:26.786Z"
+      "finishedAt": "2026-10-22T04:12:13.420Z"
     },
     "ranger/seedheart/forgeAssault/altarRite": {
       "id": "ranger/seedheart/forgeAssault/altarRite",
@@ -1366,13 +1426,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 59,
+      "minHealthFraction": 0.696,
+      "minHealthAtSeconds": 382.9166666666471,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38310,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:26.900Z"
+      "finishedAt": "2026-10-22T04:12:13.668Z"
     },
     "ranger/stag/forgeAssault/moonflame": {
       "id": "ranger/stag/forgeAssault/moonflame",
@@ -1432,13 +1495,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37816,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:31.384Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:12:17.853Z"
     },
     "ranger/stag/forgeAssault/altarRite": {
       "id": "ranger/stag/forgeAssault/altarRite",
@@ -1498,13 +1564,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37984,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:31.522Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:12:18.935Z"
     },
     "ranger/stag/coolantRun/altarRite": {
       "id": "ranger/stag/coolantRun/altarRite",
@@ -1564,13 +1633,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37777,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:31.707Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:12:17.687Z"
     },
     "ember/waylight/coolantRun/moonflame": {
       "id": "ember/waylight/coolantRun/moonflame",
@@ -1630,13 +1702,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 64,
+      "minHealthFraction": 0.669,
+      "minHealthAtSeconds": 181.76666666670346,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37808,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:35.735Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:12:22.964Z"
     },
     "ember/waylight/forgeAssault/moonflame": {
       "id": "ember/waylight/forgeAssault/moonflame",
@@ -1696,13 +1771,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 64,
+      "minHealthFraction": 0.669,
+      "minHealthAtSeconds": 181.76666666670346,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37842,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:35.747Z"
+      "finishedAt": "2026-10-22T04:12:23.415Z"
     },
     "ember/waylight/coolantRun/altarRite": {
       "id": "ember/waylight/coolantRun/altarRite",
@@ -1762,13 +1840,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 64,
+      "minHealthFraction": 0.669,
+      "minHealthAtSeconds": 181.76666666670346,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37786,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:03:36.042Z"
+      "finishedAt": "2026-10-22T04:12:23.144Z"
     },
     "ember/waylight/forgeAssault/altarRite": {
       "id": "ember/waylight/forgeAssault/altarRite",
@@ -1828,13 +1909,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 64,
+      "minHealthFraction": 0.669,
+      "minHealthAtSeconds": 181.76666666670346,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37768,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:39.954Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:12:29.272Z"
     },
     "ember/seedheart/coolantRun/moonflame": {
       "id": "ember/seedheart/coolantRun/moonflame",
@@ -1894,13 +1978,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 63,
+      "minHealthFraction": 0.666,
+      "minHealthAtSeconds": 183.16666666670457,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38027,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:40.113Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:12:29.491Z"
     },
     "ember/seedheart/coolantRun/altarRite": {
       "id": "ember/seedheart/coolantRun/altarRite",
@@ -1960,13 +2047,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 63,
+      "minHealthFraction": 0.666,
+      "minHealthAtSeconds": 183.16666666670457,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37897,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 7,
-      "finishedAt": "2026-10-22T04:03:42.716Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:12:29.653Z"
     },
     "ember/seedheart/forgeAssault/moonflame": {
       "id": "ember/seedheart/forgeAssault/moonflame",
@@ -2026,13 +2116,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 63,
+      "minHealthFraction": 0.666,
+      "minHealthAtSeconds": 183.16666666670457,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37860,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:44.146Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:12:34.478Z"
     },
     "ember/seedheart/forgeAssault/altarRite": {
       "id": "ember/seedheart/forgeAssault/altarRite",
@@ -2092,13 +2185,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 63,
+      "minHealthFraction": 0.666,
+      "minHealthAtSeconds": 183.16666666670457,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38168,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:44.356Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:12:34.085Z"
     },
     "ember/stag/coolantRun/moonflame": {
       "id": "ember/stag/coolantRun/moonflame",
@@ -2158,13 +2254,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 80,
+      "minHealthFraction": 0.59,
+      "minHealthAtSeconds": 627.1833333330916,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37753,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:47.083Z"
+      "finishedAt": "2026-10-22T04:12:34.133Z"
     },
     "ember/stag/forgeAssault/moonflame": {
       "id": "ember/stag/forgeAssault/moonflame",
@@ -2224,13 +2323,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 87,
+      "minHealthFraction": 0.752,
+      "minHealthAtSeconds": 220.73333333340113,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37474,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:48.219Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:12:38.743Z"
     },
     "ember/stag/coolantRun/altarRite": {
       "id": "ember/stag/coolantRun/altarRite",
@@ -2290,13 +2392,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 95,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37727,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:48.405Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:12:38.807Z"
     },
     "ember/stag/forgeAssault/altarRite": {
       "id": "ember/stag/forgeAssault/altarRite",
@@ -2356,13 +2461,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 87,
+      "minHealthFraction": 0.752,
+      "minHealthAtSeconds": 220.73333333340113,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37431,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:03:50.941Z"
+      "finishedAt": "2026-10-22T04:12:38.702Z"
     },
     "warden/waylight/coolantRun/moonflame@B": {
       "id": "warden/waylight/coolantRun/moonflame@B",
@@ -2421,13 +2529,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 93,
+      "minHealthFraction": 0.845,
+      "minHealthAtSeconds": 242.41666666675172,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37826,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:03:59.886Z"
+      "finishedAt": "2026-10-22T04:12:56.964Z"
     },
     "warden/waylight/coolantRun/altarRite@B": {
       "id": "warden/waylight/coolantRun/altarRite@B",
@@ -2486,13 +2597,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 93,
+      "minHealthFraction": 0.845,
+      "minHealthAtSeconds": 242.41666666675172,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38108,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 7,
-      "finishedAt": "2026-10-22T04:04:00.251Z"
+      "finishedAt": "2026-10-22T04:12:57.257Z"
     },
     "warden/waylight/forgeAssault/moonflame@B": {
       "id": "warden/waylight/forgeAssault/moonflame@B",
@@ -2551,13 +2665,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 81,
+      "minHealthFraction": 0.732,
+      "minHealthAtSeconds": 228.70000000007414,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38379,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 7,
-      "finishedAt": "2026-10-22T04:04:00.265Z"
+      "finishedAt": "2026-10-22T04:12:57.545Z"
     },
     "warden/waylight/forgeAssault/altarRite@B": {
       "id": "warden/waylight/forgeAssault/altarRite@B",
@@ -2616,13 +2733,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 81,
+      "minHealthFraction": 0.732,
+      "minHealthAtSeconds": 228.70000000007414,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38194,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:04.757Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:01.401Z"
     },
     "warden/seedheart/coolantRun/moonflame@B": {
       "id": "warden/seedheart/coolantRun/moonflame@B",
@@ -2681,13 +2801,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 91,
+      "minHealthFraction": 0.7,
+      "minHealthAtSeconds": 640.9666666664124,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38478,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:05.017Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:01.684Z"
     },
     "warden/seedheart/coolantRun/altarRite@B": {
       "id": "warden/seedheart/coolantRun/altarRite@B",
@@ -2746,13 +2869,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 93,
+      "minHealthFraction": 0.845,
+      "minHealthAtSeconds": 213.68333333339552,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 39247,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:05.413Z"
+      "finishedAt": "2026-10-22T04:13:02.082Z"
     },
     "warden/seedheart/forgeAssault/moonflame@B": {
       "id": "warden/seedheart/forgeAssault/moonflame@B",
@@ -2811,13 +2937,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 93,
+      "minHealthFraction": 0.845,
+      "minHealthAtSeconds": 224.43333333340408,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38531,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:10.063Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:05.738Z"
     },
     "warden/seedheart/forgeAssault/altarRite@B": {
       "id": "warden/seedheart/forgeAssault/altarRite@B",
@@ -2876,13 +3005,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 93,
+      "minHealthFraction": 0.845,
+      "minHealthAtSeconds": 224.43333333340408,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38778,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:10.234Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:05.891Z"
     },
     "warden/stag/coolantRun/moonflame@B": {
       "id": "warden/stag/coolantRun/moonflame@B",
@@ -2941,13 +3073,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 93,
+      "minHealthFraction": 0.845,
+      "minHealthAtSeconds": 235.216666666746,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38120,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:10.611Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:06.082Z"
     },
     "warden/stag/forgeAssault/moonflame@B": {
       "id": "warden/stag/forgeAssault/moonflame@B",
@@ -3006,13 +3141,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 93,
+      "minHealthFraction": 0.845,
+      "minHealthAtSeconds": 210.7166666667265,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37932,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:14.963Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:10.010Z"
     },
     "warden/stag/forgeAssault/altarRite@B": {
       "id": "warden/stag/forgeAssault/altarRite@B",
@@ -3071,13 +3209,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 93,
+      "minHealthFraction": 0.845,
+      "minHealthAtSeconds": 210.7166666667265,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37791,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:15.817Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:10.244Z"
     },
     "warden/stag/coolantRun/altarRite@B": {
       "id": "warden/stag/coolantRun/altarRite@B",
@@ -3136,13 +3277,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 93,
+      "minHealthFraction": 0.845,
+      "minHealthAtSeconds": 235.216666666746,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38255,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:04:16.090Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:10.001Z"
     },
     "ranger/waylight/coolantRun/moonflame@B": {
       "id": "ranger/waylight/coolantRun/moonflame@B",
@@ -3202,13 +3346,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 69,
+      "minHealthFraction": 0.817,
+      "minHealthAtSeconds": 21.716666666666715,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38071,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:20.121Z"
+      "wallSeconds": 9,
+      "finishedAt": "2026-10-22T04:13:19.223Z"
     },
     "ranger/waylight/coolantRun/altarRite@B": {
       "id": "ranger/waylight/coolantRun/altarRite@B",
@@ -3268,13 +3415,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 69,
+      "minHealthFraction": 0.817,
+      "minHealthAtSeconds": 21.716666666666715,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38059,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:20.725Z"
+      "wallSeconds": 9,
+      "finishedAt": "2026-10-22T04:13:19.138Z"
     },
     "ranger/waylight/forgeAssault/moonflame@B": {
       "id": "ranger/waylight/forgeAssault/moonflame@B",
@@ -3334,13 +3484,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 69,
+      "minHealthFraction": 0.817,
+      "minHealthAtSeconds": 21.716666666666715,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37871,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:21.294Z"
+      "wallSeconds": 9,
+      "finishedAt": "2026-10-22T04:13:19.144Z"
     },
     "ranger/waylight/forgeAssault/altarRite@B": {
       "id": "ranger/waylight/forgeAssault/altarRite@B",
@@ -3400,13 +3553,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 69,
+      "minHealthFraction": 0.817,
+      "minHealthAtSeconds": 21.716666666666715,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37937,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:25.018Z"
+      "finishedAt": "2026-10-22T04:13:24.529Z"
     },
     "ranger/seedheart/coolantRun/moonflame@B": {
       "id": "ranger/seedheart/coolantRun/moonflame@B",
@@ -3466,13 +3622,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 68,
+      "minHealthFraction": 0.8,
+      "minHealthAtSeconds": 92.84999999999602,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37860,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:04:25.222Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:13:24.351Z"
     },
     "ranger/seedheart/coolantRun/altarRite@B": {
       "id": "ranger/seedheart/coolantRun/altarRite@B",
@@ -3532,13 +3691,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 68,
+      "minHealthFraction": 0.8,
+      "minHealthAtSeconds": 92.84999999999602,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38178,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:26.019Z"
+      "finishedAt": "2026-10-22T04:13:24.735Z"
     },
     "ranger/seedheart/forgeAssault/moonflame@B": {
       "id": "ranger/seedheart/forgeAssault/moonflame@B",
@@ -3598,13 +3760,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 68,
+      "minHealthFraction": 0.8,
+      "minHealthAtSeconds": 92.84999999999602,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38072,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:04:29.483Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:13:30.231Z"
     },
     "ranger/seedheart/forgeAssault/altarRite@B": {
       "id": "ranger/seedheart/forgeAssault/altarRite@B",
@@ -3664,13 +3829,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 68,
+      "minHealthFraction": 0.8,
+      "minHealthAtSeconds": 92.84999999999602,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37942,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:04:30.757Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:13:30.264Z"
     },
     "ranger/stag/coolantRun/moonflame@B": {
       "id": "ranger/stag/coolantRun/moonflame@B",
@@ -3730,13 +3898,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38137,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:31.344Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:13:30.545Z"
     },
     "ranger/stag/coolantRun/altarRite@B": {
       "id": "ranger/stag/coolantRun/altarRite@B",
@@ -3796,13 +3967,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38136,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:34.461Z"
+      "finishedAt": "2026-10-22T04:13:35.200Z"
     },
     "ranger/stag/forgeAssault/moonflame@B": {
       "id": "ranger/stag/forgeAssault/moonflame@B",
@@ -3862,13 +4036,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 65,
+      "minHealthFraction": 0.765,
+      "minHealthAtSeconds": 320.10000000003754,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38031,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:35.629Z"
+      "finishedAt": "2026-10-22T04:13:35.245Z"
     },
     "ranger/stag/forgeAssault/altarRite@B": {
       "id": "ranger/stag/forgeAssault/altarRite@B",
@@ -3928,13 +4105,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 65,
+      "minHealthFraction": 0.765,
+      "minHealthAtSeconds": 320.10000000003754,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38078,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:36.345Z"
+      "finishedAt": "2026-10-22T04:13:35.479Z"
     },
     "ember/waylight/coolantRun/moonflame@B": {
       "id": "ember/waylight/coolantRun/moonflame@B",
@@ -3994,13 +4174,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 63,
+      "minHealthFraction": 0.666,
+      "minHealthAtSeconds": 364.08333333333087,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37716,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:39.057Z"
+      "wallSeconds": 8,
+      "finishedAt": "2026-10-22T04:13:43.651Z"
     },
     "ember/waylight/coolantRun/altarRite@B": {
       "id": "ember/waylight/coolantRun/altarRite@B",
@@ -4060,13 +4243,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 63,
+      "minHealthFraction": 0.666,
+      "minHealthAtSeconds": 364.08333333333087,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37889,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:40.222Z"
+      "wallSeconds": 8,
+      "finishedAt": "2026-10-22T04:13:43.642Z"
     },
     "ember/waylight/forgeAssault/moonflame@B": {
       "id": "ember/waylight/forgeAssault/moonflame@B",
@@ -4126,13 +4312,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 78,
+      "minHealthFraction": 0.821,
+      "minHealthAtSeconds": 54.94999999999816,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37845,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:04:40.759Z"
+      "wallSeconds": 8,
+      "finishedAt": "2026-10-22T04:13:43.633Z"
     },
     "ember/waylight/forgeAssault/altarRite@B": {
       "id": "ember/waylight/forgeAssault/altarRite@B",
@@ -4192,13 +4381,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 77,
+      "minHealthFraction": 0.666,
+      "minHealthAtSeconds": 534.1333333331762,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37721,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:04:43.478Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:13:49.289Z"
     },
     "ember/seedheart/coolantRun/moonflame@B": {
       "id": "ember/seedheart/coolantRun/moonflame@B",
@@ -4258,13 +4450,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 95,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37901,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:45.083Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:13:49.439Z"
     },
     "ember/seedheart/coolantRun/altarRite@B": {
       "id": "ember/seedheart/coolantRun/altarRite@B",
@@ -4324,13 +4519,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 95,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37943,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:45.641Z"
+      "wallSeconds": 7,
+      "finishedAt": "2026-10-22T04:13:50.948Z"
     },
     "ember/seedheart/forgeAssault/moonflame@B": {
       "id": "ember/seedheart/forgeAssault/moonflame@B",
@@ -4390,13 +4588,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 49,
+      "minHealthFraction": 0.514,
+      "minHealthAtSeconds": 224.06666666673712,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37810,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:48.202Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:53.779Z"
     },
     "ember/seedheart/forgeAssault/altarRite@B": {
       "id": "ember/seedheart/forgeAssault/altarRite@B",
@@ -4456,13 +4657,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 49,
+      "minHealthFraction": 0.514,
+      "minHealthAtSeconds": 224.06666666673712,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37727,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:49.695Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:53.927Z"
     },
     "ember/stag/coolantRun/moonflame@B": {
       "id": "ember/stag/coolantRun/moonflame@B",
@@ -4522,13 +4726,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 64,
+      "minHealthFraction": 0.669,
+      "minHealthAtSeconds": 247.01666666675538,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37852,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:50.367Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:55.292Z"
     },
     "ember/stag/coolantRun/altarRite@B": {
       "id": "ember/stag/coolantRun/altarRite@B",
@@ -4588,13 +4795,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 64,
+      "minHealthFraction": 0.669,
+      "minHealthAtSeconds": 247.01666666675538,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37728,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:52.723Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:58.130Z"
     },
     "ember/stag/forgeAssault/moonflame@B": {
       "id": "ember/stag/forgeAssault/moonflame@B",
@@ -4654,13 +4864,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 77,
+      "minHealthFraction": 0.811,
+      "minHealthAtSeconds": 230.6500000000757,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37748,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:04:54.567Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:13:58.122Z"
     },
     "ember/stag/forgeAssault/altarRite@B": {
       "id": "ember/stag/forgeAssault/altarRite@B",
@@ -4720,13 +4933,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 75,
+      "minHealthFraction": 0.789,
+      "minHealthAtSeconds": 583.3166666664648,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37713,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 4,
-      "finishedAt": "2026-10-22T04:04:54.639Z"
+      "finishedAt": "2026-10-22T04:13:59.149Z"
     },
     "warden/waylight/coolantRun/altarRite@C": {
       "id": "warden/waylight/coolantRun/altarRite@C",
@@ -4785,13 +5001,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 78,
+      "minHealthFraction": 0.709,
+      "minHealthAtSeconds": 224.40000000007072,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38304,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:03.075Z"
+      "wallSeconds": 17,
+      "finishedAt": "2026-10-22T04:14:44.398Z"
     },
     "warden/waylight/forgeAssault/moonflame@C": {
       "id": "warden/waylight/forgeAssault/moonflame@C",
@@ -4850,13 +5069,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 80,
+      "minHealthFraction": 0.729,
+      "minHealthAtSeconds": 187.58333333337475,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38555,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:05:03.284Z"
+      "wallSeconds": 18,
+      "finishedAt": "2026-10-22T04:14:45.198Z"
     },
     "warden/waylight/coolantRun/moonflame@C": {
       "id": "warden/waylight/coolantRun/moonflame@C",
@@ -4915,13 +5137,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 78,
+      "minHealthFraction": 0.709,
+      "minHealthAtSeconds": 224.40000000007072,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38497,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:05:03.563Z"
+      "wallSeconds": 18,
+      "finishedAt": "2026-10-22T04:14:45.175Z"
     },
     "warden/waylight/forgeAssault/altarRite@C": {
       "id": "warden/waylight/forgeAssault/altarRite@C",
@@ -4980,13 +5205,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 80,
+      "minHealthFraction": 0.729,
+      "minHealthAtSeconds": 187.58333333337475,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38390,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:07.878Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:14:50.498Z"
     },
     "warden/seedheart/coolantRun/altarRite@C": {
       "id": "warden/seedheart/coolantRun/altarRite@C",
@@ -5045,13 +5273,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 89,
+      "minHealthFraction": 0.812,
+      "minHealthAtSeconds": 340.9166666666853,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 39006,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:08.430Z"
+      "finishedAt": "2026-10-22T04:14:50.459Z"
     },
     "warden/seedheart/coolantRun/moonflame@C": {
       "id": "warden/seedheart/coolantRun/moonflame@C",
@@ -5110,13 +5341,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 89,
+      "minHealthFraction": 0.812,
+      "minHealthAtSeconds": 340.9166666666853,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38831,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:08.611Z"
+      "finishedAt": "2026-10-22T04:14:50.509Z"
     },
     "warden/seedheart/forgeAssault/moonflame@C": {
       "id": "warden/seedheart/forgeAssault/moonflame@C",
@@ -5175,13 +5409,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 92,
+      "minHealthFraction": 0.836,
+      "minHealthAtSeconds": 540.6333333331703,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38371,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:13.086Z"
+      "finishedAt": "2026-10-22T04:14:55.185Z"
     },
     "warden/seedheart/forgeAssault/altarRite@C": {
       "id": "warden/seedheart/forgeAssault/altarRite@C",
@@ -5240,13 +5477,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 94,
+      "minHealthFraction": 0.855,
+      "minHealthAtSeconds": 53.23333333333159,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38177,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:13.563Z"
+      "finishedAt": "2026-10-22T04:14:55.404Z"
     },
     "warden/stag/coolantRun/moonflame@C": {
       "id": "warden/stag/coolantRun/moonflame@C",
@@ -5305,13 +5545,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 110,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37851,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:13.698Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:14:54.974Z"
     },
     "warden/stag/coolantRun/altarRite@C": {
       "id": "warden/stag/coolantRun/altarRite@C",
@@ -5370,13 +5613,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 110,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37829,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:17.873Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:14:59.128Z"
     },
     "warden/stag/forgeAssault/moonflame@C": {
       "id": "warden/stag/forgeAssault/moonflame@C",
@@ -5435,13 +5681,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 80,
+      "minHealthFraction": 0.729,
+      "minHealthAtSeconds": 219.81666666673374,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37626,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:18.230Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:14:59.532Z"
     },
     "warden/stag/forgeAssault/altarRite@C": {
       "id": "warden/stag/forgeAssault/altarRite@C",
@@ -5500,13 +5749,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 80,
+      "minHealthFraction": 0.729,
+      "minHealthAtSeconds": 219.81666666673374,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37630,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:18.500Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:14:59.370Z"
     },
     "ranger/waylight/coolantRun/altarRite@C": {
       "id": "ranger/waylight/coolantRun/altarRite@C",
@@ -5566,13 +5818,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38473,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:23.227Z"
+      "finishedAt": "2026-10-22T04:15:04.228Z"
     },
     "ranger/waylight/forgeAssault/moonflame@C": {
       "id": "ranger/waylight/forgeAssault/moonflame@C",
@@ -5632,13 +5887,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38807,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:23.438Z"
+      "finishedAt": "2026-10-22T04:15:04.452Z"
     },
     "ranger/waylight/coolantRun/moonflame@C": {
       "id": "ranger/waylight/coolantRun/moonflame@C",
@@ -5698,13 +5956,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38493,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:05:23.636Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:15:04.216Z"
     },
     "ranger/seedheart/coolantRun/moonflame@C": {
       "id": "ranger/seedheart/coolantRun/moonflame@C",
@@ -5764,13 +6025,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37841,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:28.025Z"
+      "finishedAt": "2026-10-22T04:15:08.939Z"
     },
     "ranger/seedheart/coolantRun/altarRite@C": {
       "id": "ranger/seedheart/coolantRun/altarRite@C",
@@ -5830,13 +6094,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 66,
+      "minHealthFraction": 0.629,
+      "minHealthAtSeconds": 625.4833333330931,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37626,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:28.388Z"
+      "finishedAt": "2026-10-22T04:15:09.733Z"
     },
     "ranger/waylight/forgeAssault/altarRite@C": {
       "id": "ranger/waylight/forgeAssault/altarRite@C",
@@ -5896,13 +6163,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38501,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:28.588Z"
+      "finishedAt": "2026-10-22T04:15:09.533Z"
     },
     "ranger/seedheart/forgeAssault/moonflame@C": {
       "id": "ranger/seedheart/forgeAssault/moonflame@C",
@@ -5962,13 +6232,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38031,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:32.926Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:15:13.344Z"
     },
     "ranger/seedheart/forgeAssault/altarRite@C": {
       "id": "ranger/seedheart/forgeAssault/altarRite@C",
@@ -6028,13 +6301,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 85,
+      "minHealthFraction": 1,
+      "minHealthAtSeconds": 0.016666666666666666,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37900,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:33.688Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:15:15.057Z"
     },
     "ranger/stag/coolantRun/moonflame@C": {
       "id": "ranger/stag/coolantRun/moonflame@C",
@@ -6094,13 +6370,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 53,
+      "minHealthFraction": 0.626,
+      "minHealthAtSeconds": 212.56666666672797,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37879,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:33.821Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:15:14.154Z"
     },
     "ranger/stag/coolantRun/altarRite@C": {
       "id": "ranger/stag/coolantRun/altarRite@C",
@@ -6160,13 +6439,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 53,
+      "minHealthFraction": 0.626,
+      "minHealthAtSeconds": 212.56666666672797,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37644,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:37.948Z"
+      "finishedAt": "2026-10-22T04:15:18.372Z"
     },
     "ranger/stag/forgeAssault/moonflame@C": {
       "id": "ranger/stag/forgeAssault/moonflame@C",
@@ -6226,13 +6508,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 68,
+      "minHealthFraction": 0.8,
+      "minHealthAtSeconds": 54.69999999999818,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37554,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:38.359Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:15:18.545Z"
     },
     "ranger/stag/forgeAssault/altarRite@C": {
       "id": "ranger/stag/forgeAssault/altarRite@C",
@@ -6292,13 +6577,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 42,
+      "minHealthFraction": 0.494,
+      "minHealthAtSeconds": 625.5166666664264,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37618,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:38.836Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:15:19.350Z"
     },
     "ember/waylight/coolantRun/moonflame@C": {
       "id": "ember/waylight/coolantRun/moonflame@C",
@@ -6358,13 +6646,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 83,
+      "minHealthFraction": 0.724,
+      "minHealthAtSeconds": 182.6500000000375,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38247,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:43.230Z"
+      "wallSeconds": 8,
+      "finishedAt": "2026-10-22T04:15:26.551Z"
     },
     "ember/waylight/coolantRun/altarRite@C": {
       "id": "ember/waylight/coolantRun/altarRite@C",
@@ -6424,13 +6715,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 83,
+      "minHealthFraction": 0.724,
+      "minHealthAtSeconds": 182.6500000000375,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38028,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:05:44.030Z"
+      "wallSeconds": 8,
+      "finishedAt": "2026-10-22T04:15:26.538Z"
     },
     "ember/waylight/forgeAssault/moonflame@C": {
       "id": "ember/waylight/forgeAssault/moonflame@C",
@@ -6490,13 +6784,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 78,
+      "minHealthFraction": 0.576,
+      "minHealthAtSeconds": 628.7666666664235,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 38005,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:44.198Z"
+      "wallSeconds": 7,
+      "finishedAt": "2026-10-22T04:15:26.842Z"
     },
     "ember/waylight/forgeAssault/altarRite@C": {
       "id": "ember/waylight/forgeAssault/altarRite@C",
@@ -6556,13 +6853,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 83,
+      "minHealthFraction": 0.724,
+      "minHealthAtSeconds": 182.6500000000375,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37944,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:48.451Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:15:32.712Z"
     },
     "ember/seedheart/coolantRun/moonflame@C": {
       "id": "ember/seedheart/coolantRun/moonflame@C",
@@ -6622,13 +6922,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 89,
+      "minHealthFraction": 0.777,
+      "minHealthAtSeconds": 391.1833333333062,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37928,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:48.685Z"
+      "wallSeconds": 6,
+      "finishedAt": "2026-10-22T04:15:32.438Z"
     },
     "ember/seedheart/coolantRun/altarRite@C": {
       "id": "ember/seedheart/coolantRun/altarRite@C",
@@ -6688,13 +6991,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 89,
+      "minHealthFraction": 0.777,
+      "minHealthAtSeconds": 391.1833333333062,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37845,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:49.163Z"
+      "finishedAt": "2026-10-22T04:15:32.234Z"
     },
     "ember/seedheart/forgeAssault/moonflame@C": {
       "id": "ember/seedheart/forgeAssault/moonflame@C",
@@ -6754,13 +7060,16 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 61,
+      "minHealthFraction": 0.645,
+      "minHealthAtSeconds": 216.9500000000648,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37799,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:53.154Z"
+      "finishedAt": "2026-10-22T04:15:37.200Z"
     },
     "ember/seedheart/forgeAssault/altarRite@C": {
       "id": "ember/seedheart/forgeAssault/altarRite@C",
@@ -6820,13 +7129,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 61,
+      "minHealthFraction": 0.645,
+      "minHealthAtSeconds": 216.9500000000648,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37641,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:53.626Z"
+      "finishedAt": "2026-10-22T04:15:37.101Z"
     },
     "ember/stag/coolantRun/moonflame@C": {
       "id": "ember/stag/coolantRun/moonflame@C",
@@ -6886,13 +7198,16 @@
         "quarry": "coolantRun",
         "moon": "moonflame"
       },
+      "minHealth": 77,
+      "minHealthFraction": 0.811,
+      "minHealthAtSeconds": 223.51666666673668,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37811,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:53.793Z"
+      "wallSeconds": 4,
+      "finishedAt": "2026-10-22T04:15:37.092Z"
     },
     "ember/stag/forgeAssault/altarRite@C": {
       "id": "ember/stag/forgeAssault/altarRite@C",
@@ -6952,13 +7267,16 @@
         "quarry": "forgeAssault",
         "moon": "altarRite"
       },
+      "minHealth": 77,
+      "minHealthFraction": 0.811,
+      "minHealthAtSeconds": 376.6833333333194,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37744,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
       "wallSeconds": 5,
-      "finishedAt": "2026-10-22T04:05:58.489Z"
+      "finishedAt": "2026-10-22T04:15:43.574Z"
     },
     "ember/stag/coolantRun/altarRite@C": {
       "id": "ember/stag/coolantRun/altarRite@C",
@@ -7018,13 +7336,16 @@
         "quarry": "coolantRun",
         "moon": "altarRite"
       },
+      "minHealth": 77,
+      "minHealthFraction": 0.811,
+      "minHealthAtSeconds": 223.51666666673668,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37902,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 6,
-      "finishedAt": "2026-10-22T04:05:58.710Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:15:43.443Z"
     },
     "ember/stag/forgeAssault/moonflame@C": {
       "id": "ember/stag/forgeAssault/moonflame@C",
@@ -7084,17 +7405,20 @@
         "quarry": "forgeAssault",
         "moon": "moonflame"
       },
+      "minHealth": 77,
+      "minHealthFraction": 0.811,
+      "minHealthAtSeconds": 376.6833333333194,
       "upgradeFallbacks": 0,
       "unpauses": 0,
       "steps": 37516,
       "stepping": "game.scene.update (no render)",
       "pageErrors": [],
-      "wallSeconds": 7,
-      "finishedAt": "2026-10-22T04:06:00.407Z"
+      "wallSeconds": 5,
+      "finishedAt": "2026-10-22T04:15:43.347Z"
     }
   },
   "meta": {
-    "updated": "2026-10-22T04:06:00.421Z",
+    "updated": "2026-10-22T04:15:45.593Z",
     "script": "scripts/pilot-matrix.mjs",
     "stepHz": 60,
     "seedSets": {
