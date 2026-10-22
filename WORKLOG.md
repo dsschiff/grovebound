@@ -1,5 +1,12 @@
 # Grovebound worklog
 
+## 2026-10-22 — Pages release of the October hardening work
+
+- Released `main` after the 18 overnight PRs above plus #16 and #20–#28 to GitHub Pages. Player-visible changes since the October 3 release: accessibility labels and contrast fixes (#4), Reduced effects starting on when the OS asks for reduced motion and the player never set the option (#8), and dark plates behind HUD text, the boss bar, crest and bottom line (#15, #19). A player who earlier left Reduced effects off while their OS asks for reduced motion will now see it on, because a stored "off" cannot be told apart from the old default; they can turn it off again. `?debug=1` now also shows the run's resonance count (#21). Everything else in this batch is tests, pilot tooling, reports or docs; the snapshot-guard digest (`c47339b2…`) is unchanged, so gameplay logic is identical to the reviewed main.
+- Validation on the release commit's source: 117 unit tests (22 files, including the frozen save fixtures), `tsc --noEmit` and the Pages production build passed; all 36 Playwright browser tests passed with Chrome muted. Staged site 3,577,135 of 5,000,000 bytes; new bundle `index-CohqoG-u.js` / `index-B1H6iClr.css`.
+- Existing progress: the staged production build was served locally and loaded with the frozen `grovebound-progress-v1` blob plus each of the three older run-snapshot shapes in browser storage. Each time the camp showed the old 14 seeds, wrote the migrated `grovebound-progress-v2` record, offered RESUME, and resumed the saved run (seed 3141592653) with no page errors.
+- Not checked in this release: real Android hardware, TalkBack, human feel, and `npm run profile:budget`. The phone session in `PHONE-SESSION-CHECKLIST.md` is the next step.
+
 ## 2026-10-22 — Overnight hardening: save tests, accessibility, pilot matrix, weak pilot, HUD plates, check:pages
 
 Eighteen pull requests merged between 03:03 and 14:41 UTC. None changes balance or the normal game loop; the pilot work runs only in the debug pilot. Validation figures below are as stated in each PR body. All browser checks ran in desktop Chromium at phone viewport sizes; real Android hardware, TalkBack and human feel remain open.
