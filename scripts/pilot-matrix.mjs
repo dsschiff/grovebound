@@ -138,11 +138,15 @@ function clock(seconds) {
   return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
 }
 
+const mean = values => values.reduce((a, b) => a + b, 0) / values.length;
+const median = values => { const v = [...values].sort((a, b) => a - b); return v.length % 2 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2; };
+// The run in `arm` with the same cell, seed set, and repeat as r: the partner for paired comparisons.
+const pairedRow = (rows, r, arm) => rows.find(o => armOf(o) === arm && o.cell === r.cell && o.seedSet === r.seedSet && o.run === r.run);
+
 function dangerLine(rows) {
   const lows = rows.map(r => r.minHealthFraction).filter(value => typeof value === 'number').sort((a, b) => a - b);
   if (!lows.length) return '';
-  const median = lows.length % 2 ? lows[(lows.length - 1) / 2] : (lows[lows.length / 2 - 1] + lows[lows.length / 2]) / 2;
-  return `Danger (lowest HP as a fraction of max HP at that moment): ${lows.filter(v => v < 0.5).length} runs below 50%, ${lows.filter(v => v < 0.25).length} below 25%; median low point ${Math.round(median * 100)}%, worst ${Math.round(lows[0] * 100)}%.`;
+  return `Danger (lowest HP as a fraction of max HP at that moment): ${lows.filter(v => v < 0.5).length} runs below 50%, ${lows.filter(v => v < 0.25).length} below 25%; median low point ${Math.round(median(lows) * 100)}%, worst ${Math.round(lows[0] * 100)}%.`;
 }
 
 export function summarize({ cells: done }) {
@@ -166,9 +170,8 @@ export function summarize({ cells: done }) {
     const secs = group.map(r => r.gameSeconds); const taken = group.map(r => Math.round(r.damageTaken)).sort((a, b) => a - b);
     const lows = group.map(r => r.minHealthFraction ?? 1).sort((a, b) => a - b);
     const lowest = lows[0];
-    const lowMedian = lows.length % 2 ? lows[(lows.length - 1) / 2] : (lows[lows.length / 2 - 1] + lows[lows.length / 2]) / 2;
     const below50 = lows.filter(v => v < 0.5).length;
-    lines.push(`| ${hero} | ${group.length} | ${group.filter(r => r.won).length} | ${clock(Math.min(...secs))}–${clock(Math.max(...secs))} | ${taken[0]} / ${taken[Math.floor(taken.length / 2)]} / ${taken[taken.length - 1]} | ${Math.round(lowest * 100)}% / ${Math.round(lowMedian * 100)}% | ${below50} |`);
+    lines.push(`| ${hero} | ${group.length} | ${group.filter(r => r.won).length} | ${clock(Math.min(...secs))}–${clock(Math.max(...secs))} | ${taken[0]} / ${taken[Math.floor(taken.length / 2)]} / ${taken[taken.length - 1]} | ${Math.round(lowest * 100)}% / ${Math.round(median(lows) * 100)}% | ${below50} |`);
   }
   lines.push(...routeSection(rows));
   const groups = new Map();
@@ -206,7 +209,6 @@ export function routeSection(rows) {
     }
   }
   if (!byRoute.size) return [];
-  const mean = values => values.reduce((a, b) => a + b, 0) / values.length;
   const lines = ['', '## Per route', '',
     'Runs that took each route (a run counts under its Quarry and its Moonfen route). Clock and damage taken are whole-run means.', '',
     '| Route | Runs | Wins | Mean clock | Mean damage taken | Lowest HP % |', '|---|---|---|---|---|---|'];
@@ -259,7 +261,6 @@ const ARM_LABEL = {
   'cmd-restore': 'pairing on, focus restored to the starting weapon',
   'cmd-solo-restore': 'pairing off, focus restored to the starting weapon',
 };
-const offRowFor = (rows, r) => rows.find(o => armOf(o) === 'off' && o.cell === r.cell && o.seedSet === r.seedSet && o.run === r.run);
 
 function commandSection(rows) {
   const arms = [...new Set(rows.map(armOf))].filter(a => a !== 'off' && !WEAK_ARM.test(a)).sort();
@@ -277,7 +278,7 @@ function t975(df) {
   return z + (z ** 3 + z) / (4 * df) + (5 * z ** 5 + 16 * z ** 3 + 3 * z) / (96 * df ** 2);
 }
 function meanCi(values) {
-  const n = values.length; const m = values.reduce((a, b) => a + b, 0) / n;
+  const n = values.length; const m = mean(values);
   if (n < 2) return { n, mean: m, half: NaN };
   const sd = Math.sqrt(values.reduce((a, b) => a + (b - m) ** 2, 0) / (n - 1));
   return { n, mean: m, half: t975(n - 1) * sd / Math.sqrt(n) };
@@ -291,8 +292,7 @@ function weakSection(rows) {
   for (const weakArm of weakArms) {
     const [, ms, every] = WEAK_ARM.exec(weakArm);
     const baseArm = weakArm.replace(WEAK_ARM, '');
-    const pairs = rows.filter(r => armOf(r) === weakArm).map(r => [rows.find(o => armOf(o) === baseArm && o.cell === r.cell
-      && o.seedSet === r.seedSet && o.run === r.run), r]).filter(([base]) => base);
+    const pairs = rows.filter(r => armOf(r) === weakArm).map(r => [pairedRow(rows, r, baseArm), r]).filter(([base]) => base);
     lines.push('', `## Weak pilot \`${weakArm}\` vs \`${baseArm}\` (reaction ${ms} ms, every ${every === '1' ? '' : every + (every === '2' ? 'nd' : every === '3' ? 'rd' : 'th') + ' '}chance)`, '',
       `${pairs.length} paired runs (same cell, seed, and stepping). Mean ± half-width of the 95% t interval over runs. Lowest HP is the lowest health as % of max health at that moment; a loss counts as 0%. Δ is weak minus base, paired by run.`, '');
     if (!pairs.length) continue;
@@ -311,7 +311,7 @@ function weakSection(rows) {
 function armSection(rows, armName) {
   const on = rows.filter(r => armOf(r) === armName);
   if (!on.length) return [];
-  const offFor = r => offRowFor(rows, r);
+  const offFor = r => pairedRow(rows, r, 'off');
   const lines = ['', `## Weapon commands, arm \`${armName}\` (${ARM_LABEL[armName] ?? armName}) vs never (off)`, '',
     'Same cell, seed, and stepping; only the pilot command flags differ. Deltas are on minus off. Clock is the full-run clear time. Off-focus s is game seconds with focus away from the starting weapon.', '',
     '| Cell | Seed | Off result | On result | Clock off → on (Δ s) | Damage taken off → on (Δ) | Lowest HP % off → on | Foe damage Δ | Kills Δ | Commands on (by weapon) | Resonances on | Off-focus s | Commands off |',
@@ -325,8 +325,6 @@ function armSection(rows, armName) {
     lines.push(`| ${r.cell}@${r.seedSet} | ${r.seed} | ${off.outcome} | ${r.outcome} | ${clock(off.gameSeconds)} → ${clock(r.gameSeconds)} (${signed(r.gameSeconds - off.gameSeconds, 1)}) | ${Math.round(off.damageTaken)} → ${Math.round(r.damageTaken)} (${signed(r.damageTaken - off.damageTaken)}) | ${Math.round(off.minHealthFraction * 100)}% → ${Math.round(r.minHealthFraction * 100)}% | ${signed(r.foeDamage - off.foeDamage)} | ${signed(r.kills - off.kills)} | ${r.commands} (${byWeapon || '—'}) | ${r.resonances} | ${r.offFocusSeconds ?? 'n/a'} | ${off.commands ?? 'n/a'} |`);
   }
   if (!pairs.length) return lines;
-  const mean = values => values.reduce((a, b) => a + b, 0) / values.length;
-  const median = values => { const v = [...values].sort((a, b) => a - b); return v.length % 2 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2; };
   lines.push('', '| Hero | Pairs | Wins off / on | Mean Δ clock s | Δ damage taken mean (median) | Runs with less / more damage taken | Mean Δ lowest HP pts | Commands per run | Resonances per run | Resonances per command | Off-focus s per run |',
     '|---|---|---|---|---|---|---|---|---|---|---|');
   for (const hero of [...new Set(pairs.map(([off]) => off.hero)), 'all']) {
@@ -347,7 +345,6 @@ function decompositionSection(rows) {
   const need = ['cmd', 'cmd-solo', 'cmd-restore', 'cmd-solo-restore'];
   const present = new Set(rows.map(armOf));
   if (!need.every(a => present.has(a))) return [];
-  const mean = values => values.reduce((a, b) => a + b, 0) / values.length;
   const metrics = [
     ['Damage taken', r => r.damageTaken, 0],
     ['Lowest HP (pts of max)', r => r.minHealthFraction * 100, 1],
@@ -361,7 +358,7 @@ function decompositionSection(rows) {
   for (const hero of [...new Set(offRows.map(r => r.hero)), 'all']) {
     const sets = [];
     for (const off of offRows.filter(r => hero === 'all' || r.hero === hero)) {
-      const byArm = Object.fromEntries(need.map(a => [a, rows.find(r => armOf(r) === a && r.cell === off.cell && r.seedSet === off.seedSet && r.run === off.run)]));
+      const byArm = Object.fromEntries(need.map(a => [a, pairedRow(rows, off, a)]));
       if (need.every(a => byArm[a])) sets.push({ off, ...byArm });
     }
     if (!sets.length) continue;
