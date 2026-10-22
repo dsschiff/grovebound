@@ -1,0 +1,238 @@
+{
+  "cells": {
+    "warden/waylight/coolantRun/moonflame": {
+      "id": "warden/waylight/coolantRun/moonflame",
+      "cell": "warden/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "warden",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 636.6499999997496,
+      "endRegion": 3,
+      "damageTaken": 118,
+      "foeDamage": 42284,
+      "kills": 631,
+      "level": 23,
+      "regionSeconds": [
+        181.25000000003638,
+        211.0500000000601,
+        244.3500000000866
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "axe:3",
+        "bow:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 5.999999999994543,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 181.25000000003638,
+          "stageSeconds": 181.25000000003638,
+          "gateDistance": 40.003279150589435,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 392.2999999999719,
+          "stageSeconds": 211.0500000000601,
+          "gateDistance": 80.7259319189982,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38199,
+      "stepping": "game.step (update + render)",
+      "pageErrors": [],
+      "wallSeconds": 101,
+      "finishedAt": "2026-10-22T04:08:12.427Z"
+    },
+    "ranger/waylight/coolantRun/moonflame": {
+      "id": "ranger/waylight/coolantRun/moonflame",
+      "cell": "ranger/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ranger",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 638.499999999748,
+      "endRegion": 3,
+      "damageTaken": 103,
+      "foeDamage": 43617,
+      "kills": 637,
+      "level": 23,
+      "regionSeconds": [
+        182.61666666670413,
+        210.75000000005986,
+        245.13333333342055
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 22,
+      "weapons": [
+        "thorns:2",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 3.0000000000023874,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 182.61666666670413,
+          "stageSeconds": 182.61666666670413,
+          "gateDistance": 81.2336055747813,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 393.36666666663757,
+          "stageSeconds": 210.75000000005986,
+          "gateDistance": 81.61849728992885,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 38310,
+      "stepping": "game.step (update + render)",
+      "pageErrors": [],
+      "wallSeconds": 109,
+      "finishedAt": "2026-10-22T04:08:20.064Z"
+    },
+    "ember/waylight/coolantRun/moonflame": {
+      "id": "ember/waylight/coolantRun/moonflame",
+      "cell": "ember/waylight/coolantRun/moonflame",
+      "run": 1,
+      "seedSet": "A",
+      "hero": "ember",
+      "contract": "waylight",
+      "quarry": "coolantRun",
+      "moon": "moonflame",
+      "seed": 101,
+      "heroConfirmed": true,
+      "contractConfirmed": true,
+      "outcome": "win",
+      "won": true,
+      "gameSeconds": 630.1333333330889,
+      "endRegion": 3,
+      "damageTaken": 127,
+      "foeDamage": 41430,
+      "kills": 613,
+      "level": 22,
+      "regionSeconds": [
+        180.00000000003539,
+        208.91666666672506,
+        241.21666666675077
+      ],
+      "objectives": 3,
+      "hazards": 4,
+      "blessings": 21,
+      "weapons": [
+        "staff:3",
+        "bow:3",
+        "axe:3"
+      ],
+      "softlock": false,
+      "maxStallSeconds": 4.500000000003581,
+      "stallStartedAt": null,
+      "forks": [
+        {
+          "region": 1,
+          "atSeconds": 180.00000000003539,
+          "stageSeconds": 180.00000000003539,
+          "gateDistance": 79.79821453216073,
+          "natural": true
+        },
+        {
+          "region": 2,
+          "atSeconds": 388.9166666666416,
+          "stageSeconds": 208.91666666672506,
+          "gateDistance": 79.54140144358065,
+          "natural": true
+        }
+      ],
+      "routeClicks": 2,
+      "routesMatch": true,
+      "chosenRoutes": {
+        "quarry": "coolantRun",
+        "moon": "moonflame"
+      },
+      "upgradeFallbacks": 0,
+      "unpauses": 0,
+      "steps": 37808,
+      "stepping": "game.step (update + render)",
+      "pageErrors": [],
+      "wallSeconds": 124,
+      "finishedAt": "2026-10-22T04:08:35.092Z"
+    }
+  },
+  "meta": {
+    "updated": "2026-10-22T04:08:35.099Z",
+    "script": "scripts/pilot-matrix.mjs",
+    "stepHz": 60,
+    "seedSets": {
+      "A": {
+        "waylight": 101,
+        "seedheart": 202,
+        "stag": 155
+      },
+      "B": {
+        "waylight": 7,
+        "seedheart": 1000,
+        "stag": 4123
+      },
+      "C": {
+        "waylight": 2021,
+        "seedheart": 3010,
+        "stag": 10015
+      }
+    },
+    "stepping": "fixed 1000/60 ms steps driven from the page; see cell.stepping",
+    "softlockRule": "no change for 60s of game time in region, fork state, required-objective hp/position/count, gate state, or guardian hp, excluding the guardian countdown after objectives are done",
+    "gameCapSeconds": 960,
+    "progressProfiles": {
+      "warden": null,
+      "ranger": {
+        "bestRegion": 1,
+        "muted": true
+      },
+      "ember": {
+        "bestRegion": 1,
+        "victories": 1,
+        "muted": true
+      }
+    }
+  }
+}
