@@ -98,13 +98,17 @@ test('hiding the tab (visibilitychange) saves the live state between autosaves',
   expect(Math.abs(restored.y - run.atHide.y)).toBeLessThan(1e-3);
 });
 
-// src/main.ts has no pagehide listener, only visibilitychange. test.fail() records that gap: this
-// test is expected to fail today and will start reporting "unexpectedly passed" once a pagehide
-// save is added, at which point drop the test.fail() line.
-test('pagehide alone saves the live state between autosaves', async ({ page, browser }, testInfo) => {
-  test.fail(true, 'no pagehide handler in src/main.ts as of 2ac3488');
+// Characterises today's behaviour: src/main.ts listens only for visibilitychange, so a bare pagehide
+// writes nothing and the stored clock stays where the last autosave left it. When someone adds a
+// pagehide save this test fails on purpose; change it then to assert the restored state equals the
+// live state at hide time, as the visibilitychange test does.
+test('pagehide alone does not save (no pagehide handler in src/main.ts today)', async ({ page, browser }, testInfo) => {
   const run = await playAndHide(page, 'pagehide');
   await page.close({ runBeforeUnload: false });
   const restored = await restore(browser, testInfo, run.storage);
-  expect(Math.abs(restored.seconds - run.atHide.seconds)).toBeLessThanOrEqual(frame);
+  await testInfo.attach('tabhide-pagehide', { body: JSON.stringify({ run: { ...run, storage: undefined }, restored }, null, 2), contentType: 'application/json' });
+  expect(run.atHide.seconds - run.storedBefore).toBeGreaterThanOrEqual(GAP_AFTER_AUTOSAVE);
+  expect(run.storedAfter.seconds).toBe(run.storedBefore);
+  expect(restored.seconds).toBeCloseTo(run.storedBefore, 9);
+  expect(run.atHide.seconds - restored.seconds).toBeGreaterThanOrEqual(GAP_AFTER_AUTOSAVE);
 });
