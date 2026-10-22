@@ -29,8 +29,10 @@ import { chromium } from 'playwright';
 import { createServer } from 'vite';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
+// False when a test imports summarize/routeSection: skips the dev server, browser, and run loop.
+const isMain = process.argv[1] !== undefined && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
 const opt = (name, fallback) => { const i = argv.indexOf(`--${name}`); return i >= 0 ? argv[i + 1] : fallback; };
@@ -113,12 +115,12 @@ for (let run = 1; run <= repeats; run++)
 let store = { cells: {} };
 try { store = JSON.parse(await readFile(outPath, 'utf8')); } catch { /* first run */ }
 const todo = cells.filter(cell => rerun || !store.cells[cell.id]).slice(0, limit);
-console.log(`pilot-matrix: ${cells.length} cells in scope, ${cells.filter(c => store.cells[c.id]).length} already in ${outPath}, running ${todo.length} (concurrency ${concurrency}, ${render ? 'render' : 'scene-only'} steps)`);
+if (isMain) console.log(`pilot-matrix: ${cells.length} cells in scope, ${cells.filter(c => store.cells[c.id]).length} already in ${outPath}, running ${todo.length} (concurrency ${concurrency}, ${render ? 'render' : 'scene-only'} steps)`);
 
-const server = await createServer({ root, logLevel: 'error', server: { host: '127.0.0.1', port, strictPort: true } });
-await server.listen();
+const server = isMain ? await createServer({ root, logLevel: 'error', server: { host: '127.0.0.1', port, strictPort: true } }) : null;
+await server?.listen();
 const baseURL = `http://127.0.0.1:${port}`;
-const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
+const browser = isMain ? await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' }) : null;
 
 async function save() {
   store.meta = { updated: new Date().toISOString(), script: 'scripts/pilot-matrix.mjs', stepHz: 60, seedSets: SEED_SETS,
@@ -143,7 +145,7 @@ function dangerLine(rows) {
   return `Danger (lowest HP as a fraction of max HP at that moment): ${lows.filter(v => v < 0.5).length} runs below 50%, ${lows.filter(v => v < 0.25).length} below 25%; median low point ${Math.round(median * 100)}%, worst ${Math.round(lows[0] * 100)}%.`;
 }
 
-function summarize({ cells: done }) {
+export function summarize({ cells: done }) {
   const rows = Object.values(done).sort((a, b) => a.id.localeCompare(b.id));
   const inWindow = rows.filter(r => r.won && r.gameSeconds >= 600 && r.gameSeconds <= 720);
   const lines = ['# Grovebound pilot matrix', '',
@@ -168,6 +170,7 @@ function summarize({ cells: done }) {
     const below50 = lows.filter(v => v < 0.5).length;
     lines.push(`| ${hero} | ${group.length} | ${group.filter(r => r.won).length} | ${clock(Math.min(...secs))}–${clock(Math.max(...secs))} | ${taken[0]} / ${taken[Math.floor(taken.length / 2)]} / ${taken[taken.length - 1]} | ${Math.round(lowest * 100)}% / ${Math.round(lowMedian * 100)}% | ${below50} |`);
   }
+  lines.push(...routeSection(rows));
   const groups = new Map();
   for (const r of rows) { const key = r.cell ?? r.id.split('#')[0]; groups.set(key, [...(groups.get(key) ?? []), r]); }
   if ([...groups.values()].some(group => group.length > 1)) {
@@ -184,6 +187,31 @@ function summarize({ cells: done }) {
   const missing = cells.filter(cell => !done[cell.id]).map(cell => cell.id);
   if (missing.length) lines.push('', `Not yet run in this invocation's scope (${missing.length}): ${missing.join(', ')}`);
   return lines.join('\n') + '\n';
+}
+
+// Per route: one row per Quarry/Moonfen route a run actually took (chosenRoutes; a run that ended before the fork has
+// none, and rows written without chosenRoutes fall back to the cell's assigned route). A run counts under both of its
+// routes, so rows overlap. Clock and damage taken are whole-run means, not time spent on that route.
+export function routeSection(rows) {
+  const byRoute = new Map();
+  for (const r of rows) {
+    const chosen = r.chosenRoutes ?? { quarry: r.quarry, moon: r.moon };
+    for (const [stage, route] of [['Quarry', chosen.quarry], ['Moonfen', chosen.moon]]) {
+      if (!route) continue;
+      const key = `${stage}/${route}`;
+      byRoute.set(key, [...(byRoute.get(key) ?? []), r]);
+    }
+  }
+  if (!byRoute.size) return [];
+  const mean = values => values.reduce((a, b) => a + b, 0) / values.length;
+  const lines = ['', '## Per route', '',
+    'Runs that took each route (a run counts under its Quarry and its Moonfen route). Clock and damage taken are whole-run means.', '',
+    '| Route | Runs | Wins | Mean clock | Mean damage taken | Lowest HP % |', '|---|---|---|---|---|---|'];
+  for (const [key, group] of [...byRoute].sort((a, b) => a[0].localeCompare(b[0]))) {
+    const lowest = Math.min(...group.map(r => r.minHealthFraction ?? 1));
+    lines.push(`| ${key} | ${group.length} | ${group.filter(r => r.won).length} | ${clock(mean(group.map(r => r.gameSeconds)))} | ${Math.round(mean(group.map(r => r.damageTaken)))} | ${Math.round(lowest * 100)}% |`);
+  }
+  return lines;
 }
 
 const BASELINE_FIELDS = ['outcome', 'gameSeconds', 'endRegion', 'damageTaken', 'foeDamage', 'kills', 'level', 'regionSeconds',
@@ -523,7 +551,7 @@ async function worker() {
     }
   }
 }
-try {
+if (isMain) try {
   await Promise.all(Array.from({ length: Math.min(concurrency, todo.length) }, worker));
   await save();
 } finally {
