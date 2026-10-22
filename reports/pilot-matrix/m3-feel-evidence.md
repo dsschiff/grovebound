@@ -9,7 +9,7 @@ For the feel review in `PHONE-SESSION-CHECKLIST.md` section 5. For each of the f
 - With commands on it taps almost as soon as a command recharges. Sunbow fired 77-80 times a run against a limit of about 79 (`commands-note.md` L37). Every command-on number is an upper bound for an attentive player, not what a typical player gets.
 - It runs headless on desktop Chrome without drawing the screen (`stepping` = "game.scene.update (no render)" in every row of `pilot-matrix.json` and `commands-slice.json`). It sees nothing and feels nothing.
 
-A weaker-pilot slice is being built on another branch (track g5-gb-weak-pilot). Once it lands it should replace the "strong player" caveat for difficulty. Nothing here uses it.
+For difficulty, read `weak-pilot.md` in this folder (landed as #17): a slower bot with human-like reaction delays loses some runs (5 to 14 of 180), nearly all in Ember Quarry around 5:00 to 6:30, and weapon commands help less once the player is slow. Expect the Quarry to be harder than the numbers below suggest.
 
 ## 1. Is each Expedition hero readable at phone size mid-fight?
 
