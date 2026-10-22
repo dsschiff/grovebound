@@ -8,6 +8,9 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 const sizes = [{ width: 390, height: 844 }, { width: 320, height: 568 }];
 const BLOCKING = new Set(['serious', 'critical']);
 
+// The game has sound; automated runs keep it off.
+test.use({ launchOptions: { args: ['--mute-audio'] } });
+
 // Known, listed, not fixed: each HUD weapon slot's visible text includes a live damage counter, so making its
 // spoken name contain the visible text needs a decision about what a slot should announce (see the checkpoint).
 const KNOWN = [{ id: 'label-content-name-mismatch', html: 'data-focus=' }];
@@ -206,6 +209,60 @@ for (const size of sizes) {
     await testInfo.attach(`hud-backplate-contrast-${tag}`, { body: JSON.stringify(results, null, 2), contentType: 'application/json' });
     expect(new Set(results.map(item => item.target)).size, 'every HUD plate text run was measured').toBe(targets.length);
     expect(results.filter(item => item.ratio < item.needed), 'HUD plate text contrast below WCAG AA').toEqual([]);
+  });
+
+  test(`boss bar, crest and bottom-line text keep AA contrast over every terrain at ${tag}`, async ({ page }, testInfo) => {
+    await openCamp(page, size);
+    await enterRun(page);
+    // These three sit straight on the playfield with only a text-shadow, so the shadow is removed in sampling and the
+    // worst case is the lightest canvas pixel under each. All three terrains (regions 0-2) are checked, then pure white.
+    // The crest wordmark is display:none at 320 px wide, so it is measured only where it is shown; the leaf is ornament.
+    const plates = ['#boss-name', '.crest', '.bottom-line'];
+    const targets = ['#boss-name', '.crest span:last-child', '#kills', '#ability-name'];
+    const expected = size.width > 365 ? targets.length : targets.length - 1;
+    // Each plate must exist as a real background, not only a text-shadow.
+    const alphas = await page.evaluate(selectors => selectors.map(selector => {
+      const channels = getComputedStyle(document.querySelector(selector)!).backgroundColor.match(/[\d.]+/g)!.map(Number);
+      return { selector, alpha: channels.length > 3 ? channels[3] : 1 };
+    }), plates);
+    expect(alphas.filter(item => item.alpha <= 0), 'boss/crest/bottom-line text plates have a background').toEqual([]);
+    const results: { terrain: string; backdrop: string; target: string; ratio: number; needed: number }[] = [];
+    for (const region of [0, 1, 2]) {
+      await sceneCall(page, `s.region = ${region}; s.startRegion(); s.clearEnemies(); s.hero.setPosition(900, 900);`
+        + ` s.spawnEnemy('boss', { x: 900, y: 690 });`);
+      // The loop is asleep, so the HUD does not refresh itself; show the boss bar as the HUD would.
+      await page.evaluate(() => document.querySelector('#boss-bar')!.classList.remove('hidden'));
+      await expect(page.locator('#toast')).toBeHidden({ timeout: 5000 });
+      await sceneCall(page, 'game.loop.step(); game.loop.step();');
+      const hidden = await page.addStyleTag({ content: '#ui{visibility:hidden!important}' });
+      const lightest = await page.evaluate(async ({ png, plates }) => {
+        const bitmap = await createImageBitmap(await (await fetch(`data:image/png;base64,${png}`)).blob());
+        const scale = bitmap.width / innerWidth;
+        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+        const context = canvas.getContext('2d')!; context.drawImage(bitmap, 0, 0);
+        const colours: { l: number; rgb: number[] }[] = [];
+        for (const selector of plates) {
+          const rect = document.querySelector(selector)!.getBoundingClientRect();
+          const data = context.getImageData(Math.floor(rect.left * scale), Math.floor(rect.top * scale),
+            Math.max(1, Math.floor(rect.width * scale)), Math.max(1, Math.floor(rect.height * scale))).data;
+          for (let i = 0; i < data.length; i += 4) colours.push({ l: data[i] * 0.2126 + data[i + 1] * 0.7152 + data[i + 2] * 0.0722,
+            rgb: [data[i], data[i + 1], data[i + 2]] });
+        }
+        colours.sort((p, q) => q.l - p.l);
+        return colours[Math.floor(colours.length * 0.02)].rgb;
+      }, { png: (await page.screenshot()).toString('base64'), plates });
+      await hidden.evaluate(node => node.remove());
+      for (const backdrop of ['rgb(255,255,255)', `rgb(${lightest.join(',')})`]) {
+        const style = await page.addStyleTag({ content: `#game canvas{visibility:hidden!important}#game{background:${backdrop}!important}` });
+        for (const item of await renderedContrast(page, targets)) {
+          results.push({ terrain: `region ${region}`, backdrop, target: item.target, ratio: item.ratio, needed: item.needed });
+        }
+        await style.evaluate(node => node.remove());
+      }
+    }
+    await testInfo.attach(`boss-crest-bottom-contrast-${tag}`, { body: JSON.stringify(results, null, 2), contentType: 'application/json' });
+    expect(new Set(results.map(item => item.target)).size, 'boss bar, crest and bottom-line text runs were measured').toBe(expected);
+    expect(results.filter(item => item.ratio < item.needed), 'text contrast below WCAG AA').toEqual([]);
   });
 
   test(`pause dialog: axe, focus trap and focus return at ${tag}`, async ({ page }, testInfo) => {
