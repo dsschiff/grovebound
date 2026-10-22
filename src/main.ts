@@ -693,7 +693,11 @@ document.addEventListener('focusin', event => {
 });
 if (new URLSearchParams(location.search).has('debug')) {
   show('#fps', true);
-  window.setInterval(() => { el('#fps').textContent = `${Math.round(game.loop.actualFps)} FPS · ${currentHud?.kills ?? 0} KILLS`; }, 500);
+  // Resonances read the same run metric the result screen shows (#result-resonances), so the phone
+  // session can read the count off the screen instead of from memory. Debug-only: no ?debug, no readout.
+  window.setInterval(() => {
+    el('#fps').textContent = `${Math.round(game.loop.actualFps)} FPS · ${currentHud?.kills ?? 0} KILLS · ${scene['metrics'].resonances ?? 0} RES`;
+  }, 500);
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const controls = document.createElement('div');
     controls.className = 'debug-controls';
