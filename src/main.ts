@@ -89,7 +89,7 @@ root.innerHTML = `
         <div class="ability-panel">
           <div class="panel-heading"><span>CHOOSE YOUR HERO</span><span id="seed-count" class="seed-count">✦ 0 SEEDS</span></div>
           <div id="hero-options" class="hero-options"></div>
-          <button id="hero-look-button" class="look-button" type="button" aria-label="Change hero appearance">EXPEDITION LOOK · CHANGE APPEARANCE</button>
+          <button id="hero-look-button" class="look-button" type="button">EXPEDITION LOOK · TAP TO CHANGE</button>
           <div id="hero-hint" class="hero-hint"></div>
           <div class="panel-heading sub-heading"><span>STARTING WEAPON</span><span id="mastery-label">MASTERY 0</span></div>
           <div id="weapon-options" class="weapon-options"></div>
@@ -105,8 +105,8 @@ root.innerHTML = `
         <div class="contract-panel"><div class="panel-heading"><span>CHOOSE YOUR VERGE MISSION</span><span>REGION 1/3</span></div><div id="contract-options" class="contract-options"></div></div>
         <div class="setting-pair"><label class="setting-row"><input id="reduced-effects" type="checkbox" /> Reduced effects</label><label class="setting-row"><input id="muted" type="checkbox" /> Mute sound</label><label id="auto-special-row" class="setting-row hidden"><input id="auto-special" type="checkbox" /> Auto special</label></div>
         <p id="legacy-run-note" class="legacy-run-note hidden">Your saved run uses the older wardstone mission. Start a new mission to play Escort, Defend, or Hunt.</p>
-        <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span>➜</span></button>
-        <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span>➜</span></button>
+        <button id="resume-run-button" class="secondary-button hidden">RESUME SAVED RUN <span aria-hidden="true">➜</span></button>
+        <button id="start-button" class="primary-button" disabled>ENTER THE GROVE <span aria-hidden="true">➜</span></button>
         <p class="instruction">DRAG TO MOVE <span>✧</span> BOTH WEAPONS AUTO ATTACK <span>✧</span> TAP SPECIAL<br />TAP A WEAPON SLOT TO FIRE ITS COMMAND · CHAIN TWO FOR A RESONANCE<br />MINE GLOWING TERRAIN FOR A STAT CACHE + COMMAND REFILL · KEYS 1–3 FIRE SLOTS</p>
         <div class="best-line" id="best-line"></div>
         <a class="hub-link" href="https://dsschiff.github.io/games/">ALL GAMES ↗</a>
@@ -128,7 +128,7 @@ root.innerHTML = `
     <div id="pause" class="screen modal-screen hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title"><div class="modal-content narrow">
       <div class="modal-icon">❧</div><div class="overline">A MOMENT'S REST</div><h2 id="pause-title" tabindex="-1">Paused</h2>
       <p>Your run is saved on this device.</p>
-      <button id="resume-button" class="primary-button">RETURN TO THE WILD <span>➜</span></button>
+      <button id="resume-button" class="primary-button">RETURN TO THE WILD <span aria-hidden="true">➜</span></button>
       <button id="quit-button" class="text-button">End this run</button>
     </div></div>
 
@@ -149,7 +149,7 @@ root.innerHTML = `
         <div id="result-regions" class="region-times"></div>
       </div>
       <div class="reward-line"><span>SEEDS EARNED</span><strong id="result-seeds">+2 ✦</strong></div>
-      <button id="again-button" class="primary-button">VENTURE AGAIN <span>➜</span></button>
+      <button id="again-button" class="primary-button">VENTURE AGAIN <span aria-hidden="true">➜</span></button>
       <button id="menu-button" class="text-button">Return to camp</button>
     </div></div>
     <div id="toast" class="toast hidden" role="status"></div><div id="fps" class="fps hidden"></div>
@@ -259,8 +259,8 @@ function refreshMenu(): void {
   const oldMission = savedRun?.objects.some(object => object.kind === 'ward') ?? false;
   show('#resume-run-button', savedRun !== null);
   show('#legacy-run-note', oldMission);
-  el('#resume-run-button').innerHTML = `${oldMission ? 'RESUME OLDER RUN' : 'RESUME SAVED RUN'} <span>➜</span>`;
-  el('#start-button').innerHTML = `${oldMission ? 'START NEW MISSION' : 'ENTER THE GROVE'} <span>➜</span>`;
+  el('#resume-run-button').innerHTML = `${oldMission ? 'RESUME OLDER RUN' : 'RESUME SAVED RUN'} <span aria-hidden="true">➜</span>`;
+  el('#start-button').innerHTML = `${oldMission ? 'START NEW MISSION' : 'ENTER THE GROVE'} <span aria-hidden="true">➜</span>`;
   el('#best-line').textContent = progress.bestKills > 0
     ? `BEST RUN · ${progress.bestKills} VANQUISHED · ${formatTime(progress.bestSeconds)} · REGION ${Math.max(1, progress.bestRegion)}`
     : 'YOUR STORY BEGINS HERE';
@@ -535,7 +535,7 @@ function onUpgrade(options: Upgrade[]): void {
     const weaponChoice = choice.startsWith('weapon:') || choice.startsWith('path:');
     const type = weaponChoice ? 'weapon' : choice;
     const icon = weaponChoice ? `<img src="${weaponArt((choice.startsWith('path:') ? choice.split(':')[1] : choice.slice(7)) as Weapon)}" alt=""/>` : info.icon;
-    return `<button class="upgrade-card ${type}" data-index="${index}"><span class="upgrade-icon">${icon}</span><span class="upgrade-text"><strong>${info.name}</strong><small>${info.description}</small></span><span class="upgrade-arrow">➜</span></button>`;
+    return `<button class="upgrade-card ${type}" data-index="${index}"><span class="upgrade-icon">${icon}</span><span class="upgrade-text"><strong>${info.name}</strong><small>${info.description}</small></span><span class="upgrade-arrow" aria-hidden="true">➜</span></button>`;
   }).join('');
   cards.querySelectorAll<HTMLButtonElement>('[data-index]').forEach(card => card.addEventListener('click', () => {
     scene.chooseUpgrade(options[Number(card.dataset.index)]); setModal(null);
@@ -553,7 +553,7 @@ function onUpgrade(options: Upgrade[]): void {
 function onRouteChoice(region: 1 | 2): void {
   el('#route-title').textContent = region === 1 ? 'Enter Ember Quarry' : 'Enter Moonfen';
   el('#route-cards').innerHTML = laterRoutes[region].map(route =>
-    `<button class="route-card" data-route="${route.id}" aria-label="${route.name}. ${route.action} Reward: ${route.reward}"><img src="${import.meta.env.BASE_URL}art/${route.art}" alt=""/><span><strong>${route.name}</strong><small>${route.action}</small><em>REWARD · ${route.reward}</em></span><b>➜</b></button>`).join('');
+    `<button class="route-card" data-route="${route.id}"><img src="${import.meta.env.BASE_URL}art/${route.art}" alt=""/><span><strong>${route.name}</strong> <small>${route.action}</small> <em>REWARD · ${route.reward}</em></span><b aria-hidden="true">➜</b></button>`).join('');
   el('#route-cards').querySelectorAll<HTMLButtonElement>('[data-route]').forEach(button => button.addEventListener('click', () => {
     if (scene.chooseRoute(button.dataset.route as RegionRoute)) setModal(null);
   }));

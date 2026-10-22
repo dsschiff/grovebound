@@ -134,7 +134,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 @keyframes objective-heartbeat{0%,100%{transform:scale(1)}45%{transform:scale(1.08)}}
 @keyframes objective-working{from{transform:rotate(-2deg)}to{transform:rotate(2deg)}}
 #app.reduced-effects .mission-card img{animation:none}
-@media(prefers-reduced-motion:reduce){.mission-card img{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.mission-card img{animation:none!important}#ui *,#ui *::before,#ui *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 .mission-copy{min-width:0;flex:1}
 .mission-copy small{display:block;color:#f4d58c;font-size:8px;font-weight:800;letter-spacing:.12em}
 .mission-copy strong{display:block;margin:3px 0 5px;font-size:9px;line-height:1.15;letter-spacing:.03em}
