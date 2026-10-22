@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pilotDirection } from '../src/game/pilot';
+import { pilotCommand, pilotDirection, type PilotCommandInput } from '../src/game/pilot';
 
 describe('local full-run pilot', () => {
   it('travels toward objectives, avoids nearby danger, and commits to an open gate', () => {
@@ -8,5 +8,65 @@ describe('local full-run pilot', () => {
     expect(pilotDirection(base).x).toBeGreaterThan(0);
     expect(pilotDirection({ ...base, enemies: [{ x: 10, y: 0 }] }).x).toBeLessThan(0);
     expect(pilotDirection({ ...base, desiredDistance: 0, enemies: [{ x: 10, y: 0 }], avoidance: 0.1 }).x).toBeGreaterThan(0);
+  });
+});
+
+describe('pilot weapon commands', () => {
+  const base: PilotCommandInput = {
+    hero: { x: 0, y: 0 },
+    slots: [{ weapon: 'axe', cooldown: 0, range: 160 }, { weapon: 'bow', cooldown: 0, range: 600 }],
+    enemies: [{ x: 100, y: 0 }],
+    chain: null,
+    chainWindow: 4,
+  };
+
+  it('fires nothing when no ready command has a foe in range', () => {
+    expect(pilotCommand({ ...base, enemies: [] })).toBeNull();
+    expect(pilotCommand({ ...base, enemies: [{ x: 900, y: 0 }] })).toBeNull();
+    expect(pilotCommand({ ...base, slots: base.slots.map(slot => ({ ...slot, cooldown: 3 })) })).toBeNull();
+  });
+
+  it('opens a pair when two commands are ready, preferring the slot with more foes in range', () => {
+    const near = { ...base, enemies: [{ x: 100, y: 0 }, { x: 0, y: 120 }, { x: 400, y: 0 }] };
+    expect(pilotCommand(near)).toEqual({ weapon: 'bow', resonance: null, reason: 'open-pair' });
+    expect(pilotCommand({ ...base, enemies: [{ x: 100, y: 0 }] })).toEqual({ weapon: 'axe', resonance: null, reason: 'open-pair' });
+  });
+
+  it('completes an open chain with a different ready weapon and names the resonance', () => {
+    const chained = { ...base, chain: { weapon: 'axe' as const, remaining: 2 },
+      slots: [{ weapon: 'axe' as const, cooldown: 7, range: 160 }, { weapon: 'bow' as const, cooldown: 0, range: 600 }] };
+    expect(pilotCommand(chained)).toEqual({ weapon: 'bow', resonance: 'sunbreaker', reason: 'resonance' });
+    const thornsStaff = { ...base, chain: { weapon: 'staff' as const, remaining: 0.5 },
+      slots: [{ weapon: 'staff' as const, cooldown: 7.5, range: 280 }, { weapon: 'thorns' as const, cooldown: 0, range: 320 }] };
+    expect(pilotCommand(thornsStaff)?.resonance).toBe('wildfire');
+  });
+
+  it('does not count an expired chain as a resonance', () => {
+    const expired = { ...base, chain: { weapon: 'axe' as const, remaining: 0 },
+      slots: [{ weapon: 'axe' as const, cooldown: 7, range: 160 }, { weapon: 'bow' as const, cooldown: 0, range: 600 }] };
+    expect(pilotCommand(expired)?.resonance ?? null).toBeNull();
+  });
+
+  it('opens a pair when the partner will recharge inside the chain window', () => {
+    const soon = { ...base, slots: [{ weapon: 'axe' as const, cooldown: 0, range: 160 }, { weapon: 'bow' as const, cooldown: 3, range: 600 }] };
+    expect(pilotCommand(soon)).toEqual({ weapon: 'axe', resonance: null, reason: 'open-pair' });
+    expect(pilotCommand({ ...soon, chainWindow: 2 })).toBeNull();
+  });
+
+  it('fires alone, with the partner far from ready, only on a cluster or an elite', () => {
+    const lonely = { ...base, slots: [{ weapon: 'axe' as const, cooldown: 0, range: 160 }, { weapon: 'bow' as const, cooldown: 7, range: 600 }] };
+    expect(pilotCommand(lonely)).toBeNull();
+    expect(pilotCommand({ ...lonely, enemies: [{ x: 100, y: 0 }, { x: 0, y: 100 }, { x: -90, y: 30 }] }))
+      .toEqual({ weapon: 'axe', resonance: null, reason: 'cluster' });
+    expect(pilotCommand({ ...lonely, minCluster: 4, enemies: [{ x: 100, y: 0 }, { x: 0, y: 100 }, { x: -90, y: 30 }] })).toBeNull();
+    expect(pilotCommand({ ...lonely, enemies: [{ x: 100, y: 0, elite: true }] }))
+      .toEqual({ weapon: 'axe', resonance: null, reason: 'elite' });
+  });
+
+  it('treats the range boundary as in range and ignores same-weapon chains', () => {
+    const single = { ...base, slots: [{ weapon: 'staff' as const, cooldown: 0, range: 100 }], enemies: [{ x: 60, y: 80, elite: true }] };
+    expect(pilotCommand(single)?.weapon).toBe('staff');
+    const sameChain = { ...single, chain: { weapon: 'staff' as const, remaining: 3 } };
+    expect(pilotCommand(sameChain)).toEqual({ weapon: 'staff', resonance: null, reason: 'elite' });
   });
 });
