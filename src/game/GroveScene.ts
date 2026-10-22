@@ -20,6 +20,7 @@ import { advanceSeedheart, moonMission, nextObjective, objectiveName, objectives
 import { advanceWaylight, waylightProgress } from './waylight';
 import { advanceBriarStag, stagLeg, strikeBriarStag } from './briarStag';
 import { RESONANCE_INFO, advanceCommandChain, commandChainResult, resonanceFor, type CommandChain, type Resonance } from './resonance';
+import { ROUTE_GATE_RADIUS, healOnRoute, routeChoiceAfter, selectRoute, type RouteChoiceRegion } from './routeChoice';
 import { MARK_REACH, MINE_REACH, fieldHitColor, fieldReward, isTerrainField, mineTarget, nearestTerrainField, tappedTerrainField } from './fieldMarking';
 
 const WORLD = 1800;
@@ -102,7 +103,7 @@ export class GroveScene extends Phaser.Scene {
   private campKit: CampKit = 'breaker';
   private quarryRoute: QuarryRoute = 'forgeAssault';
   private moonRoute: MoonRoute = 'altarRite';
-  private routeChoiceRegion: 1 | 2 | null = null;
+  private routeChoiceRegion: RouteChoiceRegion | null = null;
   private skin = false;
   private masteryRank = 0;
   private unlockedWeapons: Weapon[] = ['axe'];
@@ -397,16 +398,13 @@ export class GroveScene extends Phaser.Scene {
   chooseRoute(route: RegionRoute): boolean {
     const next = this.routeChoiceRegion;
     if (!this.running || next === null) return false;
-    if (next === 1) {
-      if (route !== 'coolantRun' && route !== 'forgeAssault') return false;
-      this.quarryRoute = route;
-    } else {
-      if (route !== 'moonflame' && route !== 'altarRite') return false;
-      this.moonRoute = route;
-    }
+    const selection = selectRoute(next, route);
+    if (!selection) return false;
+    if (selection.region === 1) this.quarryRoute = selection.quarryRoute;
+    else this.moonRoute = selection.moonRoute;
     this.metrics.regionSeconds[this.region] = this.stageSeconds;
     this.region = next; this.routeChoiceRegion = null; this.pausedByUser = false;
-    this.health = Math.min(this.stats.maxHealth, this.health + 25);
+    this.health = healOnRoute(this.health, this.stats.maxHealth);
     this.startRegion(); this.spawnCache(STAT_KEYS[this.random.between(0, STAT_KEYS.length - 1)], 1010, 830);
     this.publishHud(); this.saveSnapshot();
     return true;
@@ -469,8 +467,9 @@ export class GroveScene extends Phaser.Scene {
   }
 
   debugOfferRouteChoice(): void {
-    if (!this.running || this.choosing || this.routeChoiceRegion !== null || this.region >= 2) return;
-    this.routeChoiceRegion = (this.region + 1) as 1 | 2;
+    const offer = routeChoiceAfter(this.region);
+    if (!this.running || this.choosing || this.routeChoiceRegion !== null || offer === null) return;
+    this.routeChoiceRegion = offer;
     this.callbacks.onRouteChoice(this.routeChoiceRegion);
     this.saveSnapshot();
   }
@@ -1959,9 +1958,10 @@ export class GroveScene extends Phaser.Scene {
       }
     }
     const gate = this.objects.find(object => object.kind === 'gate');
-    if (gate?.active && this.distance(this.hero.x, this.hero.y, gate.x, gate.y) < 82) {
-      if (this.region < 2) {
-        this.routeChoiceRegion = (this.region + 1) as 1 | 2;
+    if (gate?.active && this.distance(this.hero.x, this.hero.y, gate.x, gate.y) < ROUTE_GATE_RADIUS) {
+      const offer = routeChoiceAfter(this.region);
+      if (offer !== null) {
+        this.routeChoiceRegion = offer;
         this.callbacks.onRouteChoice(this.routeChoiceRegion);
         this.saveSnapshot();
       }
