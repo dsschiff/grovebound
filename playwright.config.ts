@@ -8,6 +8,8 @@ export default defineConfig({
   use: {
     baseURL: 'http://127.0.0.1:4178',
     channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome',
+    // The game has sound; every automated browser run keeps it off (PR #19 only muted a11y.spec.ts).
+    launchOptions: { args: ['--mute-audio'] },
     viewport: { width: 390, height: 844 },
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
