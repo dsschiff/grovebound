@@ -6,7 +6,7 @@ import { expect, test } from '@playwright/test';
 // extraction from the scene must leave this digest byte-identical. If a deliberate gameplay change
 // moves it, re-run with UPDATE_SNAPSHOT_GUARD=1 and paste the printed digest below.
 // Recorded on unmodified GroveScene.ts at 0921bf1 (desktop Chrome via Playwright).
-const EXPECTED_DIGEST = '19af2325859153c3fd0c9b3170b137db3bc4866f4f6d97c309df442bc0f4dc77';
+const EXPECTED_DIGEST = '7ae7073a67782ee05e2d49f6f5ffde80f1d9ab6a97786c93c1b8fbe8e0c95434';
 
 const SAVE_KEY = 'grovebound-run-v1';
 const FPS = 30;
@@ -47,6 +47,8 @@ test('a seeded scripted run produces the recorded snapshot digest', async ({ pag
       if (i % (fps * 9) === 0) { s.debugMarkTerrain(); if (s.markedField) marked++; record('marked', s.markedField ? s.objects.indexOf(s.markedField) : null); }
       if (i === fps * 40 || i === fps * 95) s.debugAdvanceRegion();
       if (s.routeChoiceRegion !== null) {
+        // Wound the hero so the heal granted on taking a route shows in the stream.
+        s.health = Math.max(1, s.health - 40);
         // One invalid pick first: the gate must refuse a route that belongs to the other region.
         const wrong = s.routeChoiceRegion === 1 ? 'moonflame' : 'coolantRun';
         const right = s.routeChoiceRegion === 1 ? 'coolantRun' : 'moonflame';
