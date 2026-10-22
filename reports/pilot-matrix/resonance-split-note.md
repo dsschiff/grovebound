@@ -2,12 +2,14 @@
 
 PR #9 found that pilot commands cut damage taken roughly in half. That arm mixed three things: the commands
 themselves, resonance chains, and focus moving to the last commanded weapon. Two new pilot-only switches separate
-them. Result over 54 paired runs (3 heroes × 2 Quarry routes × 9 Waylight seeds):
+them. Result over 54 paired runs (3 heroes × 2 Quarry routes × 9 Waylight seeds, Moonfen route fixed to moonflame):
 
 - **Plain commands do most of it.** They account for about 60% of the drop in damage taken (−41 of −69) and about
   two thirds of the shorter clear time (−6.5 of −10 s). Both are clearly non-zero.
-- **Resonance and focus each add about a fifth of the damage-taken drop** (−12 to −17 each). At this sample size
-  neither is clearly separable from zero (95% intervals about ±14).
+- **Resonance and focus each add about a fifth of the damage-taken drop** (−12 to −17 each). Each excludes zero in
+  only one of the two subtraction orders, and only just: focus −17 ±14 in order 1 (−14 ±16 in order 2), resonance
+  −15 ±13 in order 2 (−12 ±14 in order 1). The intervals are also likely too narrow (see Decomposition), so neither
+  part is firmly established at this sample size.
 - **Lowest HP does not move with plain commands alone** (+1.0 pts, ±3.7). Most of the +6.6-point gain comes from
   resonance and focus together; how it splits between them depends on the order of the subtraction.
 - **By hero, the parts differ.** Warden's gain is mostly focus (−31 to −33 damage taken; plain −21, not significant).
@@ -82,8 +84,10 @@ contract.
 
 ## Decomposition (54 pairs, nine seeds)
 
-Mean of (arm − off) per run, with 95% intervals (±1.96 × SE of the paired difference). Plain = cmd-solo-restore −
-off. The two orders subtract the remaining arms differently and both sum to the total:
+Mean of (arm − off) per run, with 95% intervals of ±1.96·SD/√n of the per-run paired differences. Two caveats on
+those intervals. They treat every run as independent, although the same seeds are shared across heroes and routes, so
+they are likely too narrow. And the per-hero rows (n = 18) use 1.96 rather than t(17) ≈ 2.11, which makes them about
+7% narrower still. The Moonfen route is fixed to moonflame in every run. Plain = cmd-solo-restore − off. The two orders subtract the remaining arms differently and both sum to the total:
 
 - **Order 1:** resonance = cmd-restore − cmd-solo-restore; focus = cmd − cmd-restore.
 - **Order 2:** focus = cmd-solo − cmd-solo-restore; resonance = cmd − cmd-solo.
@@ -115,20 +119,23 @@ matters most for warden. The runs show it is consistent with the data; they do n
 `reports/pilot-matrix/resonance-split.md`, section "Runs vs baseline": the off and cmd arms rerun on this branch match
 `commands-slice.json` (PR #9's slice) on all 36 runs, across every outcome field plus commands, commands by weapon and
 resonances. "Identical to baseline: 36/36." The new switches are reachable only through `setDebugPilotCommands`, and
-only the pilot matrix calls it. The A–C rows in the nine-seed file are copied from `resonance-split.json`, not rerun.
+only the pilot matrix calls it. The A–C rows in the nine-seed file are copied from that A–C run, not rerun.
 
 ## Files and reproduce
 
-- `resonance-split.json` / `.md`: the requested slice, seed sets A–C, five arms × 18 runs, with the baseline check.
-- `resonance-split-9seeds.json` / `.md`: the same plus Waylight seeds 11, 13, 41, 43, 77, 99 (`--seed-set wN`), five
-  arms × 54 runs. The tables above come from this file. The intervals were computed from its rows; the `.md`
+- `resonance-split.md`: summary of the requested slice (seed sets A–C, five arms × 18 runs), including the baseline
+  check. Its JSON is not committed, because its 90 rows are identical to the A–C rows of `resonance-split-9seeds.json`.
+- `resonance-split-9seeds.json` / `.md`: the A–C rows plus Waylight seeds 11, 13, 41, 43, 77, 99 (`--seed-set wN`),
+  five arms × 54 runs. The tables above come from this file. The intervals were computed from its rows; the `.md`
   decomposition table has the same means.
 
 ```
 # per arm: --commands off | --commands on | on --pairing off | on --focus restore | on --pairing off --focus restore
+# A-C slice with the baseline check (regenerates resonance-split.md; the json it writes is a scratch file):
 node scripts/pilot-matrix.mjs --out reports/pilot-matrix/resonance-split.json --baseline reports/pilot-matrix/commands-slice.json \
   --heroes warden,ranger,ember --contracts waylight --moon moonflame --seed-set A --commands on --pairing off --focus restore
-# repeat for --seed-set B, C (and w11 w13 w41 w43 w77 w99 into resonance-split-9seeds.json)
+# repeat for --seed-set B, C; for the nine-seed file use --out reports/pilot-matrix/resonance-split-9seeds.json
+# with --seed-set A B C w11 w13 w41 w43 w77 w99
 ```
 
 ## Limits
