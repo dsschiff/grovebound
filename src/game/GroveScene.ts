@@ -20,6 +20,7 @@ import { advanceSeedheart, moonMission, nextObjective, objectiveName, objectives
 import { advanceWaylight, waylightProgress } from './waylight';
 import { advanceBriarStag, stagLeg, strikeBriarStag } from './briarStag';
 import { RESONANCE_INFO, advanceCommandChain, commandChainResult, resonanceFor, type CommandChain, type Resonance } from './resonance';
+import { MARK_REACH, MINE_REACH, fieldHitColor, fieldReward, isTerrainField, mineTarget, nearestTerrainField, tappedTerrainField } from './fieldMarking';
 
 const WORLD = 1800;
 type EnemyKind = EnemySave['kind'];
@@ -283,7 +284,7 @@ export class GroveScene extends Phaser.Scene {
     }
     if (snapshot.markedFieldIndex !== undefined) {
       const field = this.objects[snapshot.markedFieldIndex];
-      if (field?.active && this.isTerrainField(field)) this.markField(field, false);
+      if (field?.active && isTerrainField(field)) this.markField(field, false);
     }
     snapshot.enemies.forEach(enemy => this.spawnEnemy(enemy.kind, { x: enemy.x, y: enemy.y }, enemy));
     snapshot.emberFields?.forEach(field => this.spawnEmberField(field.x, field.y, field.damage, field.remaining, field.tickClock));
@@ -349,16 +350,12 @@ export class GroveScene extends Phaser.Scene {
   }
 
   private nearestMineableField(): WorldObject | undefined {
-    return this.objects.filter(object => this.isTerrainField(object) && object.active && object.hp > 0
-      && this.distance(this.hero.x, this.hero.y, object.x, object.y) < 205)
-      .sort((a, b) => this.distance(this.hero.x, this.hero.y, a.x, a.y)
-        - this.distance(this.hero.x, this.hero.y, b.x, b.y))[0];
+    return nearestTerrainField(this.objects, this.hero, MINE_REACH);
   }
 
   mineNearbyField(target?: WorldObject): void {
     if (!this.running || this.choosing || this.pausedByUser) return;
-    const field = target && target.active && this.isTerrainField(target)
-      && this.distance(this.hero.x, this.hero.y, target.x, target.y) < 205 ? target : this.nearestMineableField();
+    const field = mineTarget(this.objects, this.hero, target);
     if (!field || this.mineCooldown > 0) return;
     if (this.markedField !== field) this.markField(field, false);
     this.mineCooldown = 0.38;
@@ -366,7 +363,7 @@ export class GroveScene extends Phaser.Scene {
     this.attackPose = 0.2; this.attackPoseDuration = 0.2;
     if (this.heroId === 'warden') this.actionPose = Math.max(this.actionPose, 0.3);
     this.weaponFlashUntil[this.focusedWeapon] = this.seconds + 0.25;
-    this.burst(field.x, field.y, field.kind === 'bramble' ? '#bbeba5' : field.kind === 'ore' ? '#ffb47d' : '#d9c8ff', 7);
+    this.burst(field.x, field.y, fieldHitColor(field.kind), 7);
     this.hitObject(field, damage);
     this.publishHud(); this.saveSnapshot();
   }
@@ -467,7 +464,7 @@ export class GroveScene extends Phaser.Scene {
   }
   debugMarkTerrain(): void {
     if (!this.running || this.choosing) return;
-    const target = this.objects.find(object => this.isTerrainField(object) && object.active);
+    const target = this.objects.find(object => isTerrainField(object) && object.active);
     if (target) this.markField(target, true);
   }
 
@@ -683,10 +680,7 @@ export class GroveScene extends Phaser.Scene {
     this.updateCaches();
     this.updateSpawns(dt);
     if (this.keys?.F && Phaser.Input.Keyboard.JustDown(this.keys.F)) {
-      const field = this.objects.filter(object => this.isTerrainField(object) && object.active && object.hp > 0
-        && this.distance(this.hero.x, this.hero.y, object.x, object.y) < 300)
-        .sort((a, b) => this.distance(this.hero.x, this.hero.y, a.x, a.y)
-          - this.distance(this.hero.x, this.hero.y, b.x, b.y))[0];
+      const field = nearestTerrainField(this.objects, this.hero, MARK_REACH);
       if (field) this.toggleFieldMark(field);
     }
     for (const weapon of this.weapons) {
@@ -836,10 +830,6 @@ export class GroveScene extends Phaser.Scene {
   private clearEnemies(): void {
     for (const enemy of this.enemies) { enemy.strike?.ring?.destroy(); enemy.lance?.marker?.destroy(); enemy.charge?.marker?.destroy(); enemy.sprite.destroy(); }
     this.enemies = [];
-  }
-
-  private isTerrainField(object: WorldObject): boolean {
-    return object.kind === 'bramble' || object.kind === 'ore' || object.kind === 'moonstone';
   }
 
   private clearFieldMark(): void {
@@ -1269,7 +1259,7 @@ export class GroveScene extends Phaser.Scene {
       && candidate.kind !== 'pump' && candidate.kind !== 'waylight' && candidate.kind !== 'seedheart'
       && candidate.kind !== 'coolant' && candidate.kind !== 'moonflame' && !(candidate.kind === 'forge' && candidate.maxHp <= 3)
       && !(candidate.kind === 'altar' && candidate.maxHp <= 6)
-      && (!this.isTerrainField(candidate) || candidate === this.markedField));
+      && (!isTerrainField(candidate) || candidate === this.markedField));
     const markedIndex = this.markedField?.active && this.markedField.hp > 0
       && this.distance(this.hero.x, this.hero.y, this.markedField.x, this.markedField.y) < range
       ? targetObjects.indexOf(this.markedField) : -1;
@@ -2178,7 +2168,7 @@ export class GroveScene extends Phaser.Scene {
       markedFieldName: this.markedField?.active ? objectiveName(this.markedField.kind) : null,
       nearbyField: nearbyTerrain ? { kind: nearbyTerrain.kind as TerrainKind,
         progress: 100 * (1 - nearbyTerrain.hp / nearbyTerrain.maxHp),
-        reward: nearbyTerrain.kind === 'bramble' ? 'speed' : nearbyTerrain.kind === 'ore' ? 'attack' : 'reach' } : null,
+        reward: fieldReward(nearbyTerrain.kind as TerrainKind) } : null,
       gateOpen: this.objects.some(object => object.kind === 'gate' && object.active), hero: this.heroId,
       map: {
         x: this.hero.x, y: this.hero.y,
@@ -2256,10 +2246,9 @@ export class GroveScene extends Phaser.Scene {
       && this.time.now - tap.at < 360;
     this.releaseJoystick();
     if (!wasTap || !this.running || this.choosing || this.pausedByUser) return;
-    const field = this.objects.find(object => this.isTerrainField(object) && object.active && object.hp > 0
-      && this.distance(pointer.worldX, pointer.worldY, object.x, object.y) < 76);
+    const field = tappedTerrainField(this.objects, { x: pointer.worldX, y: pointer.worldY });
     if (!field) return;
-    if (this.distance(this.hero.x, this.hero.y, field.x, field.y) < 205) this.mineNearbyField(field);
+    if (this.distance(this.hero.x, this.hero.y, field.x, field.y) < MINE_REACH) this.mineNearbyField(field);
     else this.toggleFieldMark(field);
   }
   private releaseJoystick(): void {
