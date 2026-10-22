@@ -231,3 +231,11 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff2
 .weapon-slot.fired{background:#8b774b!important;border-color:#fff4bf!important;box-shadow:0 0 24px #ffe4a9d9!important}
 @media(max-width:365px){.field-button{width:140px;top:calc(max(13px,env(safe-area-inset-top)) + 227px)}.field-button small{font-size:7px;white-space:nowrap}.loadout-heading{gap:5px}.loadout-heading strong{font-size:9px}.loadout-heading span{font-size:7px}.mission-card{width:min(190px,calc(100% - 120px))}}
 @media(max-height:630px){.field-button{top:calc(max(13px,env(safe-area-inset-top)) + 225px);min-height:42px;padding:5px 8px 8px}.field-button strong{font-size:9px}.field-button small{font-size:7px}}
+
+/* HUD text backplates: timer, health caption and loadout heading sit over the live playfield, so a translucent
+   dark plate (same family as .stat-pill) keeps their text readable over bright terrain. Static, no blur or
+   animation, so nothing needs a Reduced effects override. */
+.clock-wrap,.health-caption,.loadout-heading{background:rgba(15,48,39,.82);border-radius:10px}
+.clock-wrap{padding:4px 10px 5px}
+.health-caption{padding:2px 8px;margin-bottom:5px}
+.loadout-heading{padding:3px 8px;margin-bottom:4px}
