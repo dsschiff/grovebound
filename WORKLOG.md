@@ -1,5 +1,11 @@
 # Grovebound worklog
 
+## 2026-10-22 — First natural loss under test
+
+- New `e2e/loss-path.spec.ts` plays a real loss to the end: the weak-pilot row `ranger/waylight/forgeAssault/moonflame@w13+off-weakR500N4` (seed 13, Ranger, Forge Assault, 500 ms reaction / every 4th special press) replays tick for tick on the current `main` source (the source of the live release, served by the Vite dev server) and dies in Ember Quarry at 5:03 (303.40 s, step 18,204, 197 kills), exactly as recorded in `reports/pilot-matrix/weak-pilot.json`. Death comes through `takeDamage`'s `health <= 0` branch (one `finish(false)` call, health 0); the spec never calls `finish` or touches health. It then checks the defeat dialog (title, Quarry copy, 5:03, kills), +5 seeds shown and saved, the saved run removed at the moment of defeat, no RESUME button on camp before or after a reload, and a clean new run that starts in the Verge and autosaves. In-game mute is asserted on (plus Chrome's `--mute-audio`). No bug found.
+- No boss-phase loss exists to replay: the only late loss (`warden/.../forgeAssault/moonflame@w39+off-weakR500N4`, Moonfen 9:28) also replays exactly, but the Briar King had not spawned when the hero died, so it is not added.
+- `npm test` 117/117 and all 37 Playwright tests passed with Chrome muted.
+
 ## 2026-10-23 — Quarry spike: lateness, not inaction, kills the weak pilot (analysis only)
 
 - Split the weak-pilot handicaps on the 180-run `weak-pilot.json` slice. Reaction delay alone (`--skill 250`) loses 7 of 180 and takes 301 damage per run, the same as 250 ms plus every-2nd-chance (5 of 180, 302); acting on every 2nd chance with no delay (`--skill 0:2`) loses none and takes 126 against the default 110.
