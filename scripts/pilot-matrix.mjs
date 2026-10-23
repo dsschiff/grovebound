@@ -14,6 +14,7 @@
 //     [--limit N] [--concurrency 3] [--render] [--rerun] [--port 4191] [--seed-set A|B|C] [--repeats N]
 //     [--commands off|on] [--pairing on|off] [--focus keep|restore] [--baseline reports/pilot-matrix/<earlier>.json]
 //     [--skill reactionMs[:actEvery]]   (weak-pilot arm; --seed-set also takes a comma list such as w1,w3,w5)
+//     [--trace damage]   (read-only: record every hit the hero takes by source, and Quarry 5:00-6:30 samples)
 // --pairing off (pilot never lands a chain) and --focus restore (pilot re-focuses the starting weapon after a
 // command) need --commands on; they add -solo / -restore to the id suffix (arms cmd, cmd-solo, cmd-restore,
 // cmd-solo-restore). With all four arms and off in one file the summary adds a plain/resonance/focus decomposition.
@@ -67,6 +68,13 @@ const skillOpt = opt('skill', null);
 const skillMatch = skillOpt === null ? null : /^(\d+)(?::(\d+))?$/.exec(skillOpt);
 if (skillOpt !== null && !skillMatch) throw new Error('--skill must be reactionMs or reactionMs:actEvery');
 const skill = skillMatch ? { reactionMs: Number(skillMatch[1]), actEvery: Math.max(1, Number(skillMatch[2] ?? '1')) } : null;
+// The skill filter counts every pilot tap as a command chance, so the restore arm's extra re-focus taps would be filtered
+// (and counted) like real commands, and the arm would no longer mean "focus restored after each command".
+if (skill && focusMode === 'restore') throw new Error('--skill cannot be combined with --focus restore');
+// --trace damage: read-only readout of every hit the hero takes (GroveScene.takeDamage's source tag) plus one sample per game
+// second inside the Quarry spike window. Adds damageEvents/windowSamples to each row; arm, id and gameplay are unchanged.
+const trace = opt('trace', null);
+if (trace !== null && trace !== 'damage') throw new Error('--trace must be damage');
 const arm = (commands === 'off' ? 'off' : 'cmd' + (pairing === 'off' ? '-solo' : '') + (focusMode === 'restore' ? '-restore' : ''))
   + (skill ? `-weakR${skill.reactionMs}N${skill.actEvery}` : '');
 const baselinePath = opt('baseline', null) ? resolve(root, opt('baseline', null)) : null;
@@ -100,6 +108,10 @@ const PROGRESS = {
   ranger: { bestRegion: 1, muted: true },
   ember: { bestRegion: 1, victories: 1, muted: true },
 };
+// Ember Quarry spike window on the run clock (weak-pilot.md: 22 of 23 weak-pilot losses between 5:03 and 6:24).
+export const SPIKE_WINDOW = [300, 390];
+const DAMAGE_EVENT_FIELDS = ['runSeconds', 'region', 'source (melee:<enemy kind>)', 'hpLost', 'wispsAlive', 'surge'];
+const WINDOW_SAMPLE_FIELDS = ['runSeconds', 'wispsAlive', 'enemiesAlive', 'surge'];
 const GAME_CAP_SECONDS = 16 * 60; // stop a run that has not ended by 16:00 of game time
 const SOFTLOCK_SECONDS = 60; // no objective/region/guardian progress for 60 s of game time
 const SOFTLOCK_ABORT_SECONDS = 150; // stop the cell once it has been stuck this long
@@ -110,7 +122,7 @@ for (let run = 1; run <= repeats; run++)
   for (const hero of heroes) for (const contract of contracts) for (const quarry of quarryRoutes) for (const moon of moonRoutes)
     cells.push({ id: `${hero}/${contract}/${quarry}/${moon}` + idSuffixFor(seedSet) + (run > 1 ? `#${run}` : ''), cell: `${hero}/${contract}/${quarry}/${moon}`,
       run, seedSet, hero, contract, quarry, moon, seed: SEED_SETS[seedSet][contract], pilotCommands: commands, arm,
-      pilotPairing: pairing, pilotFocus: focusMode, ...(skill ? { pilotSkill: skill } : {}) });
+      pilotPairing: pairing, pilotFocus: focusMode, ...(skill ? { pilotSkill: skill } : {}), ...(trace ? { trace, spikeWindow: SPIKE_WINDOW } : {}) });
 
 let store = { cells: {} };
 try { store = JSON.parse(await readFile(outPath, 'utf8')); } catch { /* first run */ }
@@ -127,9 +139,12 @@ async function save() {
     stepping: 'fixed 1000/60 ms steps driven from the page; see cell.stepping', 
     softlockRule: `no change for ${SOFTLOCK_SECONDS}s of game time in region, fork state, required-objective hp/position/count, gate state, or guardian hp, excluding the guardian countdown after objectives are done`,
     gameCapSeconds: GAME_CAP_SECONDS, progressProfiles: PROGRESS,
-    commandCounting: 'a command is counted when a weapon command recharge restarts (commandCooldown rises by >0.5 s in one step); resonances are RunMetrics.resonances' };
+    commandCounting: 'a command is counted when a weapon command recharge restarts (commandCooldown rises by >0.5 s in one step); resonances are RunMetrics.resonances',
+    ...(trace ? { damageEventFields: DAMAGE_EVENT_FIELDS, windowSampleFields: WINDOW_SAMPLE_FIELDS, spikeWindow: SPIKE_WINDOW } : {}) };
   await mkdir(dirname(outPath), { recursive: true });
-  await writeFile(outPath, JSON.stringify(store, null, 2));
+  const text = JSON.stringify(store, null, 2);
+  // Traced rows hold many short number arrays; keep each on one line. Untraced output is written exactly as before.
+  await writeFile(outPath, trace ? text.replace(/\[\s+([^[\]{}]*?)\s+\]/g, (_, inner) => `[${inner.split(/,\s+/).join(', ')}]`) : text);
   await writeFile(summaryPath, summarize(store));
 }
 
@@ -186,6 +201,7 @@ export function summarize({ cells: done }) {
   }
   lines.push(...commandSection(rows));
   lines.push(...decompositionSection(rows));
+  lines.push(...damageSourceSection(rows));
   if (baseline) lines.push(...baselineSection(rows));
   const missing = cells.filter(cell => !done[cell.id]).map(cell => cell.id);
   if (missing.length) lines.push('', `Not yet run in this invocation's scope (${missing.length}): ${missing.join(', ')}`);
@@ -251,6 +267,80 @@ function baselineSection(rows) {
 function signed(value, digits = 0) {
   const text = value.toFixed(digits);
   return Number(text) > 0 ? '+' + text : Number(text) === 0 ? (0).toFixed(digits) : text;
+}
+
+// Damage taken by source in the Quarry spike window (--trace damage rows only). Events are
+// [run seconds, region, source, hp lost, wisps alive, surge]; melee sources carry the enemy kind (melee:<kind>). Means are
+// per run over every traced run of the arm, so a run that died before 5:00 counts as zero. Unattributed is whole-run
+// RunMetrics.damageTaken minus the sum of traced hits: anything above 0 means a damage path is missing a source tag.
+const SOURCES = ['lance', 'charge', 'vent', 'melee', 'boss'];
+const sourceOf = event => event[2].split(':')[0];
+export function damageSourceSection(rows) {
+  const traced = rows.filter(r => Array.isArray(r.damageEvents));
+  if (!traced.length) return [];
+  const [from, to] = SPIKE_WINDOW;
+  const inWindow = r => r.damageEvents.filter(e => e[0] >= from && e[0] <= to);
+  const sum = events => events.reduce((a, e) => a + e[3], 0);
+  const perRun = (group, pick) => (group.reduce((a, r) => a + sum(pick(r)), 0) / group.length).toFixed(1);
+  const bySource = (group, pick) => SOURCES.map(src => perRun(group, r => pick(r).filter(e => sourceOf(e) === src)));
+  const arms = [...new Set(traced.map(armOf))].sort();
+  const lost = group => group.filter(r => !r.won).length;
+  const lines = ['', `## Damage taken by source, Ember Quarry ${clock(from)}–${clock(to)}`, '',
+    'From `--trace damage`: every hit the hero takes, tagged where GroveScene.takeDamage is called. Hp lost per run (mean over all traced runs of the arm; a run already over counts as 0). Window is the run clock.', '',
+    '| Arm | Runs | Lost | Lance | Charge | Vent | Melee | Boss | Window total | Window share of whole-run damage | Unattributed hp (all runs) |',
+    '|---|---|---|---|---|---|---|---|---|---|---|'];
+  for (const arm of arms) {
+    const group = traced.filter(r => armOf(r) === arm);
+    const windowHp = group.reduce((a, r) => a + sum(inWindow(r)), 0);
+    const wholeHp = group.reduce((a, r) => a + r.damageTaken, 0);
+    const unattributed = Math.round(group.reduce((a, r) => a + r.damageTaken - sum(r.damageEvents), 0));
+    lines.push(`| ${arm} | ${group.length} | ${lost(group)} | ${bySource(group, inWindow).join(' | ')} | ${(windowHp / group.length).toFixed(1)} | ${wholeHp ? Math.round(windowHp / wholeHp * 100) : 0}% | ${unattributed} |`);
+  }
+  lines.push('', '### By 30 s of the window', '', 'Mean wisps alive: one sample per game second of the window, over runs still going.', '',
+    '| Arm | Window | Lance | Charge | Vent | Melee | Boss | Total | Mean wisps alive |', '|---|---|---|---|---|---|---|---|---|');
+  for (const arm of arms) {
+    const group = traced.filter(r => armOf(r) === arm);
+    for (let start = from; start < to; start += 30) {
+      const end = start + 30;
+      const pick = r => r.damageEvents.filter(e => e[0] >= start && (end >= to ? e[0] <= to : e[0] < end));
+      const samples = group.flatMap(r => (r.windowSamples ?? []).filter(x => x[0] >= start && (end >= to ? x[0] <= to : x[0] < end)));
+      lines.push(`| ${arm} | ${clock(start)}–${clock(end)} | ${bySource(group, pick).join(' | ')} | ${perRun(group, pick)} | ${samples.length ? mean(samples.map(x => x[1])).toFixed(1) : '—'} |`);
+    }
+  }
+  lines.push('', '### By Quarry route', '', '| Arm | Route | Runs | Lost | Lance | Charge | Vent | Melee | Boss | Window total |', '|---|---|---|---|---|---|---|---|---|---|');
+  for (const arm of arms) for (const route of [...new Set(traced.map(r => r.chosenRoutes?.quarry ?? r.quarry))].sort()) {
+    const group = traced.filter(r => armOf(r) === arm && (r.chosenRoutes?.quarry ?? r.quarry) === route);
+    if (group.length) lines.push(`| ${arm} | ${route} | ${group.length} | ${lost(group)} | ${bySource(group, inWindow).join(' | ')} | ${perRun(group, inWindow)} |`);
+  }
+  lines.push('', '### Melee by enemy kind in the window', '', '| Arm | Enemy kind | Hp lost per run |', '|---|---|---|');
+  for (const arm of arms) {
+    const group = traced.filter(r => armOf(r) === arm);
+    const kinds = [...new Set(group.flatMap(r => inWindow(r).filter(e => sourceOf(e) === 'melee').map(e => e[2].slice(6))))].sort();
+    for (const kind of kinds) lines.push(`| ${arm} | ${kind} | ${perRun(group, r => inWindow(r).filter(e => e[2] === `melee:${kind}`))} |`);
+  }
+  lines.push('', '### Wild Surge across the whole Quarry', '',
+    'All Quarry (region 2) hits and time, split by whether the Wild Surge was on. Seconds and wisps come from every step in the Quarry; hp lost per Quarry second is total hp lost over total seconds in that state.', '',
+    '| Arm | Surge | Quarry seconds per run | Mean wisps alive | Hp lost per run | Hp lost per Quarry second |', '|---|---|---|---|---|---|');
+  for (const arm of arms) {
+    const group = traced.filter(r => armOf(r) === arm);
+    for (const on of [1, 0]) {
+      const key = on ? 'on' : 'off';
+      const seconds = group.reduce((a, r) => a + (r.quarryExposure?.[key].seconds ?? 0), 0);
+      const wispSeconds = group.reduce((a, r) => a + (r.quarryExposure?.[key].wispSeconds ?? 0), 0);
+      const hp = group.reduce((a, r) => a + sum(r.damageEvents.filter(e => e[1] === 1 && e[5] === on)), 0);
+      lines.push(`| ${arm} | surge ${key} | ${(seconds / group.length).toFixed(1)} | ${seconds ? (wispSeconds / seconds).toFixed(1) : '—'} | ${(hp / group.length).toFixed(1)} | ${seconds ? (hp / seconds).toFixed(2) : '—'} |`);
+    }
+  }
+  lines.push('', '### Killing blow of lost runs', '', '| Arm | Losses | Last hit source (count) | Loss clock min–max |', '|---|---|---|---|');
+  for (const arm of arms) {
+    const losses = traced.filter(r => armOf(r) === arm && !r.won && r.damageEvents.length);
+    if (!losses.length) continue;
+    const counts = {};
+    for (const r of losses) { const src = r.damageEvents[r.damageEvents.length - 1][2]; counts[src] = (counts[src] ?? 0) + 1; }
+    const ends = losses.map(r => r.gameSeconds);
+    lines.push(`| ${arm} | ${losses.length} | ${Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([k, n]) => `${k} ${n}`).join(', ')} | ${clock(Math.min(...ends))}–${clock(Math.max(...ends))} |`);
+  }
+  return lines;
 }
 
 // Rows written before the arm field existed are the PR #9 arms.
@@ -422,6 +512,21 @@ async function runCell(cell) {
         }
       };
     }
+    if (cell.trace) {
+      // Read-only: the wrapper only records what the real takeDamage did (hp before minus after, as RunMetrics counts it).
+      const { wildSurge } = await import('/src/game/wispLance.ts');
+      const proto = Object.getPrototypeOf(s);
+      pm.surge = () => wildSurge(s.region, s.stageSeconds, REGIONS[s.region].duration) ? 1 : 0;
+      pm.wisps = () => s.enemies.filter(e => e.kind === 'wisp').length;
+      pm.damageEvents = []; pm.windowSamples = []; pm.nextSample = cell.spikeWindow[0];
+      pm.quarryExposure = { on: { seconds: 0, wispSeconds: 0 }, off: { seconds: 0, wispSeconds: 0 } };
+      s.takeDamage = function (raw, source, kind) {
+        const before = this.health; const surge = pm.surge(); const wisps = pm.wisps();
+        proto.takeDamage.call(this, raw, source, kind);
+        pm.damageEvents.push([Math.round(this.seconds * 100) / 100, this.region, source === 'melee' ? `melee:${kind}` : source,
+          Math.round((before - this.health) * 100) / 100, wisps, surge]);
+      };
+    }
     const callbacks = s.callbacks;
     const onEnd = callbacks.onEnd; callbacks.onEnd = result => { pm.result = result; onEnd(result); };
     const onRoute = callbacks.onRouteChoice;
@@ -461,6 +566,13 @@ async function runCell(cell) {
         const before = s.seconds;
         if (pm.render) game.step(pm.t, frameMs); else game.scene.update(pm.t, frameMs);
         pm.steps++;
+        if (pm.damageEvents && s.region === 1 && s.seconds > before) {
+          const bucket = pm.quarryExposure[pm.surge() ? 'on' : 'off'];
+          bucket.seconds += s.seconds - before; bucket.wispSeconds += pm.wisps() * (s.seconds - before);
+        }
+        if (pm.damageEvents && s.seconds >= pm.nextSample && s.seconds <= cell.spikeWindow[1]) {
+          pm.windowSamples.push([Math.round(s.seconds * 100) / 100, pm.wisps(), s.enemies.length, pm.surge()]); pm.nextSample += 1;
+        }
         // Read-only: game seconds whose auto attacks ran with focus away from the starting weapon (weapons[0]).
         if (s.seconds > before && s.focusedWeapon !== s.weapons[0].id) pm.offFocusSeconds += s.seconds - before;
         // Read-only command count: a tap that fires restarts that slot's recharge (GroveScene.focusWeapon).
@@ -503,7 +615,8 @@ async function runCell(cell) {
       contract: pm.contract, quarryRoute: s.quarryRoute, moonRoute: s.moonRoute, seconds: s.seconds, region: s.region,
       metrics: s.metrics, kills: s.kills, level: s.level, health: s.health, weapons: s.weapons.map(w => `${w.id}:${w.rank}`),
       commands: pm.commands, commandsByWeapon: pm.commandsByWeapon, offFocusSeconds: pm.offFocusSeconds, startWeapon: s.weapons[0].id,
-      restoreFires: s.pilotRestoreFires ?? 0, skillPresses: pm.skillPresses ?? null };
+      restoreFires: s.pilotRestoreFires ?? 0, skillPresses: pm.skillPresses ?? null,
+      damageEvents: pm.damageEvents ?? null, windowSamples: pm.windowSamples ?? null, quarryExposure: pm.quarryExposure ?? null };
   });
   await context.close();
   const result = final.result;
@@ -532,6 +645,9 @@ async function runCell(cell) {
     arm: cell.arm, pilotPairing: cell.pilotPairing, pilotFocus: cell.pilotFocus, startWeapon: final.startWeapon,
     offFocusSeconds: Math.round(final.offFocusSeconds * 10) / 10, restoreFires: final.restoreFires,
     ...(cell.pilotSkill ? { pilotSkill: cell.pilotSkill, skillPresses: final.skillPresses } : {}),
+    ...(cell.trace ? { damageEvents: final.damageEvents, windowSamples: final.windowSamples,
+      quarryExposure: Object.fromEntries(Object.entries(final.quarryExposure).map(([k, v]) =>
+        [k, { seconds: Math.round(v.seconds * 100) / 100, wispSeconds: Math.round(v.wispSeconds * 100) / 100 }])) } : {}),
     pageErrors: errors, wallSeconds: Math.round((Date.now() - started) / 1000), finishedAt: new Date().toISOString(),
   };
 }
