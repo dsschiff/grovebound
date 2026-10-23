@@ -1,5 +1,11 @@
 # Grovebound worklog
 
+## 2026-10-22 — First natural loss under test
+
+- New `e2e/loss-path.spec.ts` plays a real loss to the end: the weak-pilot row `ranger/waylight/forgeAssault/moonflame@w13+off-weakR500N4` (seed 13, Ranger, Forge Assault, 500 ms reaction / every 4th special press) replays tick for tick on the current `main` source (the source of the live release, served by the Vite dev server) and dies in Ember Quarry at 5:03 (303.40 s, step 18,204, 197 kills), exactly as recorded in `reports/pilot-matrix/weak-pilot.json`. Death comes through `takeDamage`'s `health <= 0` branch (one `finish(false)` call, health 0); the spec never calls `finish` or touches health. It then checks the defeat dialog (title, Quarry copy, 5:03, kills), +5 seeds shown and saved, the saved run removed at the moment of defeat, no RESUME button on camp before or after a reload, and a clean new run that starts in the Verge and autosaves. In-game mute is asserted on (plus Chrome's `--mute-audio`). No bug found.
+- No boss-phase loss exists to replay: the only late loss (`warden/.../forgeAssault/moonflame@w39+off-weakR500N4`, Moonfen 9:28) also replays exactly, but the Briar King had not spawned when the hero died, so it is not added.
+- `npm test` 117/117 and all 37 Playwright tests passed with Chrome muted.
+
 ## 2026-10-22 — Pages release of the October hardening work
 
 - Released `main` after the 18 overnight PRs above plus #16 and #20–#28 to GitHub Pages. Player-visible changes since the October 3 release: accessibility labels and contrast fixes (#4), Reduced effects starting on when the OS asks for reduced motion and the player never set the option (#8), and dark plates behind HUD text, the boss bar, crest and bottom line (#15, #19). A player who earlier left Reduced effects off while their OS asks for reduced motion will now see it on, because a stored "off" cannot be told apart from the old default; they can turn it off again. `?debug=1` now also shows the run's resonance count (#21). Everything else in this batch is tests, pilot tooling, reports or docs; the snapshot-guard digest (`c47339b2…`) is unchanged, so gameplay logic is identical to the reviewed main.
