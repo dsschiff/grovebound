@@ -44,8 +44,15 @@ let selectedContract: VergeContract = contractOrder[progress.mastery.warden % co
 let scene: GroveScene;
 let game: Phaser.Game;
 let currentHud: HudState | null = null;
-let activeModal: 'menu' | 'upgrade' | 'route' | 'pause' | 'result' | null = 'menu';
+type Modal = 'menu' | 'upgrade' | 'route' | 'pause' | 'result' | null;
+let activeModal: Modal = 'menu' as Modal;
 let toastTimer = 0;
+// A toast raised (or still showing) while a dialog is open waits here and is shown when play resumes, so it never
+// covers a dialog title (at 320 x 568 the region toast sat over the growth title at contrast 1.23).
+let heldToast: string | null = null;
+// The control that opened Pause, so closing it can hand focus back (WCAG 2.4.3). Dialogs the game opens
+// (route, growth, result) have no opener and return focus to the field.
+let pauseOpener: HTMLElement | null = null;
 let debugPilot = false;
 let weaponTraySignature = '';
 let statsSignature = '';
@@ -164,7 +171,9 @@ function formatTime(seconds: number): string {
 function compactDamage(value: number): string {
   return value >= 1000 ? `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}K` : String(Math.round(value));
 }
+const DIALOGS = new Set<Modal>(['upgrade', 'route', 'pause', 'result']);
 function notify(message: string): void {
+  if (DIALOGS.has(activeModal)) { heldToast = message; return; }
   const toast = el('#toast'); toast.textContent = message; show('#toast', true);
   window.clearTimeout(toastTimer);
   toastTimer = window.setTimeout(() => show('#toast', false), 2500);
@@ -267,6 +276,16 @@ function refreshMenu(): void {
 }
 
 function setModal(modal: typeof activeModal): void {
+  const previous = activeModal;
+  if (DIALOGS.has(modal) && !DIALOGS.has(previous)) {
+    const toast = el('#toast');
+    if (!toast.classList.contains('hidden')) heldToast = toast.textContent;
+    window.clearTimeout(toastTimer); show('#toast', false);
+  }
+  if (modal === 'pause' && previous === null) {
+    const opener = document.activeElement;
+    pauseOpener = opener instanceof HTMLElement && el('#hud').contains(opener) ? opener : null;
+  }
   activeModal = modal;
   for (const name of ['menu', 'upgrade', 'route', 'pause', 'result']) show(`#${name}`, name === modal);
   show('#hud', modal !== 'menu' && modal !== 'result');
@@ -278,10 +297,17 @@ function setModal(modal: typeof activeModal): void {
     if (canvas) {
       canvas.tabIndex = 0;
       canvas.setAttribute('aria-label', 'Game field. Drag to move, or use W A S D or arrow keys. Press Space for your special ability, keys 1 through 3 for weapon commands, and F to mark nearby terrain.');
-      canvas.focus({ preventScroll: true });
     }
+    const opener = previous === 'pause' ? pauseOpener : null;
+    pauseOpener = null;
+    if (opener?.isConnected && opener.getClientRects().length > 0) opener.focus({ preventScroll: true });
+    else canvas?.focus({ preventScroll: true });
+    const held = heldToast; heldToast = null;
+    if (held !== null) notify(held);
     return;
   }
+  // Back at camp the run's held event is stale.
+  if (modal === 'menu') heldToast = null;
   const focusTarget = modal === 'menu' ? '#resume-run-button:not(.hidden), #start-button'
     : modal === 'upgrade' ? '#upgrade-title'
       : modal === 'route' ? '#route-title' : modal === 'pause' ? '#pause-title' : '#result-title';

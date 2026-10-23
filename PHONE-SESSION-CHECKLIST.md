@@ -36,7 +36,7 @@ Lowest sustained ____ FPS  Typical ____ FPS  Where: ________  Result: ________
 ## 3. TalkBack on camp and one dialog (ROADMAP.md L9: accessibility pass)
 
 Turn on TalkBack. On the camp screen, swipe through every control. Then open one dialog: Pause (the Ⅱ button labeled "Pause game", `src/main.ts` L61), or, when one appears in a run, the route dialog titled "Enter Ember Quarry" or "Enter Moonfen" (`src/main.ts` L555; its default heading "Choose your route" is replaced) or the "Choose your growth" dialog (L118).
-Pass: every control is announced with a meaningful name (no "unlabeled button"), focus stays inside the open dialog, and after closing it focus lands on the game field (announced as "Game field. Drag to move...", `src/main.ts` L276-281). Fail: an unlabeled control, focus escapes the dialog, you cannot close it, or focus lands nowhere. Known gap, not a fail: focus does not return to the control that opened the dialog. Nothing inside the game canvas is expected to be readable.
+Pass: every control is announced with a meaningful name (no "unlabeled button"), focus stays inside the open dialog, and after closing Pause focus returns to the Pause button that opened it, and after closing a route or growth dialog focus lands on the game field (announced as "Game field. Drag to move..."). Fail: an unlabeled control, focus escapes the dialog, you cannot close it, or focus lands nowhere. Nothing inside the game canvas is expected to be readable.
 Unlabeled or confusing controls: ________________  Result: ________
 
 ## 4. HUD legibility over bright terrain (optional, decision 4 in the packet)

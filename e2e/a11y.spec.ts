@@ -140,8 +140,8 @@ async function enterRun(page: Page): Promise<void> {
   await page.locator('#start-button').click();
   await expect(page.locator('#game canvas')).toBeFocused();
   await sceneCall(page, 'game.loop.sleep();');
-  // The region-start toast sits above dialogs for 2.5 s and can cover a dialog title (logged as a finding, not
-  // fixed here: where event toasts go during a choice is a design call). Scan the dialogs once it has cleared.
+  // Toasts are held while a dialog is open (see the 320x568 toast test); wait for the region-start one to clear so
+  // HUD scans do not include it.
   await expect(page.locator('#toast')).toBeHidden({ timeout: 5000 });
 }
 
@@ -276,7 +276,35 @@ for (const size of sizes) {
     await expectFocusTrapped(page, '#pause');
     await page.keyboard.press('Escape');
     await expect(page.locator('#pause')).toBeHidden();
-    // The game field is the control surface for the run, so closing the pause dialog hands focus back to it.
+    // Pause was opened from its HUD button, so closing it hands focus back to that button (WCAG 2.4.3).
+    await expect(page.locator('#pause-button')).toBeFocused();
+  });
+
+  test(`focus returns to the pause opener, and to the field after a gameplay dialog, at ${tag}`, async ({ page }) => {
+    await openCamp(page, size);
+    await enterRun(page);
+    // Opened from the HUD button and closed with Resume: back to the button.
+    await page.locator('#pause-button').focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#pause-title')).toBeFocused();
+    await page.locator('#resume-button').focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#pause')).toBeHidden();
+    await expect(page.locator('#pause-button')).toBeFocused();
+    // Opened with Escape from the field: the field was the opener, so focus goes back to it.
+    await page.locator('#game canvas').focus();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#pause-title')).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#pause')).toBeHidden();
+    await expect(page.locator('#game canvas')).toBeFocused();
+    // A dialog the game opened (growth) has no opener; focus goes to the field even if a HUD button had it.
+    await page.locator('#pause-button').focus();
+    await sceneCall(page, 's.debugOfferUpgrade();');
+    await expect(page.locator('#upgrade-title')).toBeFocused();
+    await page.locator('#upgrade-cards [data-index]').first().focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#upgrade')).toBeHidden();
     await expect(page.locator('#game canvas')).toBeFocused();
   });
 
@@ -326,6 +354,30 @@ for (const size of sizes) {
     });
   }
 }
+
+test('region toast waits while a dialog is open and shows when it closes at 320x568', async ({ page }) => {
+  await openCamp(page, sizes[1]);
+  await page.locator('#start-button').click();
+  await expect(page.locator('#game canvas')).toBeFocused();
+  await sceneCall(page, 'game.loop.sleep();');
+  // The region-start toast is up for 2.5 s; a growth card offered now must not sit under it.
+  await expect(page.locator('#toast')).toBeVisible();
+  await expect(page.locator('#toast')).toHaveText(/REGION 1/);
+  await sceneCall(page, 's.debugOfferUpgrade();');
+  await expect(page.locator('#upgrade')).toBeVisible();
+  // Short timeouts: the toast's own 2.5 s expiry must not be what makes these pass.
+  await expect(page.locator('#toast')).toBeHidden({ timeout: 300 });
+  // An event raised while the dialog is open is held too, not shown over it.
+  await sceneCall(page, "s.callbacks.onEvent('TEST EVENT DURING DIALOG');");
+  await expect(page.locator('#toast')).toBeHidden({ timeout: 300 });
+  await page.locator('#upgrade-cards [data-index]').first().focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#upgrade')).toBeHidden();
+  // On close the held message is shown for its full time.
+  await expect(page.locator('#toast')).toBeVisible();
+  await expect(page.locator('#toast')).toHaveText('TEST EVENT DURING DIALOG');
+  await expect(page.locator('#toast')).toBeHidden({ timeout: 5000 });
+});
 
 test('reduced-motion preference stops DOM animation on camp and HUD', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
