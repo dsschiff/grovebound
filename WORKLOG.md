@@ -1,5 +1,11 @@
 # Grovebound worklog
 
+## 2026-10-23 — Toast held during dialogs; Pause returns focus to its opener
+
+- Event toasts no longer show over an open dialog (growth, route, Pause, result). A toast raised while one is open, or still showing when one opens, waits and is shown for its full 2.5 s when play resumes; one held back when the run returns to camp is dropped. At 320 × 568 the region-start toast had covered the growth dialog title at contrast 1.23 (#4 finding).
+- Closing Pause now puts keyboard focus back on the control that opened it: the HUD Pause button, or the game field when Pause was opened with Escape. Dialogs the game opens (route, growth, result) still hand focus to the game field. There is no in-run Settings dialog; settings live on the camp screen. The weapon-slot screen-reader wording and the `pagehide` save stay open.
+- New a11y browser cases for both; the existing pause case now expects the Pause button. `npm test`, `tsc --noEmit` and `e2e/a11y.spec.ts` passed with Chrome muted. Not checked on a phone or with TalkBack.
+
 ## 2026-10-22 — Pages release of the October hardening work
 
 - Released `main` after the 18 overnight PRs above plus #16 and #20–#28 to GitHub Pages. Player-visible changes since the October 3 release: accessibility labels and contrast fixes (#4), Reduced effects starting on when the OS asks for reduced motion and the player never set the option (#8), and dark plates behind HUD text, the boss bar, crest and bottom line (#15, #19). A player who earlier left Reduced effects off while their OS asks for reduced motion will now see it on, because a stored "off" cannot be told apart from the old default; they can turn it off again. `?debug=1` now also shows the run's resonance count (#21). Everything else in this batch is tests, pilot tooling, reports or docs; the snapshot-guard digest (`c47339b2…`) is unchanged, so gameplay logic is identical to the reviewed main.
