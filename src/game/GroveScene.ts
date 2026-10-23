@@ -994,7 +994,7 @@ export class GroveScene extends Phaser.Scene {
         }
         if (phase === 'eruption' && distance < 120 && this.invulnerability <= 0) {
           this.callbacks.onEvent('EMBER VENT ERUPTS');
-          this.takeDamage(16);
+          this.takeDamage(16, 'vent');
           if (!this.running) return;
         }
       }
@@ -1113,7 +1113,7 @@ export class GroveScene extends Phaser.Scene {
           * (enemy.tangleRemaining > 0 ? enemy.kind === 'boss' || enemy.kind === 'gatekeeper' ? 0.55 : 0.22 : 1);
         enemy.sprite.x += (dx / distance - dy / distance * weave) * enemy.speed * fieldSpeed * dt;
         enemy.sprite.y += (dy / distance + dx / distance * weave) * enemy.speed * fieldSpeed * dt;
-      } else if (!chargeAction && distance <= enemy.radius + 16 && this.invulnerability <= 0) this.takeDamage(enemy.damage);
+      } else if (!chargeAction && distance <= enemy.radius + 16 && this.invulnerability <= 0) this.takeDamage(enemy.damage, 'melee', enemy.kind);
       if (!this.running) break;
       enemy.sprite.setFlipX(dx < 0);
       enemy.sprite.setRotation(Math.sin(this.seconds * (enemy.kind === 'wisp' ? 8 : 3) + enemy.phase) * 0.055);
@@ -1164,7 +1164,7 @@ export class GroveScene extends Phaser.Scene {
         if (this.invulnerability <= 0) {
           this.metrics.chargeHits = (this.metrics.chargeHits ?? 0) + 1;
           this.floatText('RAMMED', this.hero.x, this.hero.y - 60, '#ffc08f');
-          this.takeDamage(boar.damage);
+          this.takeDamage(boar.damage, 'charge');
         }
       }
       if (step.finished) {
@@ -1205,7 +1205,7 @@ export class GroveScene extends Phaser.Scene {
       strike.ring?.destroy(); strike.ring = undefined;
       this.burst(strike.x, strike.y, '#ffb87e', 15);
       if (insideBossStrike({ x: this.hero.x, y: this.hero.y }, strike)) {
-        if (this.invulnerability <= 0) this.takeDamage(32 + boss.phase * 5);
+        if (this.invulnerability <= 0) this.takeDamage(32 + boss.phase * 5, 'boss');
       } else this.floatText('DODGED', this.hero.x, this.hero.y - 51, '#bdf3cf');
       strike.cooldown = bossStrikeCooldown(boss.phase);
       this.saveSnapshot();
@@ -1251,7 +1251,7 @@ export class GroveScene extends Phaser.Scene {
       if (insideWispLance({ x: this.hero.x, y: this.hero.y }, lance)) {
         if (this.invulnerability <= 0) {
           this.metrics.lanceHits = (this.metrics.lanceHits ?? 0) + 1;
-          this.takeDamage(wispLanceDamage(this.region, this.stageSeconds));
+          this.takeDamage(wispLanceDamage(this.region, this.stageSeconds), 'lance');
         }
       } else {
         this.metrics.lancesEvaded = (this.metrics.lancesEvaded ?? 0) + 1;
@@ -1277,7 +1277,8 @@ export class GroveScene extends Phaser.Scene {
     this.saveSnapshot();
   }
 
-  private takeDamage(raw: number): void {
+  // source/kind name the hit for the pilot matrix's --trace damage readout (scripts/pilot-matrix.mjs); the game ignores them.
+  private takeDamage(raw: number, _source: 'vent' | 'melee' | 'charge' | 'boss' | 'lance', _kind?: string): void {
     const actual = damageAfterDefense(raw, this.stats.defense);
     this.metrics.damageTaken += Math.min(actual, this.health);
     this.health = Math.max(0, this.health - actual);

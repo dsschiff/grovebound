@@ -1,5 +1,12 @@
 # Grovebound worklog
 
+## 2026-10-23 — Quarry spike: lateness, not inaction, kills the weak pilot (analysis only)
+
+- Split the weak-pilot handicaps on the 180-run `weak-pilot.json` slice. Reaction delay alone (`--skill 250`) loses 7 of 180 and takes 301 damage per run, the same as 250 ms plus every-2nd-chance (5 of 180, 302); acting on every 2nd chance with no delay (`--skill 0:2`) loses none and takes 126 against the default 110.
+- New `--trace damage` in `scripts/pilot-matrix.mjs` records every hit by source. In Ember Quarry 5:00–6:30 the late pilot loses 84–92 hp per run (default 27), split about evenly between wisp lances (~40) and brute/Thornback contact (~39–46); charges, vents, wisp contact and the boss add almost nothing. In the Quarry the damage rate is 2.6× higher once the Wild Surge starts, though only 1.7 wisps are alive on average. Report: `reports/pilot-matrix/quarry-spike.md`.
+- Proposed knob, not applied: the wisp lance telegraph (`WISP_LANCE_WINDUP`, 0.95 s), keeping the aim lead unchanged. Direction waits for the phone run.
+- `--skill` with `--focus restore` is now rejected. The only game-code change is a source label on each `GroveScene.takeDamage` call. Re-running the 9-seed resonance split reproduced `resonance-split-9seeds.json` on every field except wall time; traced runs match `weak-pilot.json`. 121 unit tests, `tsc --noEmit` and the snapshot-guard browser spec passed; all runs muted.
+
 ## 2026-10-22 — Pages release of the October hardening work
 
 - Released `main` after the 18 overnight PRs above plus #16 and #20–#28 to GitHub Pages. Player-visible changes since the October 3 release: accessibility labels and contrast fixes (#4), Reduced effects starting on when the OS asks for reduced motion and the player never set the option (#8), and dark plates behind HUD text, the boss bar, crest and bottom line (#15, #19). A player who earlier left Reduced effects off while their OS asks for reduced motion will now see it on, because a stored "off" cannot be told apart from the old default; they can turn it off again. `?debug=1` now also shows the run's resonance count (#21). Everything else in this batch is tests, pilot tooling, reports or docs; the snapshot-guard digest (`c47339b2…`) is unchanged, so gameplay logic is identical to the reviewed main.

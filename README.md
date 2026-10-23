@@ -52,10 +52,11 @@ With `npm run dev -- --port 4178` running, use `npm run profile:browser -- profi
 - `--seed-set A|B|C` picks a fixed seed per contract (default `A`). `wN` runs Waylight on seed N and needs `--contracts waylight`; a comma list such as `w1,w3,w5` runs several sets at once.
 - `--repeats N`, `--limit N`, `--concurrency N` (default 3), `--port N` (default 4191), `--rerun` (replay cells already recorded), `--render` (step the whole game including rendering; slower, same logic).
 - `--commands on` lets the pilot fire weapon commands. With it, `--pairing off` never chains a resonance and `--focus restore` re-focuses the starting weapon after each command.
-- `--skill reactionMs[:actEvery]` is the weak-pilot arm: the pilot's movement and presses are delayed by `reactionMs` of game time and it takes only every `actEvery`-th chance to press the special or a command (for example `--skill 250:2`). Without it the pilot is unchanged.
+- `--skill reactionMs[:actEvery]` is the weak-pilot arm: the pilot's movement and presses are delayed by `reactionMs` of game time and it takes only every `actEvery`-th chance to press the special or a command (for example `--skill 250:2`). Without it the pilot is unchanged. It cannot be combined with `--focus restore`, whose re-focus taps the filter would treat as command chances.
+- `--trace damage` records every hit the hero takes by source (wisp lance, Thornback charge, ember vent, melee by enemy kind, boss strike) plus wisp counts in the Quarry 5:00–6:30 window, and adds damage-by-source tables to the summary. It only reads the game; outcomes match an untraced run.
 - `--baseline <earlier.json>` reports, per run, whether the outcome matches the same run in an earlier file.
 
-Each report in `reports/pilot-matrix/` gives the exact command that produced it; `weak-pilot.md` is the weak-pilot slice. These are bot runs on desktop Chrome, not human or Android evidence.
+Each report in `reports/pilot-matrix/` gives the exact command that produced it; `weak-pilot.md` is the weak-pilot slice and `quarry-spike.md` splits its handicaps and traces Quarry damage by source. These are bot runs on desktop Chrome, not human or Android evidence.
 
 #### Budgets
 
