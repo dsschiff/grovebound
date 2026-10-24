@@ -13,7 +13,9 @@
     "test:browser": "playwright test",
     "profile:browser": "node scripts/profile-browser.mjs",
     "profile:budget": "node scripts/profile-browser.mjs --budget profile.json",
-    "pilot:matrix": "node scripts/pilot-matrix.mjs"
+    "pilot:matrix": "node scripts/pilot-matrix.mjs",
+    "prepush": "node scripts/prepush-gate.mjs",
+    "hooks:install": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "phaser": "4.2.1"
