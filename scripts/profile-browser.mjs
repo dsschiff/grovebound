@@ -11,7 +11,7 @@ const outputPath = args.find(arg => !arg.startsWith('--')) || 'profile.json';
 const BUDGETS = { 24: { median: 3.9, p95: 4.6 }, 88: { median: 8.1, p95: 9.4 }, 144: { median: 9.0, p95: 10.8 } };
 const budgetScale = Number(process.env.GROVE_BUDGET_SCALE || 1);
 
-const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
+const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome', args: ['--mute-audio'] });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 const errors = [];
 page.on('pageerror', error => errors.push(error.message));
