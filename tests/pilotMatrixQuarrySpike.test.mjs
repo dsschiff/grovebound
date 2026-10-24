@@ -15,7 +15,9 @@ describe('pilot-matrix --skill with --focus restore', () => {
       '--skill', '250', '--baseline', 'reports/pilot-matrix/does-not-exist.json'], { cwd: root, encoding: 'utf8', timeout: 30_000 });
     expect(run.status).not.toBe(0);
     expect(run.stderr).toContain('--skill cannot be combined with --focus restore');
-  });
+    // The child loads playwright and vite before its argument check (11-35 s on a loaded machine), so the test
+    // gets the same budget as the child instead of vitest's 5 s default.
+  }, 35_000);
 });
 
 // Events are [run seconds, region, source, hp lost, wisps alive, surge 0/1], as runCell writes them with --trace.
