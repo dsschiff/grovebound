@@ -11,7 +11,7 @@
 // cell, and a rerun skips cells already in the output file (resumable). Usage:
 //   node scripts/pilot-matrix.mjs [--out reports/pilot-matrix/pilot-matrix.json] [--heroes warden,ranger,ember]
 //     [--contracts waylight,seedheart,stag] [--quarry coolantRun,forgeAssault] [--moon moonflame,altarRite]
-//     [--limit N] [--concurrency 3] [--render] [--rerun] [--port 4191 (0 = any free port)] [--seed-set A|B|C] [--repeats N]
+//     [--limit N] [--concurrency 3] [--render] [--rerun] [--port 4191 (0 = 5173 or the next free port above it)] [--seed-set A|B|C] [--repeats N]
 //     [--commands off|on] [--pairing on|off] [--focus keep|restore] [--baseline reports/pilot-matrix/<earlier>.json]
 //     [--skill reactionMs[:actEvery]]   (weak-pilot arm; --seed-set also takes a comma list such as w1,w3,w5)
 //     [--trace damage]   (read-only: record every hit the hero takes by source, and Quarry 5:00-6:30 samples)
@@ -129,9 +129,9 @@ try { store = JSON.parse(await readFile(outPath, 'utf8')); } catch { /* first ru
 const todo = cells.filter(cell => rerun || !store.cells[cell.id]).slice(0, limit);
 if (isMain) console.log(`pilot-matrix: ${cells.length} cells in scope, ${cells.filter(c => store.cells[c.id]).length} already in ${outPath}, running ${todo.length} (concurrency ${concurrency}, ${render ? 'render' : 'scene-only'} steps)`);
 
-const server = isMain ? await createServer({ root, logLevel: 'error', server: { host: '127.0.0.1', port, strictPort: true } }) : null;
+const server = isMain ? await createServer({ root, logLevel: 'error', server: { host: '127.0.0.1', port, strictPort: port !== 0 } }) : null;
 await server?.listen();
-const baseURL = `http://127.0.0.1:${server ? server.httpServer.address().port : port}`; // --port 0 picks a free port
+const baseURL = `http://127.0.0.1:${server ? server.httpServer.address().port : port}`; // --port 0: Vite binds 5173 or walks up; read the real port
 const browser = isMain ? await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome', args: ['--mute-audio'] }) : null;
 
 async function save() {
