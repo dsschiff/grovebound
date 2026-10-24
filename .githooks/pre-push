@@ -1,0 +1,9 @@
+#!/bin/sh
+# Versioned pre-push gate: frame-time budget + one pilot-matrix smoke cell (about 40 s). Opt in per clone: npm run hooks:install
+# Skip once: GROVE_SKIP_PREPUSH=1 git push   (never use --no-verify to dodge a real budget breach)
+if [ -n "$GROVE_SKIP_PREPUSH" ]; then
+  echo "[pre-push] skipped (GROVE_SKIP_PREPUSH set)"
+  exit 0
+fi
+cd "$(git rev-parse --show-toplevel)" || exit 1
+exec node scripts/prepush-gate.mjs
