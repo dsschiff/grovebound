@@ -1,5 +1,5 @@
 // Pre-push gate, run by .githooks/pre-push: the frame-time budget check plus a one-cell pilot-matrix smoke run.
-// Starts its own Vite dev server on a free port, so nothing needs to be running first.
+// Starts its own Vite dev server on 5173 or the next free port above it, so nothing needs to be running first.
 // Skip once with GROVE_SKIP_PREPUSH=1 (the hook prints how). Needs desktop Chrome or PLAYWRIGHT_CHANNEL=chromium.
 import { spawn } from 'node:child_process';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -37,7 +37,7 @@ try {
   // 2. Smoke: one pilot-matrix cell (warden, first contract/routes) from a clean output file. The matrix itself reports no
   //    pass/fail on outcomes, so this only proves the pilot plays a full run without throwing or hanging.
   if (!failed && await run('pilot-matrix smoke', ['scripts/pilot-matrix.mjs', '--limit', '1', '--heroes', 'warden', '--concurrency', '1',
-    '--out', join(work, 'pilot-matrix.json'), '--port', String(port + 1)])) failed = true;
+    '--out', join(work, 'pilot-matrix.json'), '--port', '0'])) failed = true;
 } finally {
   await server.close();
   await rm(work, { recursive: true, force: true });
